@@ -198,7 +198,7 @@ function closeWechatQR() {
     const modal = document.getElementById('wechatModal');
     if (modal) {
         modal.style.display = 'none';
-        document.body.style.overflow = ''; // 恢复滚动
+        document.body.style.overflow = 'auto'; // 恢复滚动
     }
 }
 
@@ -215,4 +215,259 @@ window.SanyuanHomepage = {
 window.showWechatQR = showWechatQR;
 window.closeWechatQR = closeWechatQR;
 
-console.log('三元宇宙导航系统初始化完成 ✨'); 
+console.log('三元宇宙导航系统初始化完成 ✨');
+
+// ===== 移动端优化增强功能 =====
+
+// 检测设备类型
+function isMobileDevice() {
+    return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+}
+
+function isTouchDevice() {
+    return ('ontouchstart' in window) || (navigator.maxTouchPoints > 0);
+}
+
+// 移动端初始化
+if (isMobileDevice() || isTouchDevice()) {
+    document.addEventListener('DOMContentLoaded', function() {
+        initMobileOptimizations();
+    });
+}
+
+function initMobileOptimizations() {
+    console.log('初始化移动端优化功能');
+    
+    // 添加移动端特定的触摸反馈
+    addTouchFeedback();
+    
+    // 优化移动端性能
+    optimizeMobilePerformance();
+    
+    // 添加移动端手势支持
+    addMobileGestures();
+    
+    // 移动端特定的可见性优化
+    optimizeMobileVisibility();
+}
+
+// 添加触摸反馈
+function addTouchFeedback() {
+    const touchableElements = document.querySelectorAll('.energy-title, .energy-orb, .close');
+    
+    touchableElements.forEach(element => {
+        // 触摸开始
+        element.addEventListener('touchstart', function(e) {
+            this.classList.add('touch-active');
+            
+            // 创建触摸波纹效果
+            createTouchRipple(e.touches[0]);
+        }, { passive: true });
+        
+        // 触摸结束
+        element.addEventListener('touchend', function() {
+            this.classList.remove('touch-active');
+            
+            // 延迟移除效果，让用户能看到
+            setTimeout(() => {
+                this.classList.remove('touch-active');
+            }, 150);
+        }, { passive: true });
+        
+        // 触摸取消
+        element.addEventListener('touchcancel', function() {
+            this.classList.remove('touch-active');
+        }, { passive: true });
+    });
+}
+
+// 创建触摸波纹效果
+function createTouchRipple(touch) {
+    const ripple = document.createElement('div');
+    ripple.style.cssText = `
+        position: fixed;
+        top: ${touch.clientY}px;
+        left: ${touch.clientX}px;
+        width: 30px;
+        height: 30px;
+        background: rgba(0, 212, 255, 0.4);
+        border-radius: 50%;
+        transform: translate(-50%, -50%);
+        animation: touchRipple 0.6s ease-out forwards;
+        pointer-events: none;
+        z-index: 9999;
+    `;
+    
+    document.body.appendChild(ripple);
+    
+    // 添加触摸波纹动画
+    if (!document.querySelector('#touchRippleStyles')) {
+        const style = document.createElement('style');
+        style.id = 'touchRippleStyles';
+        style.textContent = `
+            @keyframes touchRipple {
+                0% {
+                    opacity: 1;
+                    transform: translate(-50%, -50%) scale(0);
+                }
+                100% {
+                    opacity: 0;
+                    transform: translate(-50%, -50%) scale(4);
+                }
+            }
+            .touch-active {
+                transform: scale(0.95) !important;
+            }
+        `;
+        document.head.appendChild(style);
+    }
+    
+    setTimeout(() => {
+        ripple.remove();
+    }, 600);
+}
+
+// 优化移动端性能
+function optimizeMobilePerformance() {
+    // 减少动画在移动端的计算负担
+    if (window.innerWidth <= 480) {
+        console.log('应用移动端性能优化');
+        
+        // 简化某些复杂动画
+        const particles = document.querySelectorAll('.particle');
+        particles.forEach((particle, index) => {
+            if (index % 2 === 0) {
+                particle.style.display = 'none'; // 隐藏一半粒子以提升性能
+            }
+        });
+        
+        // 减少能量点的数量
+        const energyDots = document.querySelectorAll('.energy-dot');
+        energyDots.forEach((dot, index) => {
+            if (index > 3) {
+                dot.style.display = 'none';
+            }
+        });
+    }
+}
+
+// 添加移动端手势支持
+function addMobileGestures() {
+    let startY = 0;
+    let startX = 0;
+    
+    // 添加简单的滑动手势
+    document.addEventListener('touchstart', function(e) {
+        startY = e.touches[0].clientY;
+        startX = e.touches[0].clientX;
+    }, { passive: true });
+    
+    document.addEventListener('touchend', function(e) {
+        const endY = e.changedTouches[0].clientY;
+        const endX = e.changedTouches[0].clientX;
+        const diffY = startY - endY;
+        const diffX = startX - endX;
+        
+        // 检测垂直滑动
+        if (Math.abs(diffY) > Math.abs(diffX) && Math.abs(diffY) > 50) {
+            if (diffY > 0) {
+                // 向上滑动
+                console.log('向上滑动手势');
+            } else {
+                // 向下滑动
+                console.log('向下滑动手势');
+            }
+        }
+        
+        // 检测水平滑动
+        if (Math.abs(diffX) > Math.abs(diffY) && Math.abs(diffX) > 50) {
+            if (diffX > 0) {
+                // 向左滑动
+                console.log('向左滑动手势');
+            } else {
+                // 向右滑动
+                console.log('向右滑动手势');
+            }
+        }
+    }, { passive: true });
+}
+
+// 移动端可见性优化
+function optimizeMobileVisibility() {
+    // 当页面不可见时暂停动画以节省电池
+    document.addEventListener('visibilitychange', function() {
+        const allAnimatedElements = document.querySelectorAll('.energy-title, .energy-orb, .energy-dot, .large-orb, .particle');
+        
+        if (document.visibilityState === 'hidden') {
+            console.log('页面隐藏，暂停动画');
+            allAnimatedElements.forEach(element => {
+                element.style.animationPlayState = 'paused';
+            });
+        } else {
+            console.log('页面显示，恢复动画');
+            allAnimatedElements.forEach(element => {
+                element.style.animationPlayState = 'running';
+            });
+        }
+    });
+}
+
+// 移动端屏幕方向变化处理
+window.addEventListener('orientationchange', function() {
+    console.log('屏幕方向已改变');
+    
+    // 延迟处理以确保新的视口尺寸生效
+    setTimeout(() => {
+        // 重新计算元素位置
+        optimizeMobileLayout();
+        
+        // 显示提示信息
+        if (window.orientation === 90 || window.orientation === -90) {
+            showMessage('已切换到横屏模式', 2000);
+        } else {
+            showMessage('已切换到竖屏模式', 2000);
+        }
+    }, 100);
+});
+
+// 优化移动端布局
+function optimizeMobileLayout() {
+    const viewportHeight = window.innerHeight;
+    const viewportWidth = window.innerWidth;
+    
+    console.log(`视口尺寸: ${viewportWidth}x${viewportHeight}`);
+    
+    // 根据屏幕尺寸调整主容器
+    const mainContainer = document.querySelector('.main-container');
+    if (mainContainer && viewportHeight < 600) {
+        mainContainer.style.padding = '15px';
+    }
+}
+
+// 移动端错误处理
+window.addEventListener('error', function(e) {
+    if (isMobileDevice()) {
+        console.error('移动端发生错误:', e.error);
+        
+        // 移动端友好的错误提示
+        showMessage('页面加载遇到问题，请刷新重试', 3000);
+    }
+});
+
+// 移动端网络状态监听
+if ('connection' in navigator) {
+    function updateNetworkStatus() {
+        const connection = navigator.connection;
+        if (connection.effectiveType === 'slow-2g' || connection.effectiveType === '2g') {
+            console.log('检测到慢速网络，启用省电模式');
+            
+            // 在慢速网络下减少动画效果
+            document.documentElement.style.setProperty('--animation-duration', '8s');
+            
+            showMessage('网络较慢，已优化显示效果', 3000);
+        }
+    }
+    
+    navigator.connection.addEventListener('change', updateNetworkStatus);
+    updateNetworkStatus(); // 初始检查
+} 

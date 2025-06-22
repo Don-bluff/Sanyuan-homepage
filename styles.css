@@ -1131,4 +1131,269 @@ body {
         right: 15px;
         font-size: 28px;
     }
+}
+
+/* ===== 移动端优化增强 ===== */
+
+/* 通用触摸优化 */
+.energy-title,
+.energy-orb,
+.close {
+    -webkit-tap-highlight-color: transparent;
+    user-select: none;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+}
+
+/* 改进480px断点的触摸体验 */
+@media (max-width: 480px) {
+    /* 主标题优化 */
+    .energy-title {
+        font-size: 2.4rem !important;
+        padding: 30px 35px !important;
+        /* 确保触摸区域足够大 */
+        min-height: 80px;
+        min-width: 250px;
+        /* 触摸反馈 */
+        transition: all 0.2s ease-out;
+    }
+    
+    .energy-title:active {
+        transform: scale(0.95) !important;
+        transition: transform 0.1s ease-out !important;
+    }
+    
+    .energy-title-container {
+        min-height: 180px !important;
+        padding: 25px 0;
+    }
+    
+    /* 主容器优化 */
+    .main-container {
+        padding: 25px 15px !important;
+        justify-content: center;
+    }
+    
+    /* 能量光球触摸优化 */
+    .energy-orb {
+        width: 60px !important;
+        height: 60px !important;
+        /* 确保符合触摸标准 */
+        min-height: 44px;
+        min-width: 44px;
+        cursor: pointer;
+        transition: all 0.2s ease-out;
+    }
+    
+    /* 重新定位光球，避免过于靠近边缘 */
+    .discord-orb {
+        top: 18% !important;
+        right: 12% !important;
+    }
+    
+    .instagram-orb {
+        top: 18% !important;
+        left: 12% !important;
+    }
+    
+    .youtube-orb {
+        bottom: 22% !important;
+        left: 12% !important;
+    }
+    
+    .x-orb {
+        bottom: 22% !important;
+        right: 12% !important;
+    }
+    
+    .wechat-orb {
+        top: 6% !important;
+        left: 50% !important;
+        transform: translateX(-50%) !important;
+    }
+    
+    /* 触摸反馈效果 */
+    .energy-orb:active {
+        transform: scale(0.85);
+        transition: transform 0.1s ease-out;
+    }
+    
+    /* 光球内容优化 */
+    .orb-icon {
+        width: 32px !important;
+        height: 32px !important;
+    }
+    
+    /* 改善光效可见性 */
+    .orb-glow {
+        width: 100px !important;
+        height: 100px !important;
+        top: -20px !important;
+        left: -20px !important;
+    }
+    
+    /* 模态框触摸优化 */
+    .modal-content {
+        padding: 25px !important;
+        margin: 15px !important;
+        width: calc(100% - 30px) !important;
+        border-radius: 12px;
+    }
+    
+    .wechat-qr {
+        max-width: 260px !important;
+        max-height: 260px !important;
+        border-radius: 8px;
+    }
+    
+    .close {
+        top: 8px !important;
+        right: 12px !important;
+        font-size: 30px !important;
+        /* 增加触摸区域 */
+        min-width: 44px;
+        min-height: 44px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 50%;
+        transition: all 0.2s ease-out;
+    }
+    
+    .close:active {
+        transform: scale(0.9);
+        background: rgba(0, 212, 255, 0.2);
+        transition: transform 0.1s ease-out;
+    }
+    
+    /* 减少装饰元素在小屏幕上的视觉干扰 */
+    .energy-dot {
+        width: 4px !important;
+        height: 4px !important;
+        opacity: 0.7;
+    }
+    
+    .large-orb {
+        width: 25px !important;
+        height: 25px !important;
+        opacity: 0.6;
+    }
+    
+    .particle {
+        width: 1.5px !important;
+        height: 1.5px !important;
+        opacity: 0.6;
+    }
+}
+
+/* 超小屏幕优化（小于360px） */
+@media (max-width: 360px) {
+    .energy-title {
+        font-size: 2rem !important;
+        padding: 25px 30px !important;
+        min-width: 220px;
+    }
+    
+    .energy-title-container {
+        min-height: 160px !important;
+    }
+    
+    .energy-orb {
+        width: 55px !important;
+        height: 55px !important;
+    }
+    
+    .discord-orb,
+    .instagram-orb {
+        top: 15% !important;
+    }
+    
+    .youtube-orb,
+    .x-orb {
+        bottom: 25% !important;
+    }
+    
+    .wechat-orb {
+        top: 4% !important;
+    }
+    
+    .modal-content {
+        margin: 10px !important;
+        width: calc(100% - 20px) !important;
+        padding: 20px !important;
+    }
+    
+    .wechat-qr {
+        max-width: 220px !important;
+        max-height: 220px !important;
+    }
+}
+
+/* 横屏模式优化 */
+@media (max-width: 768px) and (orientation: landscape) {
+    .energy-title-container {
+        min-height: 120px;
+    }
+    
+    .energy-title {
+        font-size: 2.2rem;
+        padding: 20px 30px;
+    }
+    
+    /* 在横屏模式下调整光球位置 */
+    .discord-orb,
+    .instagram-orb {
+        top: 10%;
+    }
+    
+    .youtube-orb,
+    .x-orb {
+        bottom: 10%;
+    }
+    
+    .wechat-orb {
+        top: 2%;
+    }
+    
+    .main-container {
+        padding: 15px;
+    }
+}
+
+/* 改善触摸设备上的悬停替代效果 */
+@media (hover: none) and (pointer: coarse) {
+    .energy-title:hover {
+        /* 移除悬停效果，因为触摸设备不支持真正的悬停 */
+        transform: none;
+        animation: titleEnergyPulse 4s ease-in-out infinite;
+    }
+    
+    .energy-orb:hover {
+        transform: none;
+        animation: orbFloat 6s ease-in-out infinite;
+    }
+    
+    .close:hover {
+        transform: none;
+        color: var(--text-light);
+        text-shadow: none;
+    }
+}
+
+/* 改善可访问性 */
+@media (prefers-reduced-motion: reduce) {
+    .energy-title,
+    .energy-orb,
+    .energy-dot,
+    .large-orb,
+    .particle {
+        animation: none !important;
+    }
+    
+    .energy-title,
+    .energy-orb,
+    .close {
+        transition: transform 0.1s ease-out !important;
+    }
 } 
