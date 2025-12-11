@@ -1,0 +1,209 @@
+@import "tailwindcss";
+
+:root {
+  --background: #ffffff;
+  --foreground: #171717;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+/* 德州扑克主题动画 */
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0px) rotate(0deg);
+  }
+  25% {
+    transform: translateY(-20px) rotate(5deg);
+  }
+  50% {
+    transform: translateY(-15px) rotate(-3deg);
+  }
+  75% {
+    transform: translateY(-25px) rotate(2deg);
+  }
+}
+
+/* Emoji下雨效果 */
+@keyframes emoji-rain-fall {
+  from {
+    transform: translateY(-100vh) translateX(0) rotate(0deg);
+    opacity: 0;
+  }
+  5% {
+    opacity: 0.3;
+  }
+  95% {
+    opacity: 0.3;
+  }
+  to {
+    transform: translateY(100vh) translateX(-50px) rotate(15deg);
+    opacity: 0;
+  }
+}
+
+/* 下雨容器 */
+.emoji-rain-container {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+
+.emoji-raindrop {
+  position: absolute;
+  font-size: 1.5rem;
+  opacity: 0.2;
+  color: #666;
+  user-select: none;
+  animation: emoji-rain-fall linear infinite;
+  transform-origin: center;
+}
+
+@keyframes poker-glow {
+  0%, 100% {
+    text-shadow: 0 0 20px rgba(0,0,0,0.2);
+    filter: drop-shadow(0 0 15px rgba(0,0,0,0.1));
+  }
+  50% {
+    text-shadow: 0 0 40px rgba(0,0,0,0.4), 0 0 60px rgba(0,0,0,0.2);
+    filter: drop-shadow(0 0 25px rgba(0,0,0,0.3));
+  }
+}
+
+.animate-float {
+  animation: float linear infinite;
+}
+
+.poker-title {
+  animation: poker-glow 3s ease-in-out infinite;
+}
+
+/* 自定义字体类 */
+.font-orbitron {
+  font-family: var(--font-orbitron);
+}
+
+.font-rajdhani {
+  font-family: var(--font-rajdhani);
+}
+
+/* 游戏按钮动画 */
+@keyframes button-slide-in {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* 按钮入场动画 */
+@keyframes slideInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.social-button {
+  animation: slideInUp 0.6s ease-out forwards;
+  opacity: 0;
+}
+
+/* LOGO简洁效果 */
+.logo-container {
+  animation: logoFadeIn 1s ease-out;
+}
+
+@keyframes logoFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-20px) scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* 移动端优化 */
+@media (max-width: 768px) {
+  .logo-container img {
+    width: 120px !important;
+    height: 120px !important;
+  }
+  
+  /* 标题移动端优化 */
+  .poker-title {
+    font-size: 3rem !important;
+  }
+}
+
+@media (max-width: 640px) {
+  .social-button {
+    padding: 1rem 1rem;
+  }
+  
+  .social-button span {
+    font-size: 0.95rem;
+  }
+  
+  .logo-container img {
+    width: 100px !important;
+    height: 100px !important;
+  }
+  
+  /* 小屏幕标题优化 */
+  .poker-title {
+    font-size: 2.5rem !important;
+    line-height: 1.1 !important;
+  }
+}
+
+@media (max-width: 480px) {
+  .poker-title {
+    font-size: 2rem !important;
+    padding: 0 1rem;
+    line-height: 1.1 !important;
+  }
+  
+  .logo-container img {
+    width: 90px !important;
+    height: 90px !important;
+  }
+  
+  /* 按钮移动端友好 */
+  .social-button {
+    padding: 0.9rem 1rem !important;
+    min-height: 44px; /* iOS建议的最小触摸区域 */
+  }
+}
+
+/* 确保触摸设备的可访问性 */
+@media (hover: none) and (pointer: coarse) {
+  .social-button:hover {
+    transform: none;
+    background: inherit;
+  }
+  
+  .logo-container img:hover {
+    transform: none;
+  }
+}
