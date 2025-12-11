@@ -19,7 +19,6 @@ export const metadata: Metadata = {
   description: "Authentic perspectives, genuine insights. No bluffing, just real talk.",
   keywords: ["Don't Bluff Me", "poker", "authentic", "insights", "genuine"],
   authors: [{ name: "Don't Bluff Me" }],
-  manifest: "/manifest.json",
   appleWebApp: {
     capable: true,
     statusBarStyle: "default",

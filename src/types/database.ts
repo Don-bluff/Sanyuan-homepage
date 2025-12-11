@@ -70,3 +70,4 @@ export type InsertPost = Database['public']['Tables']['posts']['Insert']
 export type UpdatePost = Database['public']['Tables']['posts']['Update']
 
 
+
