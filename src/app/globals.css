@@ -144,18 +144,6 @@ body {
 }
 
 /* 移动端优化 */
-@media (max-width: 768px) {
-  .logo-container img {
-    width: 120px !important;
-    height: 120px !important;
-  }
-  
-  /* 标题移动端优化 */
-  .poker-title {
-    font-size: 3rem !important;
-  }
-}
-
 @media (max-width: 640px) {
   .social-button {
     padding: 1rem 1rem;
@@ -164,32 +152,10 @@ body {
   .social-button span {
     font-size: 0.95rem;
   }
-  
-  .logo-container img {
-    width: 100px !important;
-    height: 100px !important;
-  }
-  
-  /* 小屏幕标题优化 */
-  .poker-title {
-    font-size: 2.5rem !important;
-    line-height: 1.1 !important;
-  }
 }
 
+/* 按钮移动端友好 */
 @media (max-width: 480px) {
-  .poker-title {
-    font-size: 2rem !important;
-    padding: 0 1rem;
-    line-height: 1.1 !important;
-  }
-  
-  .logo-container img {
-    width: 90px !important;
-    height: 90px !important;
-  }
-  
-  /* 按钮移动端友好 */
   .social-button {
     padding: 0.9rem 1rem !important;
     min-height: 44px; /* iOS建议的最小触摸区域 */
@@ -217,14 +183,44 @@ body {
   
   /* 移动端logo尺寸 */
   header .logo-container img {
-    width: 60px !important;
-    height: 60px !important;
+    width: 55px !important;
+    height: 55px !important;
   }
   
   /* 移动端标题 */
   header .poker-title {
-    font-size: 2rem !important;
+    font-size: 1.75rem !important;
     line-height: 1.2 !important;
+    white-space: nowrap !important;
+  }
+}
+
+/* 更小屏幕优化 */
+@media (max-width: 480px) {
+  header {
+    padding-top: 0.75rem !important;
+    padding-bottom: 0.75rem !important;
+  }
+  
+  header .logo-container img {
+    width: 48px !important;
+    height: 48px !important;
+  }
+  
+  header .poker-title {
+    font-size: 1.5rem !important;
+  }
+}
+
+/* 极小屏幕优化 */
+@media (max-width: 380px) {
+  header .logo-container img {
+    width: 42px !important;
+    height: 42px !important;
+  }
+  
+  header .poker-title {
+    font-size: 1.25rem !important;
   }
 }
 

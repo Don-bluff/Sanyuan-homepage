@@ -127,8 +127,8 @@ export default function Home() {
       </div>
 
       {/* HEADER - LOGO和标题紧贴居中 */}
-      <header className="relative z-10 px-8 py-6">
-        <div className="max-w-7xl mx-auto flex items-center justify-center gap-4">
+      <header className="relative z-10 px-4 md:px-8 py-4 md:py-6">
+        <div className="max-w-7xl mx-auto flex items-center justify-center gap-3 md:gap-4">
           {/* LOGO */}
           <div className="logo-container">
             <div className="relative logo-wrapper group">
@@ -146,7 +146,7 @@ export default function Home() {
           
           {/* 主标题 */}
           <h1 
-            className="text-3xl md:text-5xl lg:text-6xl font-black font-orbitron bg-gradient-to-r from-gray-800 via-gray-600 to-gray-900 bg-clip-text text-transparent cursor-pointer transition-all duration-500 hover:scale-105 active:scale-95 hover:from-gray-900 hover:via-black hover:to-gray-700 tracking-wider poker-title"
+            className="text-2xl sm:text-3xl md:text-5xl lg:text-6xl font-black font-orbitron bg-gradient-to-r from-gray-800 via-gray-600 to-gray-900 bg-clip-text text-transparent cursor-pointer transition-all duration-500 hover:scale-105 active:scale-95 hover:from-gray-900 hover:via-black hover:to-gray-700 tracking-wider poker-title whitespace-nowrap"
             onClick={() => window.open('https://donbluff.com', '_blank')}
           >
             Don't Bluff Me
@@ -155,7 +155,7 @@ export default function Home() {
       </header>
 
       {/* 主要内容区域 */}
-      <div className="flex-1 px-8 py-12 pb-24 md:pb-12">
+      <div className="flex-1 px-8 py-4 md:py-6 pb-24 md:pb-12">
         <div className="relative max-w-6xl mx-auto">
           {/* 桌面端选项卡 */}
           <div className="hidden md:block">
@@ -248,19 +248,24 @@ export default function Home() {
 
                 {/* 快速菜单 */}
                 {showQuickMenu && (
-                  <div className="absolute top-full mt-4 bg-white rounded-2xl shadow-2xl border border-gray-200 p-4 min-w-48 z-20 animate-fade-in">
-                    <div className="space-y-2">
+                  <div className="absolute top-full mt-4 bg-white rounded-2xl shadow-2xl border-2 border-blue-100 p-2 min-w-56 z-20 animate-fade-in">
+                    <div className="space-y-1">
                       <button
                         onClick={() => {
                           setActiveTab('tournaments')
                           setShowQuickMenu(false)
                         }}
-                        className="w-full flex items-center space-x-3 p-3 text-left hover:bg-gray-50 rounded-xl transition-colors"
+                        className="w-full flex items-center space-x-3 p-4 text-left hover:bg-gradient-to-r hover:from-orange-50 hover:to-orange-100 rounded-xl transition-all duration-300 group"
                       >
-                        <span className="text-2xl">🏆</span>
-                        <div>
-                          <div className="font-medium text-gray-800">新增比赛</div>
-                          <div className="text-xs text-gray-500">创建新的比赛记录</div>
+                        <div className="w-12 h-12 bg-gradient-to-br from-orange-100 to-orange-200 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform duration-300 shadow-sm">
+                          <span className="text-2xl">🏆</span>
+                        </div>
+                        <div className="flex-1">
+                          <div className="font-bold text-gray-800 group-hover:text-orange-700 transition-colors">新增比赛</div>
+                          <div className="text-xs text-gray-500 group-hover:text-orange-600">创建新的比赛记录</div>
+                        </div>
+                        <div className="opacity-0 group-hover:opacity-100 transition-opacity">
+                          <span className="text-orange-500">→</span>
                         </div>
                       </button>
                       
@@ -269,12 +274,17 @@ export default function Home() {
                           setActiveTab('record')
                           setShowQuickMenu(false)
                         }}
-                        className="w-full flex items-center space-x-3 p-3 text-left hover:bg-gray-50 rounded-xl transition-colors"
+                        className="w-full flex items-center space-x-3 p-4 text-left hover:bg-gradient-to-r hover:from-blue-50 hover:to-blue-100 rounded-xl transition-all duration-300 group"
                       >
-                        <span className="text-2xl">✏️</span>
-                        <div>
-                          <div className="font-medium text-gray-800">新增手牌</div>
-                          <div className="text-xs text-gray-500">记录新的手牌数据</div>
+                        <div className="w-12 h-12 bg-gradient-to-br from-blue-100 to-blue-200 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform duration-300 shadow-sm">
+                          <span className="text-2xl">✏️</span>
+                        </div>
+                        <div className="flex-1">
+                          <div className="font-bold text-gray-800 group-hover:text-blue-700 transition-colors">新增手牌</div>
+                          <div className="text-xs text-gray-500 group-hover:text-blue-600">记录新的手牌数据</div>
+                        </div>
+                        <div className="opacity-0 group-hover:opacity-100 transition-opacity">
+                          <span className="text-blue-500">→</span>
                         </div>
                       </button>
                     </div>
@@ -391,19 +401,24 @@ export default function Home() {
 
                   {/* 移动端快速菜单 */}
                   {showQuickMenu && (
-                    <div className="absolute bottom-full mb-4 left-1/2 transform -translate-x-1/2 bg-white rounded-2xl shadow-2xl border border-gray-200 p-3 min-w-48 z-50 animate-fade-in">
-                      <div className="space-y-2">
+                    <div className="absolute bottom-full mb-4 left-1/2 transform -translate-x-1/2 bg-white rounded-2xl shadow-2xl border-2 border-blue-100 p-2 min-w-56 z-50 animate-fade-in">
+                      <div className="space-y-1">
                         <button
                           onClick={() => {
                             setActiveTab('tournaments')
                             setShowQuickMenu(false)
                           }}
-                          className="w-full flex items-center space-x-3 p-3 text-left hover:bg-gray-50 rounded-xl transition-colors"
+                          className="w-full flex items-center space-x-3 p-3 text-left hover:bg-gradient-to-r hover:from-orange-50 hover:to-orange-100 rounded-xl transition-all duration-300 active:scale-95 group"
                         >
-                          <span className="text-xl">🏆</span>
-                          <div>
-                            <div className="font-medium text-gray-800 text-sm">新增比赛</div>
-                            <div className="text-xs text-gray-500">创建新的比赛记录</div>
+                          <div className="w-10 h-10 bg-gradient-to-br from-orange-100 to-orange-200 rounded-lg flex items-center justify-center group-hover:scale-110 transition-transform duration-300 shadow-sm">
+                            <span className="text-xl">🏆</span>
+                          </div>
+                          <div className="flex-1">
+                            <div className="font-bold text-gray-800 text-sm group-hover:text-orange-700 transition-colors">新增比赛</div>
+                            <div className="text-xs text-gray-500 group-hover:text-orange-600">创建新的比赛记录</div>
+                          </div>
+                          <div className="opacity-0 group-hover:opacity-100 transition-opacity">
+                            <span className="text-orange-500 text-sm">→</span>
                           </div>
                         </button>
                         
@@ -412,12 +427,17 @@ export default function Home() {
                             setActiveTab('record')
                             setShowQuickMenu(false)
                           }}
-                          className="w-full flex items-center space-x-3 p-3 text-left hover:bg-gray-50 rounded-xl transition-colors"
+                          className="w-full flex items-center space-x-3 p-3 text-left hover:bg-gradient-to-r hover:from-blue-50 hover:to-blue-100 rounded-xl transition-all duration-300 active:scale-95 group"
                         >
-                          <span className="text-xl">✏️</span>
-                          <div>
-                            <div className="font-medium text-gray-800 text-sm">新增手牌</div>
-                            <div className="text-xs text-gray-500">记录新的手牌数据</div>
+                          <div className="w-10 h-10 bg-gradient-to-br from-blue-100 to-blue-200 rounded-lg flex items-center justify-center group-hover:scale-110 transition-transform duration-300 shadow-sm">
+                            <span className="text-xl">✏️</span>
+                          </div>
+                          <div className="flex-1">
+                            <div className="font-bold text-gray-800 text-sm group-hover:text-blue-700 transition-colors">新增手牌</div>
+                            <div className="text-xs text-gray-500 group-hover:text-blue-600">记录新的手牌数据</div>
+                          </div>
+                          <div className="opacity-0 group-hover:opacity-100 transition-opacity">
+                            <span className="text-blue-500 text-sm">→</span>
                           </div>
                         </button>
                       </div>
@@ -447,36 +467,39 @@ export default function Home() {
           {/* 手牌记录泡泡UI长条 - 只在游览手牌时显示 */}
           {activeTab === 'browse' && (
             <div className="mb-8">
-              {/* 示例手牌记录 - 泡泡UI长条设计 */}
-              <div className="bg-white rounded-2xl shadow-lg border border-gray-100 p-5 mb-4 hover:shadow-xl transition-all duration-300 cursor-pointer group">
-                <div className="flex items-center justify-between">
-                  {/* 左侧：手牌和基本信息 */}
-                  <div className="flex items-center space-x-6">
+              {/* 示例手牌记录 - 响应式卡片设计 */}
+              <div className="bg-white rounded-2xl shadow-lg border border-gray-100 p-4 md:p-5 mb-4 hover:shadow-xl transition-all duration-300 cursor-pointer group">
+                {/* 移动端垂直布局，桌面端水平布局 */}
+                <div className="flex flex-col md:flex-row md:items-center md:justify-between space-y-3 md:space-y-0">
+                  {/* 手牌和基本信息 */}
+                  <div className="flex items-start md:items-center space-x-3 md:space-x-6 flex-1">
                     {/* 手牌 */}
-                    <div className="flex space-x-2 bg-gray-50 rounded-lg p-3">
-                      <span className="text-red-500 font-bold text-lg">A♥️</span>
-                      <span className="text-gray-800 font-bold text-lg">K♠️</span>
+                    <div className="flex space-x-1.5 md:space-x-2 bg-gray-50 rounded-lg p-2 md:p-3 flex-shrink-0">
+                      <span className="text-red-500 font-bold text-base md:text-lg">A♥️</span>
+                      <span className="text-gray-800 font-bold text-base md:text-lg">K♠️</span>
                     </div>
                     
                     {/* 比赛信息 */}
-                    <div className="space-y-1">
-                      <div className="font-semibold text-gray-800 font-rajdhani">WSOP Main Event</div>
-                      <div className="flex items-center space-x-3 text-sm text-gray-600">
-                        <span className="bg-blue-100 text-blue-800 px-2 py-0.5 rounded-full font-medium">BTN</span>
-                        <span className="text-green-600 font-medium">+2,500 chips</span>
-                        <span className="text-gray-500">6-Max</span>
+                    <div className="flex-1 min-w-0">
+                      <div className="font-semibold text-gray-800 font-rajdhani text-sm md:text-base truncate mb-1.5 md:mb-1">
+                        WSOP Main Event
+                      </div>
+                      <div className="flex flex-wrap items-center gap-1.5 md:gap-3 text-xs md:text-sm text-gray-600">
+                        <span className="bg-blue-100 text-blue-800 px-2 py-0.5 rounded-full font-medium whitespace-nowrap">BTN</span>
+                        <span className="text-green-600 font-medium whitespace-nowrap">+2,500 chips</span>
+                        <span className="text-gray-500 whitespace-nowrap">6-Max</span>
                       </div>
                     </div>
                   </div>
                   
-                  {/* 右侧：时间和展开按钮 */}
-                  <div className="flex items-center space-x-4">
-                    <div className="text-right text-xs text-gray-500">
+                  {/* 时间和展开按钮 */}
+                  <div className="flex items-center justify-between md:justify-end md:space-x-4">
+                    <div className="text-left md:text-right text-xs text-gray-500">
                       <div>2024-12-12</div>
                       <div>15:30</div>
                     </div>
-                    <div className="w-6 h-6 rounded-full bg-gray-100 flex items-center justify-center group-hover:bg-blue-100 transition-colors">
-                      <span className="text-xs group-hover:text-blue-600">▶</span>
+                    <div className="w-8 h-8 md:w-6 md:h-6 rounded-full bg-gray-100 flex items-center justify-center group-hover:bg-blue-100 transition-colors flex-shrink-0">
+                      <span className="text-sm md:text-xs group-hover:text-blue-600">▶</span>
                     </div>
                   </div>
                 </div>
