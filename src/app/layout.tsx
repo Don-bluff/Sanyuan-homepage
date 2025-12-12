@@ -57,7 +57,7 @@ export default function RootLayout({
           </div>
           
           {/* 主要内容 */}
-          {children}
+        {children}
         </div>
       </body>
     </html>
