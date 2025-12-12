@@ -18,6 +18,42 @@ export interface Player {
   stack: number
 }
 
+export type ActionType = 'fold' | 'check' | 'call' | 'raise' | 'bet' | 'allin'
+export type Street = 'preflop' | 'flop' | 'turn' | 'river'
+
+export interface Action {
+  id: string
+  street: Street
+  position: PokerPosition
+  stack: number
+  action: ActionType
+  amount?: number
+  is_hero: boolean
+  hero_cards?: PokerCard[]  // 改为数组，支持0-2张牌
+  description?: string
+}
+
+export interface StreetCards {
+  flop?: [PokerCard?, PokerCard?, PokerCard?]
+  turn?: PokerCard
+  river?: PokerCard
+}
+
+export interface Tournament {
+  id: string
+  created_at: string
+  user_id?: string
+  name: string
+  game_type: GameType
+  max_players: number
+  blind_mode: BlindMode
+  small_blind: number
+  big_blind: number
+  ante?: number
+  status: 'active' | 'finished'
+  hand_count?: number
+}
+
 export interface HandRecord {
   id: string
   created_at: string
@@ -124,5 +160,6 @@ export interface Database {
     }
   }
 }
+
 
 

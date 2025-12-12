@@ -3,8 +3,10 @@
 import { useState, useEffect } from 'react'
 import Image from "next/image"
 import { HandRecordModal } from '@/components/poker/HandRecordModal'
+import { TournamentModal } from '@/components/poker/TournamentModal'
 import { createHandRecord } from '@/lib/api/hands'
-import { HandRecord } from '@/types/poker'
+import { HandRecord, Tournament } from '@/types/poker'
+import { getActiveTournaments, createTournament, finishTournament, incrementHandCount } from '@/lib/api/tournaments'
 
 // 德州扑克下雨emoji
 const pokerRainEmojis = ['♠️', '♥️', '♣️', '♦️', '😱', '😭', '😤']
@@ -96,24 +98,78 @@ const pokerFeatures = [
 export default function Home() {
   const [activeTab, setActiveTab] = useState<'browse' | 'record' | 'my' | 'tournaments' | null>('browse')
   const [showQuickMenu, setShowQuickMenu] = useState(false)
+  const [showTournamentModal, setShowTournamentModal] = useState(false)
+  const [activeTournaments, setActiveTournaments] = useState<Tournament[]>([])
+  const [selectedTournament, setSelectedTournament] = useState<Tournament | null>(null)
+
+  // 加载进行中的比赛
+  useEffect(() => {
+    const tournaments = getActiveTournaments()
+    setActiveTournaments(tournaments)
+  }, [])
+
+  // 点击外部关闭快速菜单
+  useEffect(() => {
+    if (!showQuickMenu) return
+
+    const handleClickOutside = (e: MouseEvent) => {
+      const target = e.target as HTMLElement
+      // 检查点击是否在快速菜单或+按钮内
+      if (!target.closest('.quick-menu') && !target.closest('.quick-menu-button')) {
+        setShowQuickMenu(false)
+      }
+    }
+
+    // 延迟添加监听器，避免立即触发
+    setTimeout(() => {
+      document.addEventListener('click', handleClickOutside)
+    }, 0)
+
+    return () => {
+      document.removeEventListener('click', handleClickOutside)
+    }
+  }, [showQuickMenu])
 
   const handleSaveHand = async (record: Partial<HandRecord>) => {
     try {
       await createHandRecord(record)
+      
+      // 如果关联了比赛，增加手牌计数
+      if (selectedTournament) {
+        incrementHandCount(selectedTournament.id)
+        // 刷新比赛列表
+        const tournaments = getActiveTournaments()
+        setActiveTournaments(tournaments)
+      }
+      
       alert('手牌记录保存成功！')
+      setActiveTab('browse')
     } catch (error) {
       console.error('保存失败:', error)
       alert('保存失败，请检查网络连接')
     }
   }
 
+  const handleCreateTournament = (tournamentData: Omit<Tournament, 'id' | 'created_at' | 'status' | 'hand_count'>) => {
+    const newTournament = createTournament(tournamentData)
+    setActiveTournaments([...activeTournaments, newTournament])
+    setSelectedTournament(newTournament)
+    alert('比赛创建成功！')
+  }
+
+  const handleFinishTournament = (tournamentId: string) => {
+    if (confirm('确定要结束这个比赛吗？')) {
+      finishTournament(tournamentId)
+      const tournaments = getActiveTournaments()
+      setActiveTournaments(tournaments)
+      if (selectedTournament?.id === tournamentId) {
+        setSelectedTournament(null)
+      }
+    }
+  }
+
   return (
     <>
-      <div 
-        className={`fixed inset-0 z-30 ${showQuickMenu ? 'block' : 'hidden'}`}
-        onClick={() => setShowQuickMenu(false)}
-      />
-      
       <main className="relative min-h-screen flex flex-col">
       {/* 德州扑克主题飘动emoji背景 */}
       <FloatingEmojiBackground />
@@ -240,7 +296,7 @@ export default function Home() {
               <div className="flex items-center justify-center relative">
                 <button
                   onClick={() => setShowQuickMenu(!showQuickMenu)}
-                  className="group relative w-20 h-20 bg-gradient-to-br from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-110 active:scale-95 flex items-center justify-center z-10"
+                  className="quick-menu-button group relative w-20 h-20 bg-gradient-to-br from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-110 active:scale-95 flex items-center justify-center z-10"
                 >
                   <span className={`text-white text-3xl font-bold group-hover:scale-110 transition-transform duration-300 ${showQuickMenu ? 'rotate-45' : ''}`}>+</span>
                   <div className="absolute inset-0 rounded-full bg-white/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
@@ -248,11 +304,64 @@ export default function Home() {
 
                 {/* 快速菜单 */}
                 {showQuickMenu && (
-                  <div className="absolute top-full mt-4 bg-white rounded-2xl shadow-2xl border-2 border-blue-100 p-2 min-w-56 z-20 animate-fade-in">
+                  <div 
+                    className="quick-menu absolute top-full mt-4 bg-white rounded-2xl shadow-2xl border-2 border-blue-100 p-2 min-w-64 max-w-xs z-40 animate-fade-in max-h-[80vh] overflow-y-auto"
+                  >
                     <div className="space-y-1">
+                      {/* 进行中的比赛 */}
+                      {activeTournaments.length > 0 && (
+                        <>
+                          <div className="px-3 py-2 text-xs font-semibold text-gray-500 uppercase">进行中的比赛</div>
+                          {activeTournaments.map((tournament) => (
+                            <div
+                              key={tournament.id}
+                              className="w-full p-3 text-left hover:bg-gradient-to-r hover:from-green-50 hover:to-green-100 rounded-xl transition-all duration-300 group border border-green-200"
+                            >
+                              <div className="flex items-start justify-between gap-2">
+                                <div className="flex-1 min-w-0">
+                                  <div className="font-bold text-gray-800 text-sm truncate group-hover:text-green-700 transition-colors">
+                                    {tournament.name}
+                                  </div>
+                                  <div className="flex items-center gap-2 mt-1 text-xs text-gray-600">
+                                    <span className="bg-green-100 text-green-700 px-2 py-0.5 rounded-full font-medium">
+                                      {tournament.game_type}
+                                    </span>
+                                    <span className="text-gray-500">{tournament.hand_count || 0} 手牌</span>
+                                  </div>
+                                </div>
+                                <div className="flex gap-1 flex-shrink-0">
+                                  <button
+                                    onClick={() => {
+                                      setSelectedTournament(tournament)
+                                      setActiveTab('record')
+                                      setShowQuickMenu(false)
+                                    }}
+                                    className="w-7 h-7 bg-blue-500 hover:bg-blue-600 text-white rounded-lg flex items-center justify-center transition-colors"
+                                    title="添加手牌"
+                                  >
+                                    <span className="text-sm">+</span>
+                                  </button>
+                                  <button
+                                    onClick={() => {
+                                      handleFinishTournament(tournament.id)
+                                    }}
+                                    className="w-7 h-7 bg-gray-400 hover:bg-gray-500 text-white rounded-lg flex items-center justify-center transition-colors"
+                                    title="结束比赛"
+                                  >
+                                    <span className="text-xs">✓</span>
+                                  </button>
+                                </div>
+                              </div>
+                            </div>
+                          ))}
+                          <div className="border-t border-gray-200 my-2"></div>
+                        </>
+                      )}
+
+                      {/* 新增比赛 */}
                       <button
                         onClick={() => {
-                          setActiveTab('tournaments')
+                          setShowTournamentModal(true)
                           setShowQuickMenu(false)
                         }}
                         className="w-full flex items-center space-x-3 p-4 text-left hover:bg-gradient-to-r hover:from-orange-50 hover:to-orange-100 rounded-xl transition-all duration-300 group"
@@ -269,8 +378,10 @@ export default function Home() {
                         </div>
                       </button>
                       
+                      {/* 新增手牌 */}
                       <button
                         onClick={() => {
+                          setSelectedTournament(null)
                           setActiveTab('record')
                           setShowQuickMenu(false)
                         }}
@@ -394,18 +505,71 @@ export default function Home() {
                 <div className="relative">
                   <button
                     onClick={() => setShowQuickMenu(!showQuickMenu)}
-                    className="relative w-14 h-14 bg-gradient-to-br from-blue-500 to-blue-600 rounded-full shadow-lg flex items-center justify-center transform hover:scale-110 active:scale-95 transition-all duration-300"
+                    className="quick-menu-button relative w-14 h-14 bg-gradient-to-br from-blue-500 to-blue-600 rounded-full shadow-lg flex items-center justify-center transform hover:scale-110 active:scale-95 transition-all duration-300"
                   >
                     <span className={`text-white text-2xl font-bold transition-transform duration-300 ${showQuickMenu ? 'rotate-45' : ''}`}>+</span>
                   </button>
 
                   {/* 移动端快速菜单 */}
                   {showQuickMenu && (
-                    <div className="absolute bottom-full mb-4 left-1/2 transform -translate-x-1/2 bg-white rounded-2xl shadow-2xl border-2 border-blue-100 p-2 min-w-56 z-50 animate-fade-in">
+                    <div 
+                      className="quick-menu absolute bottom-full mb-4 left-1/2 transform -translate-x-1/2 bg-white rounded-2xl shadow-2xl border-2 border-blue-100 p-2 min-w-64 max-w-xs z-50 animate-fade-in max-h-[60vh] overflow-y-auto"
+                    >
                       <div className="space-y-1">
+                        {/* 进行中的比赛 */}
+                        {activeTournaments.length > 0 && (
+                          <>
+                            <div className="px-3 py-2 text-xs font-semibold text-gray-500 uppercase">进行中的比赛</div>
+                            {activeTournaments.map((tournament) => (
+                              <div
+                                key={tournament.id}
+                                className="w-full p-2.5 text-left hover:bg-gradient-to-r hover:from-green-50 hover:to-green-100 rounded-xl transition-all duration-300 group border border-green-200"
+                              >
+                                <div className="flex items-start justify-between gap-2">
+                                  <div className="flex-1 min-w-0">
+                                    <div className="font-bold text-gray-800 text-xs truncate group-hover:text-green-700 transition-colors">
+                                      {tournament.name}
+                                    </div>
+                                    <div className="flex items-center gap-1.5 mt-1 text-[10px] text-gray-600">
+                                      <span className="bg-green-100 text-green-700 px-1.5 py-0.5 rounded-full font-medium">
+                                        {tournament.game_type}
+                                      </span>
+                                      <span className="text-gray-500">{tournament.hand_count || 0} 手牌</span>
+                                    </div>
+                                  </div>
+                                  <div className="flex gap-1 flex-shrink-0">
+                                    <button
+                                      onClick={() => {
+                                        setSelectedTournament(tournament)
+                                        setActiveTab('record')
+                                        setShowQuickMenu(false)
+                                      }}
+                                      className="w-7 h-7 bg-blue-500 active:bg-blue-600 text-white rounded-lg flex items-center justify-center transition-colors"
+                                      title="添加手牌"
+                                    >
+                                      <span className="text-sm">+</span>
+                                    </button>
+                                    <button
+                                      onClick={() => {
+                                        handleFinishTournament(tournament.id)
+                                      }}
+                                      className="w-7 h-7 bg-gray-400 active:bg-gray-500 text-white rounded-lg flex items-center justify-center transition-colors"
+                                      title="结束比赛"
+                                    >
+                                      <span className="text-xs">✓</span>
+                                    </button>
+                                  </div>
+                                </div>
+                              </div>
+                            ))}
+                            <div className="border-t border-gray-200 my-2"></div>
+                          </>
+                        )}
+
+                        {/* 新增比赛 */}
                         <button
                           onClick={() => {
-                            setActiveTab('tournaments')
+                            setShowTournamentModal(true)
                             setShowQuickMenu(false)
                           }}
                           className="w-full flex items-center space-x-3 p-3 text-left hover:bg-gradient-to-r hover:from-orange-50 hover:to-orange-100 rounded-xl transition-all duration-300 active:scale-95 group"
@@ -422,8 +586,10 @@ export default function Home() {
                           </div>
                         </button>
                         
+                        {/* 新增手牌 */}
                         <button
                           onClick={() => {
+                            setSelectedTournament(null)
                             setActiveTab('record')
                             setShowQuickMenu(false)
                           }}
@@ -470,9 +636,9 @@ export default function Home() {
               {/* 示例手牌记录 - 响应式卡片设计 */}
               <div className="bg-white rounded-2xl shadow-lg border border-gray-100 p-4 md:p-5 mb-4 hover:shadow-xl transition-all duration-300 cursor-pointer group">
                 {/* 移动端垂直布局，桌面端水平布局 */}
-                <div className="flex flex-col md:flex-row md:items-center md:justify-between space-y-3 md:space-y-0">
+                <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3 md:gap-0">
                   {/* 手牌和基本信息 */}
-                  <div className="flex items-start md:items-center space-x-3 md:space-x-6 flex-1">
+                  <div className="flex items-center space-x-3 md:space-x-6 flex-1 min-w-0">
                     {/* 手牌 */}
                     <div className="flex space-x-1.5 md:space-x-2 bg-gray-50 rounded-lg p-2 md:p-3 flex-shrink-0">
                       <span className="text-red-500 font-bold text-base md:text-lg">A♥️</span>
@@ -493,12 +659,11 @@ export default function Home() {
                   </div>
                   
                   {/* 时间和展开按钮 */}
-                  <div className="flex items-center justify-between md:justify-end md:space-x-4">
-                    <div className="text-left md:text-right text-xs text-gray-500">
-                      <div>2024-12-12</div>
-                      <div>15:30</div>
+                  <div className="flex items-center justify-between md:justify-end gap-3 md:gap-4 flex-shrink-0">
+                    <div className="text-left md:text-right text-xs text-gray-500 whitespace-nowrap">
+                      <div>2024-12-12 15:30</div>
                     </div>
-                    <div className="w-8 h-8 md:w-6 md:h-6 rounded-full bg-gray-100 flex items-center justify-center group-hover:bg-blue-100 transition-colors flex-shrink-0">
+                    <div className="w-8 h-8 md:w-6 md:h-6 rounded-full bg-gray-100 flex items-center justify-center group-hover:bg-blue-100 transition-colors">
                       <span className="text-sm md:text-xs group-hover:text-blue-600">▶</span>
                     </div>
                   </div>
@@ -524,12 +689,18 @@ export default function Home() {
                     <h2 className="text-2xl font-bold font-rajdhani text-gray-800 mb-6 flex items-center gap-3">
                       <span className="text-3xl">✏️</span>
                       记录手牌
+                      {selectedTournament && (
+                        <span className="text-sm bg-green-500 text-white px-3 py-1 rounded-full font-normal">
+                          关联到：{selectedTournament.name}
+                        </span>
+                      )}
                     </h2>
                     <HandRecordModal
                       isOpen={true}
                       onClose={() => {}} 
                       onSave={handleSaveHand}
                       isInline={true}
+                      tournament={selectedTournament}
                     />
                   </div>
                 )}
@@ -609,6 +780,13 @@ export default function Home() {
           © 2024 DON BLUFF LLC. All rights reserved.
         </p>
       </footer>
+
+      {/* TournamentModal */}
+      <TournamentModal
+        isOpen={showTournamentModal}
+        onClose={() => setShowTournamentModal(false)}
+        onSave={handleCreateTournament}
+      />
     </>
   )
 }
