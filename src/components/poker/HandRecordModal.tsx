@@ -37,6 +37,9 @@ export function HandRecordModal({ isOpen, onClose, onSave, isInline = false, tou
   const [smallBlind, setSmallBlind] = useState(50)
   const [bigBlind, setBigBlind] = useState(100)
   const [ante, setAnte] = useState(100)
+  const [currentPlayers, setCurrentPlayers] = useState(0)
+  const [startingPlayers, setStartingPlayers] = useState(0)
+  const [moneyBubble, setMoneyBubble] = useState(0)
 
   // 当tournament prop改变时，更新表单
   useEffect(() => {
@@ -50,6 +53,13 @@ export function HandRecordModal({ isOpen, onClose, onSave, isInline = false, tou
       setAnte(tournament.ante || 0)
     }
   }, [tournament])
+  
+  // 当起始人数改变时，如果当前人数为0，自动设置为起始人数
+  useEffect(() => {
+    if (startingPlayers > 0 && currentPlayers === 0) {
+      setCurrentPlayers(startingPlayers)
+    }
+  }, [startingPlayers, currentPlayers])
 
   // 处理盲注模式切换
   const handleBlindModeChange = (mode: BlindMode) => {
@@ -286,81 +296,143 @@ export function HandRecordModal({ isOpen, onClose, onSave, isInline = false, tou
                 </div>
               </div>
 
-              {/* 盲注设置 */}
+              {/* 盲注设置和比赛进程 */}
               <div className={`rounded-xl p-3 md:p-4 ${tournament ? 'bg-green-50 border-2 border-green-200' : 'bg-gray-50'}`}>
-                <div className="flex items-center justify-between mb-3 md:mb-4">
-                  <h3 className="font-bold text-base md:text-lg font-rajdhani">盲注设置</h3>
-                  {tournament && (
-                    <span className="text-xs bg-yellow-100 text-yellow-700 px-2 py-1 rounded-full">
-                      可升盲
-                    </span>
-                  )}
-                </div>
-                
-                <div className="mb-3 md:mb-4">
-                  <label className="block text-xs md:text-sm font-medium mb-1 md:mb-2">盲注模式</label>
-                  <div className="flex gap-1.5 md:gap-2">
-                    <button
-                      onClick={() => handleBlindModeChange('chips')}
-                      className={`px-4 py-2 rounded-lg font-medium transition-colors ${
-                        blindMode === 'chips'
-                          ? 'bg-blue-600 text-white'
-                          : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
-                      }`}
-                    >
-                      具体数字
-                    </button>
-                    <button
-                      onClick={() => handleBlindModeChange('bb')}
-                      className={`px-4 py-2 rounded-lg font-medium transition-colors ${
-                        blindMode === 'bb'
-                          ? 'bg-blue-600 text-white'
-                          : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
-                      }`}
-                    >
-                      BB模式 (0.5/1/1)
-                    </button>
-                  </div>
-                </div>
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6">
+                  {/* 盲注设置 */}
+                  <div>
+                    <div className="flex items-center justify-between mb-3 md:mb-4">
+                      <h3 className="font-bold text-base md:text-lg font-rajdhani">盲注设置</h3>
+                      {tournament && (
+                        <span className="text-xs bg-yellow-100 text-yellow-700 px-2 py-1 rounded-full">
+                          可升盲
+                        </span>
+                      )}
+                    </div>
+                    
+                    <div className="mb-3 md:mb-4">
+                      <label className="block text-xs md:text-sm font-medium mb-1 md:mb-2">盲注模式</label>
+                      <div className="flex gap-1.5 md:gap-2">
+                        <button
+                          onClick={() => handleBlindModeChange('chips')}
+                          className={`flex-1 px-3 py-2 rounded-lg text-xs md:text-sm font-medium transition-colors ${
+                            blindMode === 'chips'
+                              ? 'bg-blue-600 text-white'
+                              : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                          }`}
+                        >
+                          具体数字
+                        </button>
+                        <button
+                          onClick={() => handleBlindModeChange('bb')}
+                          className={`flex-1 px-3 py-2 rounded-lg text-xs md:text-sm font-medium transition-colors ${
+                            blindMode === 'bb'
+                              ? 'bg-blue-600 text-white'
+                              : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                          }`}
+                        >
+                          BB模式
+                        </button>
+                      </div>
+                    </div>
 
-                <div className="grid grid-cols-3 gap-2 md:gap-4">
-                  <div>
-                    <label className="block text-xs md:text-sm font-medium mb-1 md:mb-2">
-                      小盲 {blindMode === 'bb' && '(BB)'}
-                    </label>
-                    <input
-                      type="number"
-                      value={smallBlind}
-                      onChange={(e) => setSmallBlind(Number(e.target.value))}
-                      step={blindMode === 'bb' ? '0.1' : '1'}
-                      className="w-full px-2 md:px-3 py-1.5 md:py-2 text-sm md:text-base border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-                    />
+                    <div className="grid grid-cols-3 gap-2 md:gap-3">
+                      <div>
+                        <label className="block text-xs md:text-sm font-medium mb-1 md:mb-2">
+                          小盲 {blindMode === 'bb' && '(BB)'}
+                        </label>
+                        <input
+                          type="number"
+                          value={smallBlind}
+                          onChange={(e) => setSmallBlind(Number(e.target.value))}
+                          step={blindMode === 'bb' ? '0.1' : '1'}
+                          className="w-full px-2 md:px-3 py-1.5 md:py-2 text-sm md:text-base border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                        />
+                      </div>
+                      
+                      <div>
+                        <label className="block text-xs md:text-sm font-medium mb-1 md:mb-2">
+                          大盲 {blindMode === 'bb' && '(BB)'}
+                        </label>
+                        <input
+                          type="number"
+                          value={bigBlind}
+                          onChange={(e) => setBigBlind(Number(e.target.value))}
+                          step={blindMode === 'bb' ? '0.1' : '1'}
+                          className="w-full px-2 md:px-3 py-1.5 md:py-2 text-sm md:text-base border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                        />
+                      </div>
+                      
+                      <div>
+                        <label className="block text-xs md:text-sm font-medium mb-1 md:mb-2">
+                          前注 {blindMode === 'bb' && '(BB)'}
+                        </label>
+                        <input
+                          type="number"
+                          value={ante}
+                          onChange={(e) => setAnte(Number(e.target.value))}
+                          step={blindMode === 'bb' ? '0.1' : '1'}
+                          className="w-full px-2 md:px-3 py-1.5 md:py-2 text-sm md:text-base border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                        />
+                      </div>
+                    </div>
                   </div>
-                  
+
+                  {/* 比赛进程 */}
                   <div>
-                    <label className="block text-xs md:text-sm font-medium mb-1 md:mb-2">
-                      大盲 {blindMode === 'bb' && '(BB)'}
-                    </label>
-                    <input
-                      type="number"
-                      value={bigBlind}
-                      onChange={(e) => setBigBlind(Number(e.target.value))}
-                      step={blindMode === 'bb' ? '0.1' : '1'}
-                      className="w-full px-2 md:px-3 py-1.5 md:py-2 text-sm md:text-base border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-                    />
-                  </div>
-                  
-                  <div>
-                    <label className="block text-xs md:text-sm font-medium mb-1 md:mb-2">
-                      前注 {blindMode === 'bb' && '(BB)'}
-                    </label>
-                    <input
-                      type="number"
-                      value={ante}
-                      onChange={(e) => setAnte(Number(e.target.value))}
-                      step={blindMode === 'bb' ? '0.1' : '1'}
-                      className="w-full px-2 md:px-3 py-1.5 md:py-2 text-sm md:text-base border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-                    />
+                    <div className="mb-3 md:mb-4">
+                      <h3 className="font-bold text-base md:text-lg font-rajdhani">比赛进程</h3>
+                    </div>
+                    
+                    <div className="space-y-3 md:space-y-4">
+                      {/* 人数 */}
+                      <div>
+                        <label className="block text-xs md:text-sm font-medium mb-1 md:mb-2">
+                          人数（当前/总买入）
+                        </label>
+                        <div className="flex items-center gap-2">
+                          <input
+                            type="number"
+                            value={currentPlayers || ''}
+                            onChange={(e) => setCurrentPlayers(Number(e.target.value))}
+                            min="0"
+                            placeholder="当前"
+                            className="w-24 md:flex-1 px-2 md:px-3 py-1.5 md:py-2 text-sm md:text-base border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                          />
+                          <span className="text-gray-500 font-bold">/</span>
+                          <input
+                            type="number"
+                            value={startingPlayers || ''}
+                            onChange={(e) => setStartingPlayers(Number(e.target.value))}
+                            min="0"
+                            placeholder="总买入"
+                            className="w-24 md:flex-1 px-2 md:px-3 py-1.5 md:py-2 text-sm md:text-base border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                          />
+                        </div>
+                      </div>
+
+                      {/* 钱圈 */}
+                      <div>
+                        <label className="block text-xs md:text-sm font-medium mb-1 md:mb-2">
+                          钱圈（ITM位置）
+                        </label>
+                        <input
+                          type="number"
+                          value={moneyBubble || ''}
+                          onChange={(e) => setMoneyBubble(Number(e.target.value))}
+                          min="0"
+                          placeholder="进入钱圈的名次"
+                          className="w-full px-2 md:px-3 py-1.5 md:py-2 text-sm md:text-base border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                        />
+                        {moneyBubble > 0 && currentPlayers > 0 && (
+                          <p className="text-xs text-gray-500 mt-1">
+                            {currentPlayers <= moneyBubble 
+                              ? `✅ 已进入钱圈` 
+                              : `还差 ${currentPlayers - moneyBubble} 人进入钱圈`}
+                          </p>
+                        )}
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -374,33 +446,32 @@ export function HandRecordModal({ isOpen, onClose, onSave, isInline = false, tou
                 <div className="space-y-3 md:space-y-4">
                   {/* 翻牌前 */}
                   {unlockedStreets.includes('preflop') && (
-                    <div className="bg-white rounded-xl p-2 md:p-4 border-2 border-blue-200">
-                      <div className="flex items-center justify-between mb-2 md:mb-3">
-                        <h4 className="font-bold text-sm md:text-lg text-blue-700">♠️ 翻牌前</h4>
-                        <Button onClick={() => handleAddAction('preflop')} variant="primary" size="sm">
-                          + 添加行动
-                        </Button>
+                    <div className="bg-white rounded-xl p-3 md:p-5 border-2 border-blue-200">
+                      <div className="mb-4">
+                        <h4 className="font-bold text-base md:text-xl text-blue-700 mb-3">♠️ 翻牌前 (Preflop)</h4>
                       </div>
                       
-                      <div className="space-y-2">
+                      <div className="space-y-3 md:space-y-4">
                         {actions.filter(a => a.street === 'preflop').map((action) => (
-                          <div key={action.id} className={`grid grid-cols-1 md:grid-cols-12 gap-2 p-2 md:p-3 rounded-lg border ${action.is_hero ? 'bg-yellow-50 border-yellow-300' : 'bg-gray-50 border-gray-200'}`}>
-                            <div className="md:col-span-2">
-                              <label className="block text-[10px] md:text-xs font-medium mb-1">HERO</label>
-                              <div className="flex flex-col gap-1">
-                                <label className="flex items-center gap-1 cursor-pointer">
-                                  <input
-                                    type="checkbox"
-                                    checked={action.is_hero}
-                                    onChange={(e) => {
-                                      console.log('Checkbox changed:', e.target.checked)
-                                      handleUpdateAction(action.id, { is_hero: e.target.checked })
-                                    }}
-                                    className="w-4 h-4 text-blue-600 rounded focus:ring-2 focus:ring-blue-500"
-                                  />
-                                  <span className="text-xs whitespace-nowrap">是Hero</span>
-                                </label>
-                                {action.is_hero && (
+                          <div key={action.id} className={`p-3 md:p-4 rounded-xl border-2 ${action.is_hero ? 'bg-yellow-50 border-yellow-400' : 'bg-gray-50 border-gray-300'}`}>
+                            <div className="flex flex-wrap items-center gap-2 md:gap-3">
+                              {/* Hero Checkbox 带标签 */}
+                              <div className="flex flex-col items-center gap-1">
+                                <label className="text-[10px] text-gray-600 font-medium">HERO</label>
+                                <input
+                                  type="checkbox"
+                                  checked={action.is_hero}
+                                  onChange={(e) => {
+                                    console.log('Checkbox changed:', e.target.checked)
+                                    handleUpdateAction(action.id, { is_hero: e.target.checked })
+                                  }}
+                                  className="w-5 h-5 text-blue-600 rounded focus:ring-2 focus:ring-blue-500 cursor-pointer"
+                                />
+                              </div>
+                              
+                              {/* Hero手牌 - 只在勾选Hero时显示 */}
+                              {action.is_hero && (
+                                <div className="flex gap-1">
                                   <div 
                                     onClick={() => {
                                       console.log('Opening card selector, current hero_cards:', action.hero_cards)
@@ -427,7 +498,7 @@ export function HandRecordModal({ isOpen, onClose, onSave, isInline = false, tou
                                       return (
                                         <div
                                           key={cardIndex}
-                                          className={`w-8 h-12 md:w-10 md:h-14 border-2 rounded-md flex flex-col items-center justify-center transition-all ${
+                                          className={`w-9 h-12 md:w-11 md:h-15 border-2 rounded-md flex flex-col items-center justify-center gap-0.5 transition-all ${
                                             card 
                                               ? 'bg-white border-gray-300 shadow-sm hover:shadow-md' 
                                               : 'bg-gray-100 border-dashed border-gray-400 hover:border-purple-400 hover:bg-purple-50'
@@ -435,91 +506,110 @@ export function HandRecordModal({ isOpen, onClose, onSave, isInline = false, tou
                                         >
                                           {card ? (
                                             <>
-                                              <span className={`text-[10px] md:text-xs font-bold leading-none ${getSuitColor(card.suit)}`}>
+                                              <span className={`text-xs md:text-sm font-bold ${getSuitColor(card.suit)}`}>
                                                 {card.rank}
                                               </span>
-                                              <span className={`text-sm md:text-base leading-none ${getSuitColor(card.suit)}`}>
+                                              <span className={`text-sm md:text-base ${getSuitColor(card.suit)}`}>
                                                 {getSuitSymbol(card.suit)}
                                               </span>
                                             </>
                                           ) : (
-                                            <span className="text-[8px] md:text-[10px] text-gray-400">?</span>
+                                            <span className="text-xs text-gray-400">?</span>
                                           )}
                                         </div>
                                       )
                                     })}
                                   </div>
-                                )}
+                                </div>
+                              )}
+                              
+                              {/* 位置 */}
+                              <div className="flex-shrink-0" style={{ minWidth: '80px', maxWidth: '90px' }}>
+                                <select
+                                  value={action.position}
+                                  onChange={(e) => handleUpdateAction(action.id, { position: e.target.value as PokerPosition })}
+                                  className="w-full px-2 py-2 md:py-2.5 text-sm md:text-base border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white font-medium"
+                                >
+                                  {positions.map(pos => (
+                                    <option key={pos} value={pos}>{pos}</option>
+                                  ))}
+                                </select>
                               </div>
-                            </div>
-                            
-                  <div>
-                              <label className="block text-[10px] md:text-xs font-medium mb-1">位置</label>
-                              <select
-                                value={action.position}
-                                onChange={(e) => handleUpdateAction(action.id, { position: e.target.value as PokerPosition })}
-                                className="w-full px-1.5 md:px-2 py-1 text-xs md:text-sm border border-gray-300 rounded focus:ring-1 focus:ring-blue-500"
-                              >
-                                {positions.map(pos => (
-                                  <option key={pos} value={pos}>{pos}</option>
-                                ))}
-                              </select>
-                            </div>
-                            
-                            <div className="md:col-span-2">
-                              <label className="block text-[10px] md:text-xs font-medium mb-1">筹码</label>
-                              <input
-                                type="number"
-                                value={action.stack}
-                                onChange={(e) => handleUpdateAction(action.id, { stack: Number(e.target.value) })}
-                                className="w-full px-1.5 md:px-2 py-1 text-xs md:text-sm border border-gray-300 rounded focus:ring-1 focus:ring-blue-500"
-                              />
-                            </div>
-                            
-                            <div className="md:col-span-2">
-                              <label className="block text-[10px] md:text-xs font-medium mb-1">行动</label>
-                              <select
-                                value={action.action}
-                                onChange={(e) => handleUpdateAction(action.id, { action: e.target.value as ActionType })}
-                                className="w-full px-1.5 md:px-2 py-1 text-xs md:text-sm border border-gray-300 rounded focus:ring-1 focus:ring-blue-500"
-                              >
-                                <option value="fold">Fold</option>
-                                <option value="check">Check</option>
-                                <option value="call">Call</option>
-                                <option value="bet">Bet</option>
-                                <option value="raise">Raise</option>
-                                <option value="allin">All-in</option>
-                              </select>
-                            </div>
-                            
-                            <div className="md:col-span-2">
-                              <label className="block text-[10px] md:text-xs font-medium mb-1">金额</label>
-                              <input
-                                type="number"
-                                value={action.amount || 0}
-                                onChange={(e) => handleUpdateAction(action.id, { amount: Number(e.target.value) })}
-                                disabled={action.action === 'fold' || action.action === 'check'}
-                                className="w-full px-2 py-1 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-blue-500 disabled:bg-gray-100"
-                              />
-                            </div>
-                            
-                            <div className="md:col-span-2 flex items-end">
-                    <button
-                                type="button"
-                                onClick={() => handleRemoveAction(action.id)}
-                                className="w-full px-2 py-1 text-xs bg-red-500 text-white rounded hover:bg-red-600 transition-colors"
-                    >
-                                删除
-                              </button>
+                              
+                              {/* 后手 */}
+                              <div className="flex items-center gap-1 flex-shrink-0">
+                                <label className="text-xs text-gray-600 whitespace-nowrap">后手:</label>
+                                <input
+                                  type="number"
+                                  value={action.stack}
+                                  onChange={(e) => handleUpdateAction(action.id, { stack: Number(e.target.value) })}
+                                  className="w-16 md:w-20 px-2 py-2 md:py-2.5 text-sm md:text-base border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 font-medium"
+                                  placeholder="0"
+                                />
+                                <span className="text-xs text-gray-500 font-medium">
+                                  {blindMode === 'chips' ? '' : 'BB'}
+                                </span>
+                              </div>
+                              
+                              {/* 行动 */}
+                              <div className="flex-shrink-0" style={{ minWidth: '90px', maxWidth: '110px' }}>
+                                <select
+                                  value={action.action}
+                                  onChange={(e) => handleUpdateAction(action.id, { action: e.target.value as ActionType })}
+                                  className="w-full px-2 py-2 md:py-2.5 text-sm md:text-base border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white font-medium"
+                                >
+                                  <option value="fold">Fold</option>
+                                  <option value="check">Check</option>
+                                  <option value="call">Call</option>
+                                  <option value="bet">Bet</option>
+                                  <option value="raise">Raise</option>
+                                  <option value="allin">All-in</option>
+                                </select>
+                              </div>
+                              
+                              {/* 数量输入 - 仅在bet/raise/allin时显示 */}
+                              {(action.action === 'bet' || action.action === 'raise' || action.action === 'allin') && (
+                                <div className="flex items-center gap-1 flex-shrink-0">
+                                  <label className="text-xs text-gray-600 whitespace-nowrap">数量:</label>
+                                  <input
+                                    type="number"
+                                    value={action.amount || 0}
+                                    onChange={(e) => handleUpdateAction(action.id, { amount: Number(e.target.value) })}
+                                    className="w-16 md:w-20 px-2 py-2 md:py-2.5 text-sm md:text-base border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 font-medium"
+                                    placeholder="0"
+                                  />
+                                  <span className="text-xs text-gray-500 font-medium">
+                                    {blindMode === 'chips' ? '' : 'BB'}
+                                  </span>
+                                </div>
+                              )}
+                              
+                              {/* 删除按钮 */}
+                              <div className="flex-shrink-0 ml-auto">
+                                <button
+                                  type="button"
+                                  onClick={() => handleRemoveAction(action.id)}
+                                  className="px-4 py-2 md:py-2.5 text-sm md:text-base bg-red-500 text-white rounded-lg hover:bg-red-600 active:bg-red-700 transition-colors font-medium whitespace-nowrap"
+                                >
+                                  删除
+                                </button>
+                              </div>
                             </div>
                           </div>
                         ))}
                         
                         {actions.filter(a => a.street === 'preflop').length === 0 && (
-                          <div className="text-center py-4 text-gray-400 text-sm">
-                            暂无行动，点击上方"+ 添加行动"开始记录
+                          <div className="text-center py-8 text-gray-400 text-sm">
+                            暂无行动，点击下方"+ 添加行动"开始记录
                           </div>
                         )}
+                        
+                        {/* 添加行动按钮 */}
+                        <div className="pt-2">
+                          <Button onClick={() => handleAddAction('preflop')} variant="primary" className="w-full">
+                            + 添加行动
+                          </Button>
+                        </div>
                       </div>
                       
                       {!unlockedStreets.includes('flop') && (
@@ -534,12 +624,9 @@ export function HandRecordModal({ isOpen, onClose, onSave, isInline = false, tou
 
                   {/* 翻牌圈 */}
                   {unlockedStreets.includes('flop') && (
-                    <div className="bg-white rounded-xl p-4 border-2 border-green-200">
-                      <div className="flex items-center justify-between mb-3">
-                        <h4 className="font-bold text-lg text-green-700">🎲 翻牌圈 (Flop)</h4>
-                        <Button onClick={() => handleAddAction('flop')} variant="primary" size="sm">
-                          + 添加行动
-                        </Button>
+                    <div className="bg-white rounded-xl p-3 md:p-5 border-2 border-green-200">
+                      <div className="mb-4">
+                        <h4 className="font-bold text-base md:text-xl text-green-700 mb-3">🎲 翻牌圈 (Flop)</h4>
                       </div>
                       
                       {/* 翻牌 */}
@@ -571,104 +658,159 @@ export function HandRecordModal({ isOpen, onClose, onSave, isInline = false, tou
                         ))}
                       </div>
                       
-                      <div className="space-y-2">
+                      <div className="space-y-3 md:space-y-4">
                         {actions.filter(a => a.street === 'flop').map((action) => (
-                          <div key={action.id} className={`grid grid-cols-1 md:grid-cols-12 gap-2 p-3 rounded-lg border ${action.is_hero ? 'bg-yellow-50 border-yellow-300' : 'bg-gray-50 border-gray-200'}`}>
-                            <div className="md:col-span-2">
-                              <label className="block text-xs font-medium mb-1">HERO</label>
-                              <div className="flex flex-col gap-1">
-                                <label className="flex items-center gap-1 cursor-pointer">
-                                  <input
-                                    type="checkbox"
-                                    checked={action.is_hero}
-                                    onChange={(e) => handleUpdateAction(action.id, { is_hero: e.target.checked })}
-                                    className="w-4 h-4 text-blue-600 rounded focus:ring-2 focus:ring-blue-500"
-                                  />
-                                  <span className="text-xs whitespace-nowrap">是Hero</span>
-                                </label>
-                                {action.is_hero && (
-                                  <button
-                                    type="button"
-                                    onClick={(e) => {
-                                      e.preventDefault()
-                                      e.stopPropagation()
-                                      openCardSelector(action.id)
-                                    }}
-                                    className="text-xs bg-purple-500 text-white px-2 py-1.5 rounded hover:bg-purple-600 transition-colors cursor-pointer whitespace-nowrap z-10 relative"
-                                  >
-                                    {action.hero_cards ? `${action.hero_cards[0].rank}${action.hero_cards[1].rank}` : '选手牌'}
-                                  </button>
-                                )}
+                          <div key={action.id} className={`p-3 md:p-4 rounded-xl border-2 ${action.is_hero ? 'bg-yellow-50 border-yellow-400' : 'bg-gray-50 border-gray-300'}`}>
+                            <div className="flex flex-wrap items-center gap-2 md:gap-3">
+                              {/* Hero Checkbox 带标签 */}
+                              <div className="flex flex-col items-center gap-1">
+                                <label className="text-[10px] text-gray-600 font-medium">HERO</label>
+                                <input
+                                  type="checkbox"
+                                  checked={action.is_hero}
+                                  onChange={(e) => handleUpdateAction(action.id, { is_hero: e.target.checked })}
+                                  className="w-5 h-5 text-blue-600 rounded focus:ring-2 focus:ring-blue-500 cursor-pointer"
+                                />
                               </div>
-                            </div>
-                            
-                            <div className="md:col-span-2">
-                              <label className="block text-xs font-medium mb-1">位置</label>
-                              <select
-                                value={action.position}
-                                onChange={(e) => handleUpdateAction(action.id, { position: e.target.value as PokerPosition })}
-                                className="w-full px-2 py-1 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-blue-500"
-                              >
-                                {positions.map(pos => (
-                                  <option key={pos} value={pos}>{pos}</option>
-                                ))}
-                              </select>
-                            </div>
-                            
-                            <div className="md:col-span-2">
-                              <label className="block text-xs font-medium mb-1">筹码</label>
-                              <input
-                                type="number"
-                                value={action.stack}
-                                onChange={(e) => handleUpdateAction(action.id, { stack: Number(e.target.value) })}
-                                className="w-full px-2 py-1 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-blue-500"
-                              />
-                            </div>
-                            
-                            <div className="md:col-span-2">
-                              <label className="block text-xs font-medium mb-1">行动</label>
-                              <select
-                                value={action.action}
-                                onChange={(e) => handleUpdateAction(action.id, { action: e.target.value as ActionType })}
-                                className="w-full px-2 py-1 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-blue-500"
-                              >
-                                <option value="fold">Fold</option>
-                                <option value="check">Check</option>
-                                <option value="call">Call</option>
-                                <option value="bet">Bet</option>
-                                <option value="raise">Raise</option>
-                                <option value="allin">All-in</option>
-                              </select>
-                            </div>
-                            
-                            <div className="md:col-span-2">
-                              <label className="block text-xs font-medium mb-1">金额</label>
-                              <input
-                                type="number"
-                                value={action.amount || 0}
-                                onChange={(e) => handleUpdateAction(action.id, { amount: Number(e.target.value) })}
-                                disabled={action.action === 'fold' || action.action === 'check'}
-                                className="w-full px-2 py-1 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-blue-500 disabled:bg-gray-100"
-                              />
-                            </div>
-                            
-                            <div className="md:col-span-2 flex items-end">
-                              <button
-                                type="button"
-                                onClick={() => handleRemoveAction(action.id)}
-                                className="w-full px-2 py-1 text-xs bg-red-500 text-white rounded hover:bg-red-600 transition-colors"
-                              >
-                                删除
-                              </button>
+                              
+                              {/* Hero手牌 */}
+                              {action.is_hero && (
+                                <div className="flex gap-1">
+                                  <div 
+                                    onClick={() => openCardSelector(action.id)}
+                                    className="flex gap-1 cursor-pointer"
+                                  >
+                                    {[0, 1].map((cardIndex) => {
+                                      const card = action.hero_cards?.[cardIndex]
+                                      const getSuitSymbol = (suit: string) => {
+                                        switch(suit) {
+                                          case 'hearts': return '♥️'
+                                          case 'diamonds': return '♦️'
+                                          case 'clubs': return '♣️'
+                                          case 'spades': return '♠️'
+                                          default: return ''
+                                        }
+                                      }
+                                      
+                                      const getSuitColor = (suit: string) => {
+                                        return suit === 'hearts' || suit === 'diamonds' ? 'text-red-500' : 'text-gray-800'
+                                      }
+                                      
+                                      return (
+                                        <div
+                                          key={cardIndex}
+                                          className={`w-9 h-12 md:w-11 md:h-15 border-2 rounded-md flex flex-col items-center justify-center gap-0.5 transition-all ${
+                                            card 
+                                              ? 'bg-white border-gray-300 shadow-sm hover:shadow-md' 
+                                              : 'bg-gray-100 border-dashed border-gray-400 hover:border-purple-400 hover:bg-purple-50'
+                                          }`}
+                                        >
+                                          {card ? (
+                                            <>
+                                              <span className={`text-xs md:text-sm font-bold ${getSuitColor(card.suit)}`}>
+                                                {card.rank}
+                                              </span>
+                                              <span className={`text-sm md:text-base ${getSuitColor(card.suit)}`}>
+                                                {getSuitSymbol(card.suit)}
+                                              </span>
+                                            </>
+                                          ) : (
+                                            <span className="text-xs text-gray-400">?</span>
+                                          )}
+                                        </div>
+                                      )
+                                    })}
+                                  </div>
+                                </div>
+                              )}
+                              
+                              {/* 位置 */}
+                              <div className="flex-shrink-0" style={{ minWidth: '80px', maxWidth: '90px' }}>
+                                <select
+                                  value={action.position}
+                                  onChange={(e) => handleUpdateAction(action.id, { position: e.target.value as PokerPosition })}
+                                  className="w-full px-2 py-2 md:py-2.5 text-sm md:text-base border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white font-medium"
+                                >
+                                  {positions.map(pos => (
+                                    <option key={pos} value={pos}>{pos}</option>
+                                  ))}
+                                </select>
+                              </div>
+                              
+                              {/* 后手 */}
+                              <div className="flex items-center gap-1 flex-shrink-0">
+                                <label className="text-xs text-gray-600 whitespace-nowrap">后手:</label>
+                                <input
+                                  type="number"
+                                  value={action.stack}
+                                  onChange={(e) => handleUpdateAction(action.id, { stack: Number(e.target.value) })}
+                                  className="w-16 md:w-20 px-2 py-2 md:py-2.5 text-sm md:text-base border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 font-medium"
+                                  placeholder="0"
+                                />
+                                <span className="text-xs text-gray-500 font-medium">
+                                  {blindMode === 'chips' ? '' : 'BB'}
+                                </span>
+                              </div>
+                              
+                              {/* 行动 */}
+                              <div className="flex-shrink-0" style={{ minWidth: '90px', maxWidth: '110px' }}>
+                                <select
+                                  value={action.action}
+                                  onChange={(e) => handleUpdateAction(action.id, { action: e.target.value as ActionType })}
+                                  className="w-full px-2 py-2 md:py-2.5 text-sm md:text-base border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white font-medium"
+                                >
+                                  <option value="fold">Fold</option>
+                                  <option value="check">Check</option>
+                                  <option value="call">Call</option>
+                                  <option value="bet">Bet</option>
+                                  <option value="raise">Raise</option>
+                                  <option value="allin">All-in</option>
+                                </select>
+                              </div>
+                              
+                              {/* 数量输入 - 仅在bet/raise/allin时显示 */}
+                              {(action.action === 'bet' || action.action === 'raise' || action.action === 'allin') && (
+                                <div className="flex items-center gap-1 flex-shrink-0">
+                                  <label className="text-xs text-gray-600 whitespace-nowrap">数量:</label>
+                                  <input
+                                    type="number"
+                                    value={action.amount || 0}
+                                    onChange={(e) => handleUpdateAction(action.id, { amount: Number(e.target.value) })}
+                                    className="w-16 md:w-20 px-2 py-2 md:py-2.5 text-sm md:text-base border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 font-medium"
+                                    placeholder="0"
+                                  />
+                                  <span className="text-xs text-gray-500 font-medium">
+                                    {blindMode === 'chips' ? '' : 'BB'}
+                                  </span>
+                                </div>
+                              )}
+                              
+                              {/* 删除按钮 */}
+                              <div className="flex-shrink-0 ml-auto">
+                                <button
+                                  type="button"
+                                  onClick={() => handleRemoveAction(action.id)}
+                                  className="px-4 py-2 md:py-2.5 text-sm md:text-base bg-red-500 text-white rounded-lg hover:bg-red-600 active:bg-red-700 transition-colors font-medium whitespace-nowrap"
+                                >
+                                  删除
+                                </button>
+                              </div>
                             </div>
                           </div>
                         ))}
                         
                         {actions.filter(a => a.street === 'flop').length === 0 && (
-                          <div className="text-center py-4 text-gray-400 text-sm">
-                            暂无行动，点击上方"+ 添加行动"开始记录
+                          <div className="text-center py-8 text-gray-400 text-sm">
+                            暂无行动，点击下方"+ 添加行动"开始记录
                           </div>
                         )}
+                        
+                        {/* 添加行动按钮 */}
+                        <div className="pt-2">
+                          <Button onClick={() => handleAddAction('flop')} variant="primary" className="w-full">
+                            + 添加行动
+                          </Button>
+                        </div>
                       </div>
                       
                       {!unlockedStreets.includes('turn') && (
@@ -683,12 +825,9 @@ export function HandRecordModal({ isOpen, onClose, onSave, isInline = false, tou
 
                   {/* 转牌圈 */}
                   {unlockedStreets.includes('turn') && (
-                    <div className="bg-white rounded-xl p-4 border-2 border-orange-200">
-                      <div className="flex items-center justify-between mb-3">
-                        <h4 className="font-bold text-lg text-orange-700">🎰 转牌圈 (Turn)</h4>
-                        <Button onClick={() => handleAddAction('turn')} variant="primary" size="sm">
-                          + 添加行动
-                        </Button>
+                    <div className="bg-white rounded-xl p-3 md:p-5 border-2 border-orange-200">
+                      <div className="mb-4">
+                        <h4 className="font-bold text-base md:text-xl text-orange-700 mb-3">🎰 转牌圈 (Turn)</h4>
                       </div>
                       
                       {/* 转牌 */}
@@ -717,105 +856,160 @@ export function HandRecordModal({ isOpen, onClose, onSave, isInline = false, tou
                     </button>
                   </div>
                   
-                      <div className="space-y-2">
+                      <div className="space-y-3 md:space-y-4">
                         {actions.filter(a => a.street === 'turn').map((action) => (
-                          <div key={action.id} className={`grid grid-cols-1 md:grid-cols-12 gap-2 p-3 rounded-lg border ${action.is_hero ? 'bg-yellow-50 border-yellow-300' : 'bg-gray-50 border-gray-200'}`}>
-                            <div className="md:col-span-2">
-                              <label className="block text-xs font-medium mb-1">HERO</label>
-                              <div className="flex flex-col gap-1">
-                                <label className="flex items-center gap-1 cursor-pointer">
-                    <input
-                                    type="checkbox"
-                                    checked={action.is_hero}
-                                    onChange={(e) => handleUpdateAction(action.id, { is_hero: e.target.checked })}
-                                    className="w-4 h-4 text-blue-600 rounded focus:ring-2 focus:ring-blue-500"
-                                  />
-                                  <span className="text-xs whitespace-nowrap">是Hero</span>
-                                </label>
-                                {action.is_hero && (
-                                  <button
-                                    type="button"
-                                    onClick={(e) => {
-                                      e.preventDefault()
-                                      e.stopPropagation()
-                                      openCardSelector(action.id)
-                                    }}
-                                    className="text-xs bg-purple-500 text-white px-2 py-1.5 rounded hover:bg-purple-600 transition-colors cursor-pointer whitespace-nowrap z-10 relative"
-                                  >
-                                    {action.hero_cards ? `${action.hero_cards[0].rank}${action.hero_cards[1].rank}` : '选手牌'}
-                                  </button>
-                                )}
+                          <div key={action.id} className={`p-3 md:p-4 rounded-xl border-2 ${action.is_hero ? 'bg-yellow-50 border-yellow-400' : 'bg-gray-50 border-gray-300'}`}>
+                            <div className="flex flex-wrap items-center gap-2 md:gap-3">
+                              {/* Hero Checkbox 带标签 */}
+                              <div className="flex flex-col items-center gap-1">
+                                <label className="text-[10px] text-gray-600 font-medium">HERO</label>
+                                <input
+                                  type="checkbox"
+                                  checked={action.is_hero}
+                                  onChange={(e) => handleUpdateAction(action.id, { is_hero: e.target.checked })}
+                                  className="w-5 h-5 text-blue-600 rounded focus:ring-2 focus:ring-blue-500 cursor-pointer"
+                                />
                               </div>
-                  </div>
-                  
-                            <div className="md:col-span-2">
-                              <label className="block text-xs font-medium mb-1">位置</label>
-                    <select
-                                value={action.position}
-                                onChange={(e) => handleUpdateAction(action.id, { position: e.target.value as PokerPosition })}
-                                className="w-full px-2 py-1 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-blue-500"
-                    >
-                      {positions.map(pos => (
-                        <option key={pos} value={pos}>{pos}</option>
-                      ))}
-                    </select>
-                  </div>
-                            
-                            <div className="md:col-span-2">
-                              <label className="block text-xs font-medium mb-1">筹码</label>
-                              <input
-                                type="number"
-                                value={action.stack}
-                                onChange={(e) => handleUpdateAction(action.id, { stack: Number(e.target.value) })}
-                                className="w-full px-2 py-1 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-blue-500"
-                              />
+                              
+                              {/* Hero手牌 */}
+                              {action.is_hero && (
+                                <div className="flex gap-1">
+                                  <div 
+                                    onClick={() => openCardSelector(action.id)}
+                                    className="flex gap-1 cursor-pointer"
+                                  >
+                                    {[0, 1].map((cardIndex) => {
+                                      const card = action.hero_cards?.[cardIndex]
+                                      const getSuitSymbol = (suit: string) => {
+                                        switch(suit) {
+                                          case 'hearts': return '♥️'
+                                          case 'diamonds': return '♦️'
+                                          case 'clubs': return '♣️'
+                                          case 'spades': return '♠️'
+                                          default: return ''
+                                        }
+                                      }
+                                      
+                                      const getSuitColor = (suit: string) => {
+                                        return suit === 'hearts' || suit === 'diamonds' ? 'text-red-500' : 'text-gray-800'
+                                      }
+                                      
+                                      return (
+                                        <div
+                                          key={cardIndex}
+                                          className={`w-9 h-12 md:w-11 md:h-15 border-2 rounded-md flex flex-col items-center justify-center gap-0.5 transition-all ${
+                                            card 
+                                              ? 'bg-white border-gray-300 shadow-sm hover:shadow-md' 
+                                              : 'bg-gray-100 border-dashed border-gray-400 hover:border-purple-400 hover:bg-purple-50'
+                                          }`}
+                                        >
+                                          {card ? (
+                                            <>
+                                              <span className={`text-xs md:text-sm font-bold ${getSuitColor(card.suit)}`}>
+                                                {card.rank}
+                                              </span>
+                                              <span className={`text-sm md:text-base ${getSuitColor(card.suit)}`}>
+                                                {getSuitSymbol(card.suit)}
+                                              </span>
+                                            </>
+                                          ) : (
+                                            <span className="text-xs text-gray-400">?</span>
+                                          )}
+                                        </div>
+                                      )
+                                    })}
+                                  </div>
+                                </div>
+                              )}
+                              
+                              {/* 位置 */}
+                              <div className="flex-shrink-0" style={{ minWidth: '80px', maxWidth: '90px' }}>
+                                <select
+                                  value={action.position}
+                                  onChange={(e) => handleUpdateAction(action.id, { position: e.target.value as PokerPosition })}
+                                  className="w-full px-2 py-2 md:py-2.5 text-sm md:text-base border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white font-medium"
+                                >
+                                  {positions.map(pos => (
+                                    <option key={pos} value={pos}>{pos}</option>
+                                  ))}
+                                </select>
+                              </div>
+                              
+                              {/* 后手 */}
+                              <div className="flex items-center gap-1 flex-shrink-0">
+                                <label className="text-xs text-gray-600 whitespace-nowrap">后手:</label>
+                                <input
+                                  type="number"
+                                  value={action.stack}
+                                  onChange={(e) => handleUpdateAction(action.id, { stack: Number(e.target.value) })}
+                                  className="w-16 md:w-20 px-2 py-2 md:py-2.5 text-sm md:text-base border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 font-medium"
+                                  placeholder="0"
+                                />
+                                <span className="text-xs text-gray-500 font-medium">
+                                  {blindMode === 'chips' ? '' : 'BB'}
+                                </span>
+                              </div>
+                              
+                              {/* 行动 */}
+                              <div className="flex-shrink-0" style={{ minWidth: '90px', maxWidth: '110px' }}>
+                                <select
+                                  value={action.action}
+                                  onChange={(e) => handleUpdateAction(action.id, { action: e.target.value as ActionType })}
+                                  className="w-full px-2 py-2 md:py-2.5 text-sm md:text-base border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white font-medium"
+                                >
+                                  <option value="fold">Fold</option>
+                                  <option value="check">Check</option>
+                                  <option value="call">Call</option>
+                                  <option value="bet">Bet</option>
+                                  <option value="raise">Raise</option>
+                                  <option value="allin">All-in</option>
+                                </select>
+                              </div>
+                              
+                              {/* 数量输入 - 仅在bet/raise/allin时显示 */}
+                              {(action.action === 'bet' || action.action === 'raise' || action.action === 'allin') && (
+                                <div className="flex items-center gap-1 flex-shrink-0">
+                                  <label className="text-xs text-gray-600 whitespace-nowrap">数量:</label>
+                                  <input
+                                    type="number"
+                                    value={action.amount || 0}
+                                    onChange={(e) => handleUpdateAction(action.id, { amount: Number(e.target.value) })}
+                                    className="w-16 md:w-20 px-2 py-2 md:py-2.5 text-sm md:text-base border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 font-medium"
+                                    placeholder="0"
+                                  />
+                                  <span className="text-xs text-gray-500 font-medium">
+                                    {blindMode === 'chips' ? '' : 'BB'}
+                                  </span>
+                                </div>
+                              )}
+                              
+                              {/* 删除按钮 */}
+                              <div className="flex-shrink-0 ml-auto">
+                                <button
+                                  type="button"
+                                  onClick={() => handleRemoveAction(action.id)}
+                                  className="px-4 py-2 md:py-2.5 text-sm md:text-base bg-red-500 text-white rounded-lg hover:bg-red-600 active:bg-red-700 transition-colors font-medium whitespace-nowrap"
+                                >
+                                  删除
+                                </button>
+                              </div>
                             </div>
-                            
-                            <div className="md:col-span-2">
-                              <label className="block text-xs font-medium mb-1">行动</label>
-                              <select
-                                value={action.action}
-                                onChange={(e) => handleUpdateAction(action.id, { action: e.target.value as ActionType })}
-                                className="w-full px-2 py-1 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-blue-500"
-                              >
-                                <option value="fold">Fold</option>
-                                <option value="check">Check</option>
-                                <option value="call">Call</option>
-                                <option value="bet">Bet</option>
-                                <option value="raise">Raise</option>
-                                <option value="allin">All-in</option>
-                              </select>
-                            </div>
-                            
-                            <div className="md:col-span-2">
-                              <label className="block text-xs font-medium mb-1">金额</label>
-                              <input
-                                type="number"
-                                value={action.amount || 0}
-                                onChange={(e) => handleUpdateAction(action.id, { amount: Number(e.target.value) })}
-                                disabled={action.action === 'fold' || action.action === 'check'}
-                                className="w-full px-2 py-1 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-blue-500 disabled:bg-gray-100"
-                              />
-                            </div>
-                            
-                            <div className="md:col-span-2 flex items-end">
-                              <button
-                                type="button"
-                                onClick={() => handleRemoveAction(action.id)}
-                                className="w-full px-2 py-1 text-xs bg-red-500 text-white rounded hover:bg-red-600 transition-colors"
-                              >
-                                删除
-                              </button>
-                </div>
                           </div>
                         ))}
                         
                         {actions.filter(a => a.street === 'turn').length === 0 && (
-                          <div className="text-center py-4 text-gray-400 text-sm">
-                            暂无行动，点击上方"+ 添加行动"开始记录
+                          <div className="text-center py-8 text-gray-400 text-sm">
+                            暂无行动，点击下方"+ 添加行动"开始记录
                           </div>
                         )}
-              </div>
+                        
+                        {/* 添加行动按钮 */}
+                        <div className="pt-2">
+                          <Button onClick={() => handleAddAction('turn')} variant="primary" className="w-full">
+                            + 添加行动
+                          </Button>
+                        </div>
+                      </div>
 
                       {!unlockedStreets.includes('river') && (
                         <div className="mt-4 flex justify-center">
@@ -829,13 +1023,10 @@ export function HandRecordModal({ isOpen, onClose, onSave, isInline = false, tou
 
                   {/* 河牌圈 */}
                   {unlockedStreets.includes('river') && (
-                    <div className="bg-white rounded-xl p-4 border-2 border-red-200">
-                      <div className="flex items-center justify-between mb-3">
-                        <h4 className="font-bold text-lg text-red-700">🎯 河牌圈 (River)</h4>
-                        <Button onClick={() => handleAddAction('river')} variant="primary" size="sm">
-                          + 添加行动
-                  </Button>
-                </div>
+                    <div className="bg-white rounded-xl p-3 md:p-5 border-2 border-red-200">
+                      <div className="mb-4">
+                        <h4 className="font-bold text-base md:text-xl text-red-700 mb-3">🎯 河牌圈 (River)</h4>
+                      </div>
                 
                       {/* 河牌 */}
                       <div className="mb-4 flex items-center gap-2">
@@ -863,104 +1054,159 @@ export function HandRecordModal({ isOpen, onClose, onSave, isInline = false, tou
                         </button>
                       </div>
                       
-                      <div className="space-y-2">
+                      <div className="space-y-3 md:space-y-4">
                         {actions.filter(a => a.street === 'river').map((action) => (
-                          <div key={action.id} className={`grid grid-cols-1 md:grid-cols-12 gap-2 p-3 rounded-lg border ${action.is_hero ? 'bg-yellow-50 border-yellow-300' : 'bg-gray-50 border-gray-200'}`}>
-                            <div className="md:col-span-2">
-                              <label className="block text-xs font-medium mb-1">HERO</label>
-                              <div className="flex flex-col gap-1">
-                                <label className="flex items-center gap-1 cursor-pointer">
-                                  <input
-                                    type="checkbox"
-                                    checked={action.is_hero}
-                                    onChange={(e) => handleUpdateAction(action.id, { is_hero: e.target.checked })}
-                                    className="w-4 h-4 text-blue-600 rounded focus:ring-2 focus:ring-blue-500"
-                                  />
-                                  <span className="text-xs whitespace-nowrap">是Hero</span>
-                                </label>
-                                {action.is_hero && (
-                                  <button
-                                    type="button"
-                                    onClick={(e) => {
-                                      e.preventDefault()
-                                      e.stopPropagation()
-                                      openCardSelector(action.id)
-                                    }}
-                                    className="text-xs bg-purple-500 text-white px-2 py-1.5 rounded hover:bg-purple-600 transition-colors cursor-pointer whitespace-nowrap z-10 relative"
+                          <div key={action.id} className={`p-3 md:p-4 rounded-xl border-2 ${action.is_hero ? 'bg-yellow-50 border-yellow-400' : 'bg-gray-50 border-gray-300'}`}>
+                            <div className="flex flex-wrap items-center gap-2 md:gap-3">
+                              {/* Hero Checkbox 带标签 */}
+                              <div className="flex flex-col items-center gap-1">
+                                <label className="text-[10px] text-gray-600 font-medium">HERO</label>
+                                <input
+                                  type="checkbox"
+                                  checked={action.is_hero}
+                                  onChange={(e) => handleUpdateAction(action.id, { is_hero: e.target.checked })}
+                                  className="w-5 h-5 text-blue-600 rounded focus:ring-2 focus:ring-blue-500 cursor-pointer"
+                                />
+                              </div>
+                              
+                              {/* Hero手牌 */}
+                              {action.is_hero && (
+                                <div className="flex gap-1">
+                                  <div 
+                                    onClick={() => openCardSelector(action.id)}
+                                    className="flex gap-1 cursor-pointer"
                                   >
-                                    {action.hero_cards ? `${action.hero_cards[0].rank}${action.hero_cards[1].rank}` : '选手牌'}
-                                  </button>
-                                )}
+                                    {[0, 1].map((cardIndex) => {
+                                      const card = action.hero_cards?.[cardIndex]
+                                      const getSuitSymbol = (suit: string) => {
+                                        switch(suit) {
+                                          case 'hearts': return '♥️'
+                                          case 'diamonds': return '♦️'
+                                          case 'clubs': return '♣️'
+                                          case 'spades': return '♠️'
+                                          default: return ''
+                                        }
+                                      }
+                                      
+                                      const getSuitColor = (suit: string) => {
+                                        return suit === 'hearts' || suit === 'diamonds' ? 'text-red-500' : 'text-gray-800'
+                                      }
+                                      
+                                      return (
+                                        <div
+                                          key={cardIndex}
+                                          className={`w-9 h-12 md:w-11 md:h-15 border-2 rounded-md flex flex-col items-center justify-center gap-0.5 transition-all ${
+                                            card 
+                                              ? 'bg-white border-gray-300 shadow-sm hover:shadow-md' 
+                                              : 'bg-gray-100 border-dashed border-gray-400 hover:border-purple-400 hover:bg-purple-50'
+                                          }`}
+                                        >
+                                          {card ? (
+                                            <>
+                                              <span className={`text-xs md:text-sm font-bold ${getSuitColor(card.suit)}`}>
+                                                {card.rank}
+                                              </span>
+                                              <span className={`text-sm md:text-base ${getSuitColor(card.suit)}`}>
+                                                {getSuitSymbol(card.suit)}
+                                              </span>
+                                            </>
+                                          ) : (
+                                            <span className="text-xs text-gray-400">?</span>
+                                          )}
+                                        </div>
+                                      )
+                                    })}
+                                  </div>
+                                </div>
+                              )}
+                              
+                              {/* 位置 */}
+                              <div className="flex-shrink-0" style={{ minWidth: '80px', maxWidth: '90px' }}>
+                                <select
+                                  value={action.position}
+                                  onChange={(e) => handleUpdateAction(action.id, { position: e.target.value as PokerPosition })}
+                                  className="w-full px-2 py-2 md:py-2.5 text-sm md:text-base border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white font-medium"
+                                >
+                                  {positions.map(pos => (
+                                    <option key={pos} value={pos}>{pos}</option>
+                                  ))}
+                                </select>
+                              </div>
+                              
+                              {/* 后手 */}
+                              <div className="flex items-center gap-1 flex-shrink-0">
+                                <label className="text-xs text-gray-600 whitespace-nowrap">后手:</label>
+                                <input
+                                  type="number"
+                                  value={action.stack}
+                                  onChange={(e) => handleUpdateAction(action.id, { stack: Number(e.target.value) })}
+                                  className="w-16 md:w-20 px-2 py-2 md:py-2.5 text-sm md:text-base border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 font-medium"
+                                  placeholder="0"
+                                />
+                                <span className="text-xs text-gray-500 font-medium">
+                                  {blindMode === 'chips' ? '' : 'BB'}
+                                </span>
+                              </div>
+                              
+                              {/* 行动 */}
+                              <div className="flex-shrink-0" style={{ minWidth: '90px', maxWidth: '110px' }}>
+                                <select
+                                  value={action.action}
+                                  onChange={(e) => handleUpdateAction(action.id, { action: e.target.value as ActionType })}
+                                  className="w-full px-2 py-2 md:py-2.5 text-sm md:text-base border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white font-medium"
+                                >
+                                  <option value="fold">Fold</option>
+                                  <option value="check">Check</option>
+                                  <option value="call">Call</option>
+                                  <option value="bet">Bet</option>
+                                  <option value="raise">Raise</option>
+                                  <option value="allin">All-in</option>
+                                </select>
+                              </div>
+                              
+                              {/* 数量输入 - 仅在bet/raise/allin时显示 */}
+                              {(action.action === 'bet' || action.action === 'raise' || action.action === 'allin') && (
+                                <div className="flex items-center gap-1 flex-shrink-0">
+                                  <label className="text-xs text-gray-600 whitespace-nowrap">数量:</label>
+                                  <input
+                                    type="number"
+                                    value={action.amount || 0}
+                                    onChange={(e) => handleUpdateAction(action.id, { amount: Number(e.target.value) })}
+                                    className="w-16 md:w-20 px-2 py-2 md:py-2.5 text-sm md:text-base border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 font-medium"
+                                    placeholder="0"
+                                  />
+                                  <span className="text-xs text-gray-500 font-medium">
+                                    {blindMode === 'chips' ? '' : 'BB'}
+                                  </span>
+                                </div>
+                              )}
+                              
+                              {/* 删除按钮 */}
+                              <div className="flex-shrink-0 ml-auto">
+                                <button
+                                  type="button"
+                                  onClick={() => handleRemoveAction(action.id)}
+                                  className="px-4 py-2 md:py-2.5 text-sm md:text-base bg-red-500 text-white rounded-lg hover:bg-red-600 active:bg-red-700 transition-colors font-medium whitespace-nowrap"
+                                >
+                                  删除
+                                </button>
                               </div>
                             </div>
-                            
-                            <div className="md:col-span-2">
-                        <label className="block text-xs font-medium mb-1">位置</label>
-                        <select
-                                value={action.position}
-                                onChange={(e) => handleUpdateAction(action.id, { position: e.target.value as PokerPosition })}
-                          className="w-full px-2 py-1 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-blue-500"
-                        >
-                          {positions.map(pos => (
-                            <option key={pos} value={pos}>{pos}</option>
-                          ))}
-                        </select>
-                      </div>
-                      
-                            <div className="md:col-span-2">
-                              <label className="block text-xs font-medium mb-1">筹码</label>
-                        <input
-                          type="number"
-                                value={action.stack}
-                                onChange={(e) => handleUpdateAction(action.id, { stack: Number(e.target.value) })}
-                          className="w-full px-2 py-1 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-blue-500"
-                        />
-                      </div>
-                      
-                            <div className="md:col-span-2">
-                              <label className="block text-xs font-medium mb-1">行动</label>
-                              <select
-                                value={action.action}
-                                onChange={(e) => handleUpdateAction(action.id, { action: e.target.value as ActionType })}
-                                className="w-full px-2 py-1 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-blue-500"
-                              >
-                                <option value="fold">Fold</option>
-                                <option value="check">Check</option>
-                                <option value="call">Call</option>
-                                <option value="bet">Bet</option>
-                                <option value="raise">Raise</option>
-                                <option value="allin">All-in</option>
-                              </select>
-                            </div>
-                            
-                            <div className="md:col-span-2">
-                              <label className="block text-xs font-medium mb-1">金额</label>
-                              <input
-                                type="number"
-                                value={action.amount || 0}
-                                onChange={(e) => handleUpdateAction(action.id, { amount: Number(e.target.value) })}
-                                disabled={action.action === 'fold' || action.action === 'check'}
-                                className="w-full px-2 py-1 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-blue-500 disabled:bg-gray-100"
-                              />
-                            </div>
-                            
-                            <div className="md:col-span-2 flex items-end">
-                        <button
-                                type="button"
-                                onClick={() => handleRemoveAction(action.id)}
-                                className="w-full px-2 py-1 text-xs bg-red-500 text-white rounded hover:bg-red-600 transition-colors"
-                        >
-                          删除
-                        </button>
-                      </div>
-                    </div>
-                  ))}
+                          </div>
+                        ))}
                   
                         {actions.filter(a => a.street === 'river').length === 0 && (
-                          <div className="text-center py-4 text-gray-400 text-sm">
-                            暂无行动，点击上方"+ 添加行动"开始记录
+                          <div className="text-center py-8 text-gray-400 text-sm">
+                            暂无行动，点击下方"+ 添加行动"开始记录
                           </div>
                         )}
+                        
+                        {/* 添加行动按钮 */}
+                        <div className="pt-2">
+                          <Button onClick={() => handleAddAction('river')} variant="primary" className="w-full">
+                            + 添加行动
+                          </Button>
+                        </div>
                       </div>
                     </div>
                   )}
