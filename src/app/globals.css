@@ -152,8 +152,8 @@ body {
   .social-button span {
     font-size: 0.95rem;
   }
-}
-
+  }
+  
 /* 按钮移动端友好 */
 @media (max-width: 480px) {
   .social-button {

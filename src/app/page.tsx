@@ -101,6 +101,104 @@ export default function Home() {
   const [showTournamentModal, setShowTournamentModal] = useState(false)
   const [activeTournaments, setActiveTournaments] = useState<Tournament[]>([])
   const [selectedTournament, setSelectedTournament] = useState<Tournament | null>(null)
+  const [currentHandIndex, setCurrentHandIndex] = useState(0)
+  const [likedHands, setLikedHands] = useState<Set<string>>(new Set())
+  const [savedHands, setSavedHands] = useState<Set<string>>(new Set())
+  const [showComments, setShowComments] = useState(false)
+  const [comments, setComments] = useState([
+    {
+      id: '1',
+      author: 'PokerPro88',
+      content: '这手牌打得很漂亮！翻牌圈的check-raise时机抓得很准。',
+      timestamp: '2小时前',
+      avatar: '🎮'
+    },
+    {
+      id: '2',
+      author: 'CardShark',
+      content: '我觉得turn应该bet小一点，这样可以保护range。',
+      timestamp: '1小时前',
+      avatar: '🦈'
+    },
+    {
+      id: '3',
+      author: 'AllInAndy',
+      content: '对手持有A♠️ A♣️真是太不幸了，Set Over Set没办法',
+      timestamp: '30分钟前',
+      avatar: '🃏'
+    }
+  ])
+  const [newComment, setNewComment] = useState('')
+  
+  // 切换点赞
+  const toggleLike = (handId: string) => {
+    setLikedHands(prev => {
+      const newSet = new Set(prev)
+      if (newSet.has(handId)) {
+        newSet.delete(handId)
+      } else {
+        newSet.add(handId)
+      }
+      return newSet
+    })
+  }
+  
+  // 切换收藏
+  const toggleSave = (handId: string) => {
+    setSavedHands(prev => {
+      const newSet = new Set(prev)
+      if (newSet.has(handId)) {
+        newSet.delete(handId)
+      } else {
+        newSet.add(handId)
+      }
+      return newSet
+    })
+  }
+  
+  // 添加评论
+  const handleAddComment = () => {
+    if (!newComment.trim()) return
+
+    const comment = {
+      id: Date.now().toString(),
+      author: '我',
+      content: newComment,
+      timestamp: '刚刚',
+      avatar: '👤'
+    }
+
+    setComments([...comments, comment])
+    setNewComment('')
+  }
+  
+  // 示例手牌数据
+  const sampleHands = [
+    {
+      id: 'demo-1',
+      heroCards: [
+        { rank: 'A', suit: 'hearts' },
+        { rank: 'K', suit: 'spades' }
+      ],
+      tournament: 'WSOP Main Event',
+      gameType: '6-Max',
+      tags: ['SRP', 'BTN vs BB', 'IP', '3-Bet Pot'],
+      date: '2024-12-12',
+      time: '15:30'
+    },
+    {
+      id: 'demo-2',
+      heroCards: [
+        { rank: 'Q', suit: 'spades' },
+        { rank: 'Q', suit: 'clubs' }
+      ],
+      tournament: 'PokerStars Sunday Million',
+      gameType: '9-Max',
+      tags: ['4-Bet Pot', 'CO vs BTN', 'OOP', 'High Stakes'],
+      date: '2024-12-11',
+      time: '20:45'
+    }
+  ]
 
   // 加载进行中的比赛
   useEffect(() => {
@@ -129,6 +227,52 @@ export default function Home() {
       document.removeEventListener('click', handleClickOutside)
     }
   }, [showQuickMenu])
+
+  // 触摸滑动切换卡片（移动端）
+  useEffect(() => {
+    if (activeTab !== 'browse') return
+
+    let touchStartX = 0
+    let touchEndX = 0
+    
+    const handleTouchStart = (e: TouchEvent) => {
+      touchStartX = e.touches[0].clientX
+    }
+    
+    const handleTouchMove = (e: TouchEvent) => {
+      touchEndX = e.touches[0].clientX
+    }
+    
+    const handleTouchEnd = () => {
+      const swipeDistance = touchStartX - touchEndX
+      const minSwipeDistance = 50 // 最小滑动距离
+      
+      if (Math.abs(swipeDistance) > minSwipeDistance) {
+        if (swipeDistance > 0) {
+          // 向左滑，下一张
+          setCurrentHandIndex((prev) => (prev + 1) % sampleHands.length)
+        } else {
+          // 向右滑，上一张
+          setCurrentHandIndex((prev) => (prev - 1 + sampleHands.length) % sampleHands.length)
+        }
+      }
+    }
+
+    const browseArea = document.getElementById('browse-area')
+    if (browseArea) {
+      browseArea.addEventListener('touchstart', handleTouchStart, { passive: true })
+      browseArea.addEventListener('touchmove', handleTouchMove, { passive: true })
+      browseArea.addEventListener('touchend', handleTouchEnd, { passive: true })
+      
+      return () => {
+        browseArea.removeEventListener('touchstart', handleTouchStart)
+        browseArea.removeEventListener('touchmove', handleTouchMove)
+        browseArea.removeEventListener('touchend', handleTouchEnd)
+      }
+    }
+  }, [activeTab, sampleHands.length])
+
+  const currentHand = sampleHands[currentHandIndex]
 
   const handleSaveHand = async (record: Partial<HandRecord>) => {
     try {
@@ -630,51 +774,336 @@ export default function Home() {
             </div>
           </div>
 
-          {/* 手牌记录泡泡UI长条 - 只在游览手牌时显示 */}
-          {activeTab === 'browse' && (
-            <div className="mb-8">
-              {/* 示例手牌记录 - 响应式卡片设计 */}
-              <div className="bg-white rounded-2xl shadow-lg border border-gray-100 p-4 md:p-5 mb-4 hover:shadow-xl transition-all duration-300 cursor-pointer group">
-                {/* 移动端垂直布局，桌面端水平布局 */}
-                <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3 md:gap-0">
-                  {/* 手牌和基本信息 */}
-                  <div className="flex items-center space-x-3 md:space-x-6 flex-1 min-w-0">
-                    {/* 手牌 */}
-                    <div className="flex space-x-1.5 md:space-x-2 bg-gray-50 rounded-lg p-2 md:p-3 flex-shrink-0">
-                      <span className="text-red-500 font-bold text-base md:text-lg">A♥️</span>
-                      <span className="text-gray-800 font-bold text-base md:text-lg">K♠️</span>
+          {/* 手牌记录 - 只在游览手牌时显示 */}
+          {activeTab === 'browse' && currentHand && (
+            <div id="browse-area" className="relative flex items-center justify-center max-w-6xl mx-auto px-4 md:px-0">
+              {/* 左侧按钮 - 桌面端 */}
+              <button
+                onClick={() => setCurrentHandIndex((prev) => (prev - 1 + sampleHands.length) % sampleHands.length)}
+                className="hidden md:flex absolute left-0 top-1/2 -translate-y-1/2 z-10 w-14 h-14 bg-white hover:bg-blue-50 border-2 border-gray-200 hover:border-blue-500 rounded-full items-center justify-center shadow-lg hover:shadow-xl transition-all duration-300 group"
+              >
+                <span className="text-2xl text-gray-600 group-hover:text-blue-600 transition-colors">←</span>
+              </button>
+              
+              {/* 当前手牌卡片 */}
+              <div className="bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden transition-all duration-500 max-w-4xl w-full">
+                {/* Header部分 */}
+                <div className="p-4 md:p-5">
+                  <div className="flex items-start gap-3 md:gap-4">
+                    {/* Hero手牌 */}
+                    <div className="flex gap-1.5 flex-shrink-0">
+                      {currentHand.heroCards.map((card: any, idx: number) => {
+                        const isRed = card.suit === 'hearts' || card.suit === 'diamonds'
+                        const suitSymbol = card.suit === 'hearts' ? '♥️' : card.suit === 'diamonds' ? '♦️' : card.suit === 'clubs' ? '♣️' : '♠️'
+                        return (
+                          <div key={idx} className="w-12 h-16 md:w-14 md:h-20 bg-white border-2 border-gray-300 rounded-lg shadow-sm flex flex-col items-center justify-center">
+                            <span className={`font-bold text-sm md:text-base leading-none ${isRed ? 'text-red-500' : 'text-gray-800'}`}>
+                              {card.rank}
+                            </span>
+                            <span className={`text-lg md:text-xl leading-none ${isRed ? 'text-red-500' : 'text-gray-800'}`}>
+                              {suitSymbol}
+                            </span>
+                          </div>
+                        )
+                      })}
                     </div>
                     
-                    {/* 比赛信息 */}
+                    {/* 比赛信息和标签 */}
                     <div className="flex-1 min-w-0">
-                      <div className="font-semibold text-gray-800 font-rajdhani text-sm md:text-base truncate mb-1.5 md:mb-1">
-                        WSOP Main Event
+                      {/* 比赛名称 + 类型 */}
+                      <div className="flex items-center gap-2 mb-2">
+                        <h3 className="font-bold text-gray-800 font-rajdhani text-sm md:text-base truncate">
+                          {currentHand.tournament}
+                        </h3>
+                        <span className="text-xs text-gray-500 bg-gray-100 px-2 py-0.5 rounded whitespace-nowrap">
+                          {currentHand.gameType}
+                        </span>
                       </div>
-                      <div className="flex flex-wrap items-center gap-1.5 md:gap-3 text-xs md:text-sm text-gray-600">
-                        <span className="bg-blue-100 text-blue-800 px-2 py-0.5 rounded-full font-medium whitespace-nowrap">BTN</span>
-                        <span className="text-green-600 font-medium whitespace-nowrap">+2,500 chips</span>
-                        <span className="text-gray-500 whitespace-nowrap">6-Max</span>
+                      
+                      {/* 标签组 */}
+                      <div className="flex flex-wrap items-center gap-1.5">
+                        {currentHand.tags.map((tag: string, idx: number) => {
+                          const colors = [
+                            'bg-blue-100 text-blue-700',
+                            'bg-purple-100 text-purple-700',
+                            'bg-green-100 text-green-700',
+                            'bg-orange-100 text-orange-700',
+                            'bg-red-100 text-red-700',
+                            'bg-pink-100 text-pink-700'
+                          ]
+                          return (
+                            <span key={idx} className={`${colors[idx % colors.length]} px-2 py-0.5 rounded-full text-xs font-medium whitespace-nowrap`}>
+                              {tag}
+                            </span>
+                          )
+                        })}
                       </div>
-                    </div>
-                  </div>
-                  
-                  {/* 时间和展开按钮 */}
-                  <div className="flex items-center justify-between md:justify-end gap-3 md:gap-4 flex-shrink-0">
-                    <div className="text-left md:text-right text-xs text-gray-500 whitespace-nowrap">
-                      <div>2024-12-12 15:30</div>
-                    </div>
-                    <div className="w-8 h-8 md:w-6 md:h-6 rounded-full bg-gray-100 flex items-center justify-center group-hover:bg-blue-100 transition-colors">
-                      <span className="text-sm md:text-xs group-hover:text-blue-600">▶</span>
+                      
+                      {/* 时间 */}
+                      <div className="text-xs text-gray-500 mt-2">
+                        {currentHand.date} {currentHand.time}
+                      </div>
                     </div>
                   </div>
                 </div>
-              </div>
 
-              {/* 空状态 */}
-              <div className="text-center py-8 text-gray-400">
-                <span className="text-4xl mb-2 block">🃏</span>
-                <p className="text-sm">暂无手牌记录</p>
-                <p className="text-xs mt-1">开始记录你的手牌吧！</p>
+                {/* 行动线详情 - 始终展开 */}
+                <div className="border-t border-gray-200 bg-gray-50 p-4 md:p-5 space-y-4">
+                    {/* 翻牌前 */}
+                    <div className="bg-white rounded-lg p-3 border border-blue-200">
+                      <h4 className="font-bold text-sm text-blue-700 mb-2">♠️ 翻牌前 (Preflop)</h4>
+                      <div className="space-y-2 text-xs text-gray-700">
+                        <div className="flex items-center gap-2">
+                          <span className="bg-gray-200 px-2 py-0.5 rounded font-medium min-w-[40px] text-center">UTG</span>
+                          <span className="text-red-600 font-medium">Fold</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <span className="bg-gray-200 px-2 py-0.5 rounded font-medium min-w-[40px] text-center">CO</span>
+                          <span className="text-orange-600 font-medium">Raise</span>
+                          <span className="text-gray-600">3BB</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <span className="bg-yellow-200 px-2 py-0.5 rounded font-medium min-w-[40px] text-center">BTN</span>
+                          <span className="text-green-600 font-medium">Call</span>
+                          <span className="text-gray-600">3BB</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <span className="bg-gray-200 px-2 py-0.5 rounded font-medium min-w-[40px] text-center">BB</span>
+                          <span className="text-green-600 font-medium">Call</span>
+                          <span className="text-gray-600">3BB</span>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* 翻牌圈 */}
+                    <div className="bg-white rounded-lg p-3 border border-green-200">
+                      <div className="flex items-center justify-between mb-2">
+                        <h4 className="font-bold text-sm text-green-700">🎲 翻牌圈 (Flop)</h4>
+                        <div className="flex gap-1">
+                          <div className="w-8 h-11 bg-white border border-gray-300 rounded shadow-sm flex flex-col items-center justify-center">
+                            <span className="text-red-500 text-xs font-bold leading-none">Q</span>
+                            <span className="text-red-500 text-sm leading-none">♥️</span>
+                          </div>
+                          <div className="w-8 h-11 bg-white border border-gray-300 rounded shadow-sm flex flex-col items-center justify-center">
+                            <span className="text-red-500 text-xs font-bold leading-none">J</span>
+                            <span className="text-red-500 text-sm leading-none">♦️</span>
+                          </div>
+                          <div className="w-8 h-11 bg-white border border-gray-300 rounded shadow-sm flex flex-col items-center justify-center">
+                            <span className="text-gray-800 text-xs font-bold leading-none">10</span>
+                            <span className="text-gray-800 text-sm leading-none">♠️</span>
+                          </div>
+                        </div>
+                      </div>
+                      <div className="space-y-2 text-xs text-gray-700">
+                        <div className="flex items-center gap-2">
+                          <span className="bg-gray-200 px-2 py-0.5 rounded font-medium min-w-[40px] text-center">BB</span>
+                          <span className="text-blue-600 font-medium">Check</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <span className="bg-yellow-200 px-2 py-0.5 rounded font-medium min-w-[40px] text-center">BTN</span>
+                          <span className="text-orange-600 font-medium">Bet</span>
+                          <span className="text-gray-600">5BB</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <span className="bg-gray-200 px-2 py-0.5 rounded font-medium min-w-[40px] text-center">BB</span>
+                          <span className="text-red-600 font-medium">Fold</span>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* 转牌圈 */}
+                    <div className="bg-white rounded-lg p-3 border border-orange-200">
+                      <div className="flex items-center justify-between mb-2">
+                        <h4 className="font-bold text-sm text-orange-700">🎰 转牌圈 (Turn)</h4>
+                        <div className="w-8 h-11 bg-white border border-gray-300 rounded shadow-sm flex flex-col items-center justify-center">
+                          <span className="text-red-500 text-xs font-bold leading-none">9</span>
+                          <span className="text-red-500 text-sm leading-none">♥️</span>
+                        </div>
+                      </div>
+                      <div className="space-y-2 text-xs text-gray-700">
+                        <div className="flex items-center gap-2">
+                          <span className="bg-yellow-200 px-2 py-0.5 rounded font-medium min-w-[40px] text-center">BTN</span>
+                          <span className="text-green-600 font-medium">Check</span>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* 河牌圈 */}
+                    <div className="bg-white rounded-lg p-3 border border-red-200">
+                      <div className="flex items-center justify-between mb-2">
+                        <h4 className="font-bold text-sm text-red-700">🎯 河牌圈 (River)</h4>
+                        <div className="w-8 h-11 bg-white border border-gray-300 rounded shadow-sm flex flex-col items-center justify-center">
+                          <span className="text-gray-800 text-xs font-bold leading-none">2</span>
+                          <span className="text-gray-800 text-sm leading-none">♣️</span>
+                        </div>
+                      </div>
+                      <div className="space-y-2 text-xs text-gray-700">
+                        <div className="flex items-center gap-2">
+                          <span className="bg-yellow-200 px-2 py-0.5 rounded font-medium min-w-[40px] text-center">BTN</span>
+                          <span className="text-green-600 font-medium">Check</span>
+                        </div>
+                      </div>
+                    </div>
+
+                  {/* 结果 */}
+                  <div className="bg-green-50 rounded-lg p-3 border border-green-300">
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm font-medium text-gray-700">结果</span>
+                      <span className="text-green-600 font-bold">+15 BB</span>
+                    </div>
+                  </div>
+
+                  {/* 社交互动按钮 */}
+                  <div className="flex items-center justify-around pt-2 border-t border-gray-300">
+                    <button 
+                      onClick={() => toggleLike(currentHand.id)}
+                      className="flex flex-col items-center gap-1 p-3 hover:bg-white rounded-lg transition-all group"
+                    >
+                      <span className={`text-2xl group-hover:scale-110 transition-transform ${
+                        likedHands.has(currentHand.id) ? '' : ''
+                      }`}>
+                        {likedHands.has(currentHand.id) ? '❤️' : '🤍'}
+                      </span>
+                      <span className={`text-xs transition-colors ${
+                        likedHands.has(currentHand.id) ? 'text-red-600 font-medium' : 'text-gray-600 group-hover:text-red-600'
+                      }`}>
+                        {likedHands.has(currentHand.id) ? '已点赞' : '点赞'}
+                      </span>
+                    </button>
+                    
+                    <button 
+                      onClick={() => setShowComments(!showComments)}
+                      className="flex flex-col items-center gap-1 p-3 hover:bg-white rounded-lg transition-colors group"
+                    >
+                      <span className="text-2xl group-hover:scale-110 transition-transform">💬</span>
+                      <span className={`text-xs transition-colors ${
+                        showComments ? 'text-green-600 font-medium' : 'text-gray-600 group-hover:text-green-600'
+                      }`}>
+                        {showComments ? '收起' : '评论'}
+                      </span>
+                    </button>
+                    
+                    <button 
+                      onClick={() => toggleSave(currentHand.id)}
+                      className="flex flex-col items-center gap-1 p-3 hover:bg-white rounded-lg transition-all group"
+                    >
+                      <span className={`text-2xl group-hover:scale-110 transition-transform ${
+                        savedHands.has(currentHand.id) ? '' : ''
+                      }`}>
+                        {savedHands.has(currentHand.id) ? '⭐' : '☆'}
+                      </span>
+                      <span className={`text-xs transition-colors ${
+                        savedHands.has(currentHand.id) ? 'text-yellow-600 font-medium' : 'text-gray-600 group-hover:text-yellow-600'
+                      }`}>
+                        {savedHands.has(currentHand.id) ? '已收藏' : '收藏'}
+                      </span>
+                    </button>
+                    
+                    <button className="flex flex-col items-center gap-1 p-3 hover:bg-white rounded-lg transition-colors group">
+                      <span className="text-2xl group-hover:scale-110 transition-transform">📤</span>
+                      <span className="text-xs text-gray-600 group-hover:text-purple-600">转发</span>
+                    </button>
+                  </div>
+                </div>
+                
+                {/* 评论区 - 展开时显示 */}
+                {showComments && (
+                  <div className="border-t border-gray-200 bg-gray-50">
+                    {/* 评论列表 */}
+                    <div className="p-4 md:p-5 space-y-4 max-h-96 overflow-y-auto">
+                      <div className="flex items-center justify-between mb-2">
+                        <h4 className="font-semibold text-gray-800">评论 ({comments.length})</h4>
+                      </div>
+                      
+                      {comments.map((comment) => (
+                        <div key={comment.id} className="flex gap-3 animate-fade-in">
+                          {/* Avatar */}
+                          <div className="w-8 h-8 md:w-10 md:h-10 rounded-full bg-gradient-to-br from-blue-400 to-purple-500 flex items-center justify-center flex-shrink-0 text-base md:text-xl shadow-md">
+                            {comment.avatar}
+                          </div>
+                          
+                          {/* Comment Content */}
+                          <div className="flex-1 min-w-0 bg-white rounded-lg p-3 shadow-sm">
+                            <div className="flex items-baseline gap-2 mb-1">
+                              <span className="font-semibold text-xs md:text-sm text-gray-800">
+                                {comment.author}
+                              </span>
+                              <span className="text-xs text-gray-400">
+                                {comment.timestamp}
+                              </span>
+                            </div>
+                            <p className="text-xs md:text-sm text-gray-700 leading-relaxed break-words">
+                              {comment.content}
+                            </p>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+
+                    {/* 输入框 */}
+                    <div className="border-t border-gray-300 bg-white p-3 md:p-4">
+                      <div className="flex gap-2">
+                        <input
+                          type="text"
+                          value={newComment}
+                          onChange={(e) => setNewComment(e.target.value)}
+                          onKeyPress={(e) => {
+                            if (e.key === 'Enter' && newComment.trim()) {
+                              handleAddComment()
+                            }
+                          }}
+                          placeholder="写下你的评论..."
+                          className="flex-1 px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        />
+                        <button
+                          onClick={handleAddComment}
+                          disabled={!newComment.trim()}
+                          className={`px-4 md:px-6 py-2 rounded-lg font-medium text-sm transition-all flex-shrink-0 ${
+                            newComment.trim()
+                              ? 'bg-blue-500 text-white hover:bg-blue-600 shadow-md hover:shadow-lg'
+                              : 'bg-gray-200 text-gray-400 cursor-not-allowed'
+                          }`}
+                        >
+                          发送
+                        </button>
+                      </div>
+                      <div className="text-xs text-gray-400 mt-2">
+                        按 Enter 快速发送
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
+              
+              {/* 右侧按钮 - 桌面端 */}
+              <button
+                onClick={() => setCurrentHandIndex((prev) => (prev + 1) % sampleHands.length)}
+                className="hidden md:flex absolute right-0 top-1/2 -translate-y-1/2 z-10 w-14 h-14 bg-white hover:bg-blue-50 border-2 border-gray-200 hover:border-blue-500 rounded-full items-center justify-center shadow-lg hover:shadow-xl transition-all duration-300 group"
+              >
+                <span className="text-2xl text-gray-600 group-hover:text-blue-600 transition-colors">→</span>
+              </button>
+              
+              {/* 移动端导航 */}
+              <div className="md:hidden fixed bottom-20 left-0 right-0 flex items-center justify-center gap-4 px-4 z-20">
+                <button
+                  onClick={() => setCurrentHandIndex((prev) => (prev - 1 + sampleHands.length) % sampleHands.length)}
+                  className="bg-white/90 backdrop-blur-sm hover:bg-blue-50 text-gray-700 hover:text-blue-600 px-5 py-2.5 rounded-full font-medium transition-all flex items-center gap-2 shadow-lg border border-gray-200"
+                >
+                  <span className="text-lg">←</span>
+                  <span className="text-sm">上一张</span>
+                </button>
+                
+                <div className="text-gray-600 font-medium bg-white/90 backdrop-blur-sm px-4 py-2.5 rounded-full shadow-lg border border-gray-200 text-sm">
+                  {currentHandIndex + 1} / {sampleHands.length}
+                </div>
+                
+                <button
+                  onClick={() => setCurrentHandIndex((prev) => (prev + 1) % sampleHands.length)}
+                  className="bg-white/90 backdrop-blur-sm hover:bg-blue-50 text-gray-700 hover:text-blue-600 px-5 py-2.5 rounded-full font-medium transition-all flex items-center gap-2 shadow-lg border border-gray-200"
+                >
+                  <span className="text-sm">下一张</span>
+                  <span className="text-lg">→</span>
+                </button>
               </div>
             </div>
           )}
@@ -706,27 +1135,226 @@ export default function Home() {
                 )}
                 
                 {activeTab === 'my' && (
-                  <div>
-                    <h2 className="text-2xl font-bold font-rajdhani text-gray-800 mb-6 flex items-center gap-3">
-                      <span className="text-3xl">🃏</span>
-                      我的手牌
-                    </h2>
-                    <div className="space-y-4">
-                      <p className="text-gray-600">这里将显示个人手牌收藏和管理功能</p>
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div className="bg-gray-50 rounded-lg p-6 border border-gray-200">
-                          <h4 className="font-semibold text-gray-800 mb-3">收藏夹</h4>
-                          <p className="text-sm text-gray-600 mb-4">保存重要手牌</p>
-                          <button className="bg-blue-500 text-white px-4 py-2 rounded-lg text-sm hover:bg-blue-600 transition-colors">
-                            查看收藏
-                          </button>
+                  <div className="space-y-6">
+                    {/* 我的点赞 */}
+                    <div className="bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden">
+                      <div className="bg-gradient-to-r from-red-50 to-pink-50 px-6 py-4 border-b border-red-100">
+                        <div className="flex items-center justify-between">
+                          <h3 className="text-lg font-bold text-gray-800 flex items-center gap-2">
+                            <span className="text-2xl">❤️</span>
+                            <span>我的点赞</span>
+                          </h3>
+                          <span className="text-sm text-gray-600 bg-white px-3 py-1 rounded-full">
+                            {likedHands.size} 个手牌
+                          </span>
                         </div>
-                        <div className="bg-gray-50 rounded-lg p-6 border border-gray-200">
-                          <h4 className="font-semibold text-gray-800 mb-3">我的发布</h4>
-                          <p className="text-sm text-gray-600 mb-4">分享手牌和心得</p>
-                          <button className="bg-green-500 text-white px-4 py-2 rounded-lg text-sm hover:bg-green-600 transition-colors">
-                            查看发布
-                          </button>
+                      </div>
+                      <div className="p-6">
+                        {likedHands.size === 0 ? (
+                          <div className="text-center py-12 text-gray-400">
+                            <span className="text-5xl mb-3 block">🤍</span>
+                            <p className="text-sm">还没有点赞的手牌</p>
+                            <p className="text-xs mt-1">去游览手牌给喜欢的内容点赞吧！</p>
+                          </div>
+                        ) : (
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            {Array.from(likedHands).map((handId) => {
+                              const hand = sampleHands.find(h => h.id === handId)
+                              if (!hand) return null
+                              return (
+                                <div key={handId} className="bg-gradient-to-br from-red-50 to-pink-50 rounded-xl p-4 border border-red-100 hover:shadow-md transition-all cursor-pointer">
+                                  <div className="flex items-center gap-3 mb-2">
+                                    <div className="flex gap-1">
+                                      {hand.heroCards.map((card, idx) => {
+                                        const isRed = card.suit === 'hearts' || card.suit === 'diamonds'
+                                        const suitSymbol = card.suit === 'hearts' ? '♥️' : card.suit === 'diamonds' ? '♦️' : card.suit === 'clubs' ? '♣️' : '♠️'
+                                        return (
+                                          <div key={idx} className="w-8 h-12 bg-white border border-gray-300 rounded shadow-sm flex flex-col items-center justify-center">
+                                            <span className={`text-xs font-bold leading-none ${isRed ? 'text-red-500' : 'text-gray-800'}`}>
+                                              {card.rank}
+                                            </span>
+                                            <span className={`text-sm leading-none ${isRed ? 'text-red-500' : 'text-gray-800'}`}>
+                                              {suitSymbol}
+                                            </span>
+                                          </div>
+                                        )
+                                      })}
+                                    </div>
+                                    <div className="flex-1 min-w-0">
+                                      <div className="font-semibold text-sm text-gray-800 truncate">{hand.tournament}</div>
+                                      <div className="text-xs text-gray-500">{hand.date}</div>
+                                    </div>
+                                  </div>
+                                  <div className="flex flex-wrap gap-1">
+                                    {hand.tags.slice(0, 2).map((tag, idx) => (
+                                      <span key={idx} className="text-xs bg-white/70 text-gray-600 px-2 py-0.5 rounded-full">
+                                        {tag}
+                                      </span>
+                                    ))}
+                                  </div>
+                                </div>
+                              )
+                            })}
+                          </div>
+                        )}
+                      </div>
+                    </div>
+
+                    {/* 我的收藏 */}
+                    <div className="bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden">
+                      <div className="bg-gradient-to-r from-yellow-50 to-orange-50 px-6 py-4 border-b border-yellow-100">
+                        <div className="flex items-center justify-between">
+                          <h3 className="text-lg font-bold text-gray-800 flex items-center gap-2">
+                            <span className="text-2xl">⭐</span>
+                            <span>我的收藏</span>
+                          </h3>
+                          <span className="text-sm text-gray-600 bg-white px-3 py-1 rounded-full">
+                            {savedHands.size} 个手牌
+                          </span>
+                        </div>
+                      </div>
+                      <div className="p-6">
+                        {savedHands.size === 0 ? (
+                          <div className="text-center py-12 text-gray-400">
+                            <span className="text-5xl mb-3 block">☆</span>
+                            <p className="text-sm">还没有收藏的手牌</p>
+                            <p className="text-xs mt-1">收藏精彩的手牌，方便日后学习！</p>
+                          </div>
+                        ) : (
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            {Array.from(savedHands).map((handId) => {
+                              const hand = sampleHands.find(h => h.id === handId)
+                              if (!hand) return null
+                              return (
+                                <div key={handId} className="bg-gradient-to-br from-yellow-50 to-orange-50 rounded-xl p-4 border border-yellow-100 hover:shadow-md transition-all cursor-pointer">
+                                  <div className="flex items-center gap-3 mb-2">
+                                    <div className="flex gap-1">
+                                      {hand.heroCards.map((card, idx) => {
+                                        const isRed = card.suit === 'hearts' || card.suit === 'diamonds'
+                                        const suitSymbol = card.suit === 'hearts' ? '♥️' : card.suit === 'diamonds' ? '♦️' : card.suit === 'clubs' ? '♣️' : '♠️'
+                                        return (
+                                          <div key={idx} className="w-8 h-12 bg-white border border-gray-300 rounded shadow-sm flex flex-col items-center justify-center">
+                                            <span className={`text-xs font-bold leading-none ${isRed ? 'text-red-500' : 'text-gray-800'}`}>
+                                              {card.rank}
+                                            </span>
+                                            <span className={`text-sm leading-none ${isRed ? 'text-red-500' : 'text-gray-800'}`}>
+                                              {suitSymbol}
+                                            </span>
+                                          </div>
+                                        )
+                                      })}
+                                    </div>
+                                    <div className="flex-1 min-w-0">
+                                      <div className="font-semibold text-sm text-gray-800 truncate">{hand.tournament}</div>
+                                      <div className="text-xs text-gray-500">{hand.date}</div>
+                                    </div>
+                                  </div>
+                                  <div className="flex flex-wrap gap-1">
+                                    {hand.tags.slice(0, 2).map((tag, idx) => (
+                                      <span key={idx} className="text-xs bg-white/70 text-gray-600 px-2 py-0.5 rounded-full">
+                                        {tag}
+                                      </span>
+                                    ))}
+                                  </div>
+                                </div>
+                              )
+                            })}
+                          </div>
+                        )}
+                      </div>
+                    </div>
+
+                    {/* 消息中心 */}
+                    <div className="bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden">
+                      <div className="bg-gradient-to-r from-blue-50 to-purple-50 px-6 py-4 border-b border-blue-100">
+                        <div className="flex items-center justify-between">
+                          <h3 className="text-lg font-bold text-gray-800 flex items-center gap-2">
+                            <span className="text-2xl">🔔</span>
+                            <span>消息中心</span>
+                          </h3>
+                          <span className="text-sm text-red-500 bg-red-50 px-3 py-1 rounded-full font-medium">
+                            3 条未读
+                          </span>
+                        </div>
+                      </div>
+                      <div className="divide-y divide-gray-100">
+                        {/* 示例消息 */}
+                        <div className="p-4 hover:bg-gray-50 transition-colors cursor-pointer">
+                          <div className="flex items-start gap-3">
+                            <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-400 to-purple-500 flex items-center justify-center flex-shrink-0 text-xl">
+                              💬
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <div className="flex items-center gap-2 mb-1">
+                                <span className="font-semibold text-sm text-gray-800">PokerPro88</span>
+                                <span className="text-xs text-gray-400">2小时前</span>
+                                <span className="w-2 h-2 bg-red-500 rounded-full"></span>
+                              </div>
+                              <p className="text-sm text-gray-600">评论了你的手牌：这手牌打得很漂亮！</p>
+                            </div>
+                          </div>
+                        </div>
+
+                        <div className="p-4 hover:bg-gray-50 transition-colors cursor-pointer">
+                          <div className="flex items-start gap-3">
+                            <div className="w-10 h-10 rounded-full bg-gradient-to-br from-red-400 to-pink-500 flex items-center justify-center flex-shrink-0 text-xl">
+                              ❤️
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <div className="flex items-center gap-2 mb-1">
+                                <span className="font-semibold text-sm text-gray-800">CardShark</span>
+                                <span className="text-xs text-gray-400">5小时前</span>
+                                <span className="w-2 h-2 bg-red-500 rounded-full"></span>
+                              </div>
+                              <p className="text-sm text-gray-600">点赞了你的手牌</p>
+                            </div>
+                          </div>
+                        </div>
+
+                        <div className="p-4 hover:bg-gray-50 transition-colors cursor-pointer">
+                          <div className="flex items-start gap-3">
+                            <div className="w-10 h-10 rounded-full bg-gradient-to-br from-green-400 to-teal-500 flex items-center justify-center flex-shrink-0 text-xl">
+                              🏆
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <div className="flex items-center gap-2 mb-1">
+                                <span className="font-semibold text-sm text-gray-800">系统通知</span>
+                                <span className="text-xs text-gray-400">1天前</span>
+                                <span className="w-2 h-2 bg-red-500 rounded-full"></span>
+                              </div>
+                              <p className="text-sm text-gray-600">你的手牌获得了本周最佳分析奖！</p>
+                            </div>
+                          </div>
+                        </div>
+
+                        <div className="p-4 hover:bg-gray-50 transition-colors cursor-pointer bg-gray-50/50">
+                          <div className="flex items-start gap-3">
+                            <div className="w-10 h-10 rounded-full bg-gradient-to-br from-purple-400 to-indigo-500 flex items-center justify-center flex-shrink-0 text-xl">
+                              👤
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <div className="flex items-center gap-2 mb-1">
+                                <span className="font-semibold text-sm text-gray-800">AllInAndy</span>
+                                <span className="text-xs text-gray-400">2天前</span>
+                              </div>
+                              <p className="text-sm text-gray-600">关注了你</p>
+                            </div>
+                          </div>
+                        </div>
+
+                        <div className="p-4 hover:bg-gray-50 transition-colors cursor-pointer bg-gray-50/50">
+                          <div className="flex items-start gap-3">
+                            <div className="w-10 h-10 rounded-full bg-gradient-to-br from-yellow-400 to-orange-500 flex items-center justify-center flex-shrink-0 text-xl">
+                              ⭐
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <div className="flex items-center gap-2 mb-1">
+                                <span className="font-semibold text-sm text-gray-800">PokerMaster</span>
+                                <span className="text-xs text-gray-400">3天前</span>
+                              </div>
+                              <p className="text-sm text-gray-600">收藏了你的手牌</p>
+                            </div>
+                          </div>
                         </div>
                       </div>
                     </div>
@@ -787,6 +1415,7 @@ export default function Home() {
         onClose={() => setShowTournamentModal(false)}
         onSave={handleCreateTournament}
       />
+
     </>
   )
 }

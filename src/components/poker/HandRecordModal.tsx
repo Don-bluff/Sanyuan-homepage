@@ -189,7 +189,7 @@ export function HandRecordModal({ isOpen, onClose, onSave, isInline = false, tou
       alert('请在行动线中标记HERO并选择2张手牌')
       return
     }
-    
+
     const record: Partial<HandRecord> = {
       tournament_name: tournamentName,
       game_type: gameType,
@@ -216,11 +216,11 @@ export function HandRecordModal({ isOpen, onClose, onSave, isInline = false, tou
 
   const content = (
     <>
-      <div className={isInline ? "" : "bg-white rounded-2xl w-full max-w-4xl max-h-[90vh] overflow-y-auto"}>
-        <div className="p-6">
+      <div className={isInline ? "" : "bg-white rounded-2xl w-full max-w-4xl max-h-[95vh] md:max-h-[90vh] overflow-y-auto"}>
+        <div className="p-3 md:p-6">
           {!isInline && (
-            <div className="flex justify-between items-center mb-6">
-              <h2 className="text-2xl font-bold text-gray-800 font-orbitron">记录手牌</h2>
+            <div className="flex justify-between items-center mb-4 md:mb-6">
+              <h2 className="text-lg md:text-2xl font-bold text-gray-800 font-orbitron">记录手牌</h2>
               <button
                 onClick={onClose}
                 className="text-gray-500 hover:text-gray-700 text-2xl font-bold"
@@ -230,10 +230,10 @@ export function HandRecordModal({ isOpen, onClose, onSave, isInline = false, tou
             </div>
           )}
 
-          <div className="space-y-6">
+          <div className="space-y-4 md:space-y-6">
               {/* 比赛信息 */}
-              <div className={`rounded-xl p-4 ${tournament ? 'bg-green-50 border-2 border-green-200' : 'bg-gray-50'}`}>
-                <h3 className="font-bold text-lg mb-4 font-rajdhani flex items-center gap-2">
+              <div className={`rounded-xl p-3 md:p-4 ${tournament ? 'bg-green-50 border-2 border-green-200' : 'bg-gray-50'}`}>
+                <h3 className="font-bold text-base md:text-lg mb-3 md:mb-4 font-rajdhani flex items-center gap-2">
                   比赛信息
                   {tournament && (
                     <span className="text-xs bg-green-500 text-white px-2 py-1 rounded-full font-normal">
@@ -242,26 +242,26 @@ export function HandRecordModal({ isOpen, onClose, onSave, isInline = false, tou
                   )}
                 </h3>
                 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4">
                   <div>
-                    <label className="block text-sm font-medium mb-2">比赛名称</label>
+                    <label className="block text-xs md:text-sm font-medium mb-1 md:mb-2">比赛名称</label>
                     <input
                       type="text"
                       value={tournamentName}
                       onChange={(e) => setTournamentName(e.target.value)}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                      className="w-full px-2 md:px-3 py-1.5 md:py-2 text-sm md:text-base border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                       placeholder="输入比赛名称"
                     />
                   </div>
                   
                   <div>
-                    <label className="block text-sm font-medium mb-2">游戏类型</label>
-                    <div className="flex gap-2">
+                    <label className="block text-xs md:text-sm font-medium mb-1 md:mb-2">游戏类型</label>
+                    <div className="flex gap-1.5 md:gap-2">
                       {gameTypes.map(({ value, label }) => (
                         <button
                           key={value}
                           onClick={() => handleGameTypeChange(value)}
-                          className={`px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
+                          className={`px-2 md:px-3 py-1.5 md:py-2 rounded-lg text-xs md:text-sm font-medium transition-colors ${
                             gameType === value
                               ? 'bg-blue-600 text-white'
                               : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
@@ -278,7 +278,7 @@ export function HandRecordModal({ isOpen, onClose, onSave, isInline = false, tou
                         onChange={(e) => setMaxPlayers(Number(e.target.value))}
                         min="2"
                         max="10"
-                        className="mt-2 w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                        className="mt-1 md:mt-2 w-full px-2 md:px-3 py-1.5 md:py-2 text-sm md:text-base border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
                         placeholder="自定义人数"
                       />
                     )}
@@ -287,9 +287,9 @@ export function HandRecordModal({ isOpen, onClose, onSave, isInline = false, tou
               </div>
 
               {/* 盲注设置 */}
-              <div className={`rounded-xl p-4 ${tournament ? 'bg-green-50 border-2 border-green-200' : 'bg-gray-50'}`}>
-                <div className="flex items-center justify-between mb-4">
-                  <h3 className="font-bold text-lg font-rajdhani">盲注设置</h3>
+              <div className={`rounded-xl p-3 md:p-4 ${tournament ? 'bg-green-50 border-2 border-green-200' : 'bg-gray-50'}`}>
+                <div className="flex items-center justify-between mb-3 md:mb-4">
+                  <h3 className="font-bold text-base md:text-lg font-rajdhani">盲注设置</h3>
                   {tournament && (
                     <span className="text-xs bg-yellow-100 text-yellow-700 px-2 py-1 rounded-full">
                       可升盲
@@ -297,9 +297,9 @@ export function HandRecordModal({ isOpen, onClose, onSave, isInline = false, tou
                   )}
                 </div>
                 
-                <div className="mb-4">
-                  <label className="block text-sm font-medium mb-2">盲注模式</label>
-                  <div className="flex gap-2">
+                <div className="mb-3 md:mb-4">
+                  <label className="block text-xs md:text-sm font-medium mb-1 md:mb-2">盲注模式</label>
+                  <div className="flex gap-1.5 md:gap-2">
                     <button
                       onClick={() => handleBlindModeChange('chips')}
                       className={`px-4 py-2 rounded-lg font-medium transition-colors ${
@@ -323,9 +323,9 @@ export function HandRecordModal({ isOpen, onClose, onSave, isInline = false, tou
                   </div>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div className="grid grid-cols-3 gap-2 md:gap-4">
                   <div>
-                    <label className="block text-sm font-medium mb-2">
+                    <label className="block text-xs md:text-sm font-medium mb-1 md:mb-2">
                       小盲 {blindMode === 'bb' && '(BB)'}
                     </label>
                     <input
@@ -333,12 +333,12 @@ export function HandRecordModal({ isOpen, onClose, onSave, isInline = false, tou
                       value={smallBlind}
                       onChange={(e) => setSmallBlind(Number(e.target.value))}
                       step={blindMode === 'bb' ? '0.1' : '1'}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                      className="w-full px-2 md:px-3 py-1.5 md:py-2 text-sm md:text-base border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
                     />
                   </div>
                   
                   <div>
-                    <label className="block text-sm font-medium mb-2">
+                    <label className="block text-xs md:text-sm font-medium mb-1 md:mb-2">
                       大盲 {blindMode === 'bb' && '(BB)'}
                     </label>
                     <input
@@ -346,12 +346,12 @@ export function HandRecordModal({ isOpen, onClose, onSave, isInline = false, tou
                       value={bigBlind}
                       onChange={(e) => setBigBlind(Number(e.target.value))}
                       step={blindMode === 'bb' ? '0.1' : '1'}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                      className="w-full px-2 md:px-3 py-1.5 md:py-2 text-sm md:text-base border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
                     />
                   </div>
                   
                   <div>
-                    <label className="block text-sm font-medium mb-2">
+                    <label className="block text-xs md:text-sm font-medium mb-1 md:mb-2">
                       前注 {blindMode === 'bb' && '(BB)'}
                     </label>
                     <input
@@ -359,24 +359,24 @@ export function HandRecordModal({ isOpen, onClose, onSave, isInline = false, tou
                       value={ante}
                       onChange={(e) => setAnte(Number(e.target.value))}
                       step={blindMode === 'bb' ? '0.1' : '1'}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                      className="w-full px-2 md:px-3 py-1.5 md:py-2 text-sm md:text-base border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
                     />
                   </div>
                 </div>
               </div>
 
               {/* 行动线 */}
-              <div className="bg-blue-50 rounded-xl p-4 border-2 border-blue-100">
-                <h3 className="font-bold text-xl mb-4 font-rajdhani flex items-center gap-2">
+              <div className="bg-blue-50 rounded-xl p-3 md:p-4 border-2 border-blue-100">
+                <h3 className="font-bold text-base md:text-xl mb-3 md:mb-4 font-rajdhani flex items-center gap-2">
                   🎬 行动线
                 </h3>
                 
-                <div className="space-y-4">
+                <div className="space-y-3 md:space-y-4">
                   {/* 翻牌前 */}
                   {unlockedStreets.includes('preflop') && (
-                    <div className="bg-white rounded-xl p-4 border-2 border-blue-200">
-                      <div className="flex items-center justify-between mb-3">
-                        <h4 className="font-bold text-lg text-blue-700">♠️ 翻牌前 (Preflop)</h4>
+                    <div className="bg-white rounded-xl p-2 md:p-4 border-2 border-blue-200">
+                      <div className="flex items-center justify-between mb-2 md:mb-3">
+                        <h4 className="font-bold text-sm md:text-lg text-blue-700">♠️ 翻牌前</h4>
                         <Button onClick={() => handleAddAction('preflop')} variant="primary" size="sm">
                           + 添加行动
                         </Button>
@@ -384,9 +384,9 @@ export function HandRecordModal({ isOpen, onClose, onSave, isInline = false, tou
                       
                       <div className="space-y-2">
                         {actions.filter(a => a.street === 'preflop').map((action) => (
-                          <div key={action.id} className={`grid grid-cols-1 md:grid-cols-12 gap-2 p-3 rounded-lg border ${action.is_hero ? 'bg-yellow-50 border-yellow-300' : 'bg-gray-50 border-gray-200'}`}>
+                          <div key={action.id} className={`grid grid-cols-1 md:grid-cols-12 gap-2 p-2 md:p-3 rounded-lg border ${action.is_hero ? 'bg-yellow-50 border-yellow-300' : 'bg-gray-50 border-gray-200'}`}>
                             <div className="md:col-span-2">
-                              <label className="block text-xs font-medium mb-1">HERO</label>
+                              <label className="block text-[10px] md:text-xs font-medium mb-1">HERO</label>
                               <div className="flex flex-col gap-1">
                                 <label className="flex items-center gap-1 cursor-pointer">
                                   <input
@@ -427,7 +427,7 @@ export function HandRecordModal({ isOpen, onClose, onSave, isInline = false, tou
                                       return (
                                         <div
                                           key={cardIndex}
-                                          className={`w-10 h-14 border-2 rounded-md flex flex-col items-center justify-center transition-all ${
+                                          className={`w-8 h-12 md:w-10 md:h-14 border-2 rounded-md flex flex-col items-center justify-center transition-all ${
                                             card 
                                               ? 'bg-white border-gray-300 shadow-sm hover:shadow-md' 
                                               : 'bg-gray-100 border-dashed border-gray-400 hover:border-purple-400 hover:bg-purple-50'
@@ -435,15 +435,15 @@ export function HandRecordModal({ isOpen, onClose, onSave, isInline = false, tou
                                         >
                                           {card ? (
                                             <>
-                                              <span className={`text-xs font-bold leading-none ${getSuitColor(card.suit)}`}>
+                                              <span className={`text-[10px] md:text-xs font-bold leading-none ${getSuitColor(card.suit)}`}>
                                                 {card.rank}
                                               </span>
-                                              <span className={`text-base leading-none ${getSuitColor(card.suit)}`}>
+                                              <span className={`text-sm md:text-base leading-none ${getSuitColor(card.suit)}`}>
                                                 {getSuitSymbol(card.suit)}
                                               </span>
                                             </>
                                           ) : (
-                                            <span className="text-[10px] text-gray-400">?</span>
+                                            <span className="text-[8px] md:text-[10px] text-gray-400">?</span>
                                           )}
                                         </div>
                                       )
@@ -453,12 +453,12 @@ export function HandRecordModal({ isOpen, onClose, onSave, isInline = false, tou
                               </div>
                             </div>
                             
-                            <div>
-                              <label className="block text-xs font-medium mb-1">位置</label>
+                  <div>
+                              <label className="block text-[10px] md:text-xs font-medium mb-1">位置</label>
                               <select
                                 value={action.position}
                                 onChange={(e) => handleUpdateAction(action.id, { position: e.target.value as PokerPosition })}
-                                className="w-full px-2 py-1 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-blue-500"
+                                className="w-full px-1.5 md:px-2 py-1 text-xs md:text-sm border border-gray-300 rounded focus:ring-1 focus:ring-blue-500"
                               >
                                 {positions.map(pos => (
                                   <option key={pos} value={pos}>{pos}</option>
@@ -467,21 +467,21 @@ export function HandRecordModal({ isOpen, onClose, onSave, isInline = false, tou
                             </div>
                             
                             <div className="md:col-span-2">
-                              <label className="block text-xs font-medium mb-1">筹码</label>
+                              <label className="block text-[10px] md:text-xs font-medium mb-1">筹码</label>
                               <input
                                 type="number"
                                 value={action.stack}
                                 onChange={(e) => handleUpdateAction(action.id, { stack: Number(e.target.value) })}
-                                className="w-full px-2 py-1 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-blue-500"
+                                className="w-full px-1.5 md:px-2 py-1 text-xs md:text-sm border border-gray-300 rounded focus:ring-1 focus:ring-blue-500"
                               />
                             </div>
                             
                             <div className="md:col-span-2">
-                              <label className="block text-xs font-medium mb-1">行动</label>
+                              <label className="block text-[10px] md:text-xs font-medium mb-1">行动</label>
                               <select
                                 value={action.action}
                                 onChange={(e) => handleUpdateAction(action.id, { action: e.target.value as ActionType })}
-                                className="w-full px-2 py-1 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-blue-500"
+                                className="w-full px-1.5 md:px-2 py-1 text-xs md:text-sm border border-gray-300 rounded focus:ring-1 focus:ring-blue-500"
                               >
                                 <option value="fold">Fold</option>
                                 <option value="check">Check</option>
@@ -493,7 +493,7 @@ export function HandRecordModal({ isOpen, onClose, onSave, isInline = false, tou
                             </div>
                             
                             <div className="md:col-span-2">
-                              <label className="block text-xs font-medium mb-1">金额</label>
+                              <label className="block text-[10px] md:text-xs font-medium mb-1">金额</label>
                               <input
                                 type="number"
                                 value={action.amount || 0}
@@ -504,11 +504,11 @@ export function HandRecordModal({ isOpen, onClose, onSave, isInline = false, tou
                             </div>
                             
                             <div className="md:col-span-2 flex items-end">
-                              <button
+                    <button
                                 type="button"
                                 onClick={() => handleRemoveAction(action.id)}
                                 className="w-full px-2 py-1 text-xs bg-red-500 text-white rounded hover:bg-red-600 transition-colors"
-                              >
+                    >
                                 删除
                               </button>
                             </div>
@@ -547,7 +547,7 @@ export function HandRecordModal({ isOpen, onClose, onSave, isInline = false, tou
                         <span className="text-sm font-medium text-gray-700">翻牌：</span>
                         {[0, 1, 2].map((index) => (
                           <button
-                            key={index}
+                              key={index}
                             type="button"
                             onClick={() => openBoardCardSelector('flop', index)}
                             className="w-16 h-20 border-2 border-dashed border-green-300 rounded-lg hover:border-green-500 hover:bg-green-50 transition-all flex items-center justify-center cursor-pointer"
@@ -563,7 +563,7 @@ export function HandRecordModal({ isOpen, onClose, onSave, isInline = false, tou
                                 {boardCards.flop[index]!.suit === 'diamonds' && '♦️'}
                                 {boardCards.flop[index]!.suit === 'clubs' && '♣️'}
                                 {boardCards.flop[index]!.suit === 'spades' && '♠️'}
-                              </span>
+                            </span>
                             ) : (
                               <span className="text-gray-400 text-xs">点击选择</span>
                             )}
@@ -713,10 +713,10 @@ export function HandRecordModal({ isOpen, onClose, onSave, isInline = false, tou
                             </span>
                           ) : (
                             <span className="text-gray-400 text-xs">点击选择</span>
-                          )}
-                        </button>
-                      </div>
-                      
+                      )}
+                    </button>
+                  </div>
+                  
                       <div className="space-y-2">
                         {actions.filter(a => a.street === 'turn').map((action) => (
                           <div key={action.id} className={`grid grid-cols-1 md:grid-cols-12 gap-2 p-3 rounded-lg border ${action.is_hero ? 'bg-yellow-50 border-yellow-300' : 'bg-gray-50 border-gray-200'}`}>
@@ -724,7 +724,7 @@ export function HandRecordModal({ isOpen, onClose, onSave, isInline = false, tou
                               <label className="block text-xs font-medium mb-1">HERO</label>
                               <div className="flex flex-col gap-1">
                                 <label className="flex items-center gap-1 cursor-pointer">
-                                  <input
+                    <input
                                     type="checkbox"
                                     checked={action.is_hero}
                                     onChange={(e) => handleUpdateAction(action.id, { is_hero: e.target.checked })}
@@ -746,20 +746,20 @@ export function HandRecordModal({ isOpen, onClose, onSave, isInline = false, tou
                                   </button>
                                 )}
                               </div>
-                            </div>
-                            
+                  </div>
+                  
                             <div className="md:col-span-2">
                               <label className="block text-xs font-medium mb-1">位置</label>
-                              <select
+                    <select
                                 value={action.position}
                                 onChange={(e) => handleUpdateAction(action.id, { position: e.target.value as PokerPosition })}
                                 className="w-full px-2 py-1 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-blue-500"
-                              >
-                                {positions.map(pos => (
-                                  <option key={pos} value={pos}>{pos}</option>
-                                ))}
-                              </select>
-                            </div>
+                    >
+                      {positions.map(pos => (
+                        <option key={pos} value={pos}>{pos}</option>
+                      ))}
+                    </select>
+                  </div>
                             
                             <div className="md:col-span-2">
                               <label className="block text-xs font-medium mb-1">筹码</label>
@@ -806,7 +806,7 @@ export function HandRecordModal({ isOpen, onClose, onSave, isInline = false, tou
                               >
                                 删除
                               </button>
-                            </div>
+                </div>
                           </div>
                         ))}
                         
@@ -815,8 +815,8 @@ export function HandRecordModal({ isOpen, onClose, onSave, isInline = false, tou
                             暂无行动，点击上方"+ 添加行动"开始记录
                           </div>
                         )}
-                      </div>
-                      
+              </div>
+
                       {!unlockedStreets.includes('river') && (
                         <div className="mt-4 flex justify-center">
                           <Button onClick={handleNextStreet} variant="primary">
@@ -834,9 +834,9 @@ export function HandRecordModal({ isOpen, onClose, onSave, isInline = false, tou
                         <h4 className="font-bold text-lg text-red-700">🎯 河牌圈 (River)</h4>
                         <Button onClick={() => handleAddAction('river')} variant="primary" size="sm">
                           + 添加行动
-                        </Button>
-                      </div>
-                      
+                  </Button>
+                </div>
+                
                       {/* 河牌 */}
                       <div className="mb-4 flex items-center gap-2">
                         <span className="text-sm font-medium text-gray-700">河牌：</span>
@@ -895,28 +895,28 @@ export function HandRecordModal({ isOpen, onClose, onSave, isInline = false, tou
                             </div>
                             
                             <div className="md:col-span-2">
-                              <label className="block text-xs font-medium mb-1">位置</label>
-                              <select
+                        <label className="block text-xs font-medium mb-1">位置</label>
+                        <select
                                 value={action.position}
                                 onChange={(e) => handleUpdateAction(action.id, { position: e.target.value as PokerPosition })}
-                                className="w-full px-2 py-1 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-blue-500"
-                              >
-                                {positions.map(pos => (
-                                  <option key={pos} value={pos}>{pos}</option>
-                                ))}
-                              </select>
-                            </div>
-                            
+                          className="w-full px-2 py-1 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-blue-500"
+                        >
+                          {positions.map(pos => (
+                            <option key={pos} value={pos}>{pos}</option>
+                          ))}
+                        </select>
+                      </div>
+                      
                             <div className="md:col-span-2">
                               <label className="block text-xs font-medium mb-1">筹码</label>
-                              <input
-                                type="number"
+                        <input
+                          type="number"
                                 value={action.stack}
                                 onChange={(e) => handleUpdateAction(action.id, { stack: Number(e.target.value) })}
-                                className="w-full px-2 py-1 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-blue-500"
-                              />
-                            </div>
-                            
+                          className="w-full px-2 py-1 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-blue-500"
+                        />
+                      </div>
+                      
                             <div className="md:col-span-2">
                               <label className="block text-xs font-medium mb-1">行动</label>
                               <select
@@ -945,17 +945,17 @@ export function HandRecordModal({ isOpen, onClose, onSave, isInline = false, tou
                             </div>
                             
                             <div className="md:col-span-2 flex items-end">
-                              <button
+                        <button
                                 type="button"
                                 onClick={() => handleRemoveAction(action.id)}
                                 className="w-full px-2 py-1 text-xs bg-red-500 text-white rounded hover:bg-red-600 transition-colors"
-                              >
-                                删除
-                              </button>
-                            </div>
-                          </div>
-                        ))}
-                        
+                        >
+                          删除
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                  
                         {actions.filter(a => a.street === 'river').length === 0 && (
                           <div className="text-center py-4 text-gray-400 text-sm">
                             暂无行动，点击上方"+ 添加行动"开始记录
@@ -997,7 +997,7 @@ export function HandRecordModal({ isOpen, onClose, onSave, isInline = false, tou
             setCurrentEditingActionId(null)
             setEditingBoardCard(null)
           }}
-          onSelectCard={handleCardSelect}
+        onSelectCard={handleCardSelect}
           selectedCards={(() => {
             if (editingBoardCard) return []
             if (!currentEditingActionId) return []
@@ -1067,7 +1067,7 @@ export function HandRecordModal({ isOpen, onClose, onSave, isInline = false, tou
   }
 
   return (
-    <div className="fixed inset-0 bg-black/70 backdrop-blur-sm z-40 flex items-center justify-center p-4">
+    <div className="fixed inset-0 bg-black/70 backdrop-blur-sm z-40 flex items-center justify-center p-2 md:p-4">
       {content}
     </div>
   )
