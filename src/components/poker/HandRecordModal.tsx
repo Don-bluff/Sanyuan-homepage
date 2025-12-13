@@ -1137,6 +1137,7 @@ export function HandRecordModal({ isOpen, onClose, onSave, isInline = false, tou
                                     })}
                                   </div>
                                 </div>
+                              )}
                               </div>
                               
                               {/* 第二行 */}
