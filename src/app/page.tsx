@@ -813,14 +813,14 @@ export default function Home() {
                 <span>滑动来切换手牌</span>
               </div>
               
-              <div className="flex items-center justify-center px-4 md:px-0">
-                {/* 左侧箭头按钮 */}
+              <div className="flex items-center justify-center px-2 md:px-0">
+                {/* 左侧箭头按钮 - 仅桌面端显示 */}
                 <button
                   onClick={handlePrevHand}
-                  className="flex-shrink-0 w-10 h-10 md:w-14 md:h-14 bg-white/90 md:bg-white hover:bg-blue-50 active:bg-blue-100 border-2 border-gray-200 hover:border-blue-500 rounded-full flex items-center justify-center shadow-lg hover:shadow-xl transition-all duration-300 group z-10 mr-2 md:mr-4"
+                  className="hidden md:flex flex-shrink-0 w-14 h-14 bg-white hover:bg-blue-50 active:bg-blue-100 border-2 border-gray-200 hover:border-blue-500 rounded-full items-center justify-center shadow-lg hover:shadow-xl transition-all duration-300 group z-10 mr-4"
                   aria-label="上一张"
                 >
-                  <span className="text-lg md:text-2xl text-gray-600 group-hover:text-blue-600 transition-colors">←</span>
+                  <span className="text-2xl text-gray-600 group-hover:text-blue-600 transition-colors">←</span>
                 </button>
                 
                 {/* 当前手牌卡片 */}
@@ -830,7 +830,7 @@ export default function Home() {
                   'animate-slide-in-left'
                 }`}>
                   {/* Header部分 - 优化的比赛信息 */}
-                  <div className="p-4 md:p-5 bg-gradient-to-r from-blue-50 to-purple-50 border-b-2 border-blue-100">
+                  <div className="p-3 md:p-5 bg-gradient-to-r from-blue-50 to-purple-50 border-b-2 border-blue-100">
                     {/* 比赛名称和基本信息 */}
                     <div className="flex items-center justify-between gap-3 mb-3">
                       <div className="flex-1 min-w-0">
@@ -896,7 +896,7 @@ export default function Home() {
                   </div>
 
                 {/* 行动线详情 - 始终展开 */}
-                <div className="border-t border-gray-200 bg-gray-50 p-4 md:p-5 space-y-4">
+                <div className="border-t border-gray-200 bg-gray-50 p-3 md:p-5 space-y-3 md:space-y-4">
                     {/* 翻牌前 */}
                     <div className="bg-white rounded-lg p-3 md:p-4 border-2 border-blue-200">
                       <h4 className="font-bold text-sm md:text-base text-blue-700 mb-3">♠️ 翻牌前 (Preflop)</h4>
@@ -1155,13 +1155,13 @@ export default function Home() {
                 )}
               </div>
                 
-                {/* 右侧箭头按钮 */}
+                {/* 右侧箭头按钮 - 仅桌面端显示 */}
                 <button
                   onClick={handleNextHand}
-                  className="flex-shrink-0 w-10 h-10 md:w-14 md:h-14 bg-white/90 md:bg-white hover:bg-blue-50 active:bg-blue-100 border-2 border-gray-200 hover:border-blue-500 rounded-full flex items-center justify-center shadow-lg hover:shadow-xl transition-all duration-300 group z-10 ml-2 md:ml-4"
+                  className="hidden md:flex flex-shrink-0 w-14 h-14 bg-white hover:bg-blue-50 active:bg-blue-100 border-2 border-gray-200 hover:border-blue-500 rounded-full items-center justify-center shadow-lg hover:shadow-xl transition-all duration-300 group z-10 ml-4"
                   aria-label="下一张"
                 >
-                  <span className="text-lg md:text-2xl text-gray-600 group-hover:text-blue-600 transition-colors">→</span>
+                  <span className="text-2xl text-gray-600 group-hover:text-blue-600 transition-colors">→</span>
                 </button>
               </div>
               

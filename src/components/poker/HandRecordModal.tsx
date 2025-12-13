@@ -227,7 +227,7 @@ export function HandRecordModal({ isOpen, onClose, onSave, isInline = false, tou
   const content = (
     <>
       <div className={isInline ? "" : "bg-white rounded-2xl w-full max-w-4xl max-h-[95vh] md:max-h-[90vh] overflow-y-auto"}>
-        <div className="p-3 md:p-6">
+        <div className="p-2 md:p-6">
           {!isInline && (
             <div className="flex justify-between items-center mb-4 md:mb-6">
               <h2 className="text-lg md:text-2xl font-bold text-gray-800 font-orbitron">记录手牌</h2>
@@ -240,9 +240,9 @@ export function HandRecordModal({ isOpen, onClose, onSave, isInline = false, tou
             </div>
           )}
 
-          <div className="space-y-4 md:space-y-6">
+          <div className="space-y-3 md:space-y-6">
               {/* 比赛信息 */}
-              <div className={`rounded-xl p-3 md:p-4 ${tournament ? 'bg-green-50 border-2 border-green-200' : 'bg-gray-50'}`}>
+              <div className={`rounded-xl p-2.5 md:p-4 ${tournament ? 'bg-green-50 border-2 border-green-200' : 'bg-gray-50'}`}>
                 <h3 className="font-bold text-base md:text-lg mb-3 md:mb-4 font-rajdhani flex items-center gap-2">
                   比赛信息
                   {tournament && (
@@ -297,7 +297,7 @@ export function HandRecordModal({ isOpen, onClose, onSave, isInline = false, tou
               </div>
 
               {/* 盲注设置和比赛进程 */}
-              <div className={`rounded-xl p-3 md:p-4 ${tournament ? 'bg-green-50 border-2 border-green-200' : 'bg-gray-50'}`}>
+              <div className={`rounded-xl p-2.5 md:p-4 ${tournament ? 'bg-green-50 border-2 border-green-200' : 'bg-gray-50'}`}>
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6">
                   {/* 盲注设置 */}
                   <div>
@@ -438,7 +438,7 @@ export function HandRecordModal({ isOpen, onClose, onSave, isInline = false, tou
               </div>
 
               {/* 行动线 */}
-              <div className="bg-blue-50 rounded-xl p-3 md:p-4 border-2 border-blue-100">
+              <div className="bg-blue-50 rounded-xl p-2.5 md:p-4 border-2 border-blue-100">
                 <h3 className="font-bold text-base md:text-xl mb-3 md:mb-4 font-rajdhani flex items-center gap-2">
                   🎬 行动线
                 </h3>
@@ -453,146 +453,154 @@ export function HandRecordModal({ isOpen, onClose, onSave, isInline = false, tou
                       
                       <div className="space-y-3 md:space-y-4">
                         {actions.filter(a => a.street === 'preflop').map((action) => (
-                          <div key={action.id} className={`p-3 md:p-4 rounded-xl border-2 ${action.is_hero ? 'bg-yellow-50 border-yellow-400' : 'bg-gray-50 border-gray-300'}`}>
-                            <div className="flex flex-wrap items-center gap-2 md:gap-3">
-                              {/* Hero Checkbox 带标签 */}
-                              <div className="flex flex-col items-center gap-1">
-                                <label className="text-[10px] text-gray-600 font-medium">HERO</label>
-                                <input
-                                  type="checkbox"
-                                  checked={action.is_hero}
-                                  onChange={(e) => {
-                                    console.log('Checkbox changed:', e.target.checked)
-                                    handleUpdateAction(action.id, { is_hero: e.target.checked })
-                                  }}
-                                  className="w-5 h-5 text-blue-600 rounded focus:ring-2 focus:ring-blue-500 cursor-pointer"
-                                />
-                              </div>
-                              
-                              {/* Hero手牌 - 只在勾选Hero时显示 */}
-                              {action.is_hero && (
-                                <div className="flex gap-1">
-                                  <div 
-                                    onClick={() => {
-                                      console.log('Opening card selector, current hero_cards:', action.hero_cards)
-                                      openCardSelector(action.id)
-                                    }}
-                                    className="flex gap-1 cursor-pointer"
-                                  >
-                                    {[0, 1].map((cardIndex) => {
-                                      const card = action.hero_cards?.[cardIndex]
-                                      const getSuitSymbol = (suit: string) => {
-                                        switch(suit) {
-                                          case 'hearts': return '♥️'
-                                          case 'diamonds': return '♦️'
-                                          case 'clubs': return '♣️'
-                                          case 'spades': return '♠️'
-                                          default: return ''
-                                        }
-                                      }
-                                      
-                                      const getSuitColor = (suit: string) => {
-                                        return suit === 'hearts' || suit === 'diamonds' ? 'text-red-500' : 'text-gray-800'
-                                      }
-                                      
-                                      return (
-                                        <div
-                                          key={cardIndex}
-                                          className={`w-9 h-12 md:w-11 md:h-15 border-2 rounded-md flex flex-col items-center justify-center gap-0.5 transition-all ${
-                                            card 
-                                              ? 'bg-white border-gray-300 shadow-sm hover:shadow-md' 
-                                              : 'bg-gray-100 border-dashed border-gray-400 hover:border-purple-400 hover:bg-purple-50'
-                                          }`}
-                                        >
-                                          {card ? (
-                                            <>
-                                              <span className={`text-xs md:text-sm font-bold ${getSuitColor(card.suit)}`}>
-                                                {card.rank}
-                                              </span>
-                                              <span className={`text-sm md:text-base ${getSuitColor(card.suit)}`}>
-                                                {getSuitSymbol(card.suit)}
-                                              </span>
-                                            </>
-                                          ) : (
-                                            <span className="text-xs text-gray-400">?</span>
-                                          )}
-                                        </div>
-                                      )
-                                    })}
+                          <div key={action.id} className={`p-2.5 md:p-4 rounded-xl border-2 ${action.is_hero ? 'bg-yellow-50 border-yellow-400' : 'bg-gray-50 border-gray-300'}`}>
+                            <div className="flex flex-col md:flex-row md:flex-wrap items-start md:items-center gap-2 md:gap-3">
+                              {/* 移动端：垂直排列，桌面端：水平排列 */}
+                              <div className="w-full md:w-auto flex flex-col md:flex-row md:flex-wrap items-stretch md:items-center gap-2 md:gap-3">
+                                {/* Hero Checkbox 和手牌 */}
+                                <div className="flex items-center gap-2">
+                                  <div className="flex flex-col items-center gap-1">
+                                    <label className="text-[10px] text-gray-600 font-medium">HERO</label>
+                                    <input
+                                      type="checkbox"
+                                      checked={action.is_hero}
+                                      onChange={(e) => {
+                                        console.log('Checkbox changed:', e.target.checked)
+                                        handleUpdateAction(action.id, { is_hero: e.target.checked })
+                                      }}
+                                      className="w-5 h-5 text-blue-600 rounded focus:ring-2 focus:ring-blue-500 cursor-pointer"
+                                    />
+                                  </div>
+                                  
+                                  {/* Hero手牌 */}
+                                  {action.is_hero && (
+                                    <div className="flex gap-1">
+                                      <div 
+                                        onClick={() => {
+                                          console.log('Opening card selector, current hero_cards:', action.hero_cards)
+                                          openCardSelector(action.id)
+                                        }}
+                                        className="flex gap-1 cursor-pointer"
+                                      >
+                                        {[0, 1].map((cardIndex) => {
+                                          const card = action.hero_cards?.[cardIndex]
+                                          const getSuitSymbol = (suit: string) => {
+                                            switch(suit) {
+                                              case 'hearts': return '♥️'
+                                              case 'diamonds': return '♦️'
+                                              case 'clubs': return '♣️'
+                                              case 'spades': return '♠️'
+                                              default: return ''
+                                            }
+                                          }
+                                          
+                                          const getSuitColor = (suit: string) => {
+                                            return suit === 'hearts' || suit === 'diamonds' ? 'text-red-500' : 'text-gray-800'
+                                          }
+                                          
+                                          return (
+                                            <div
+                                              key={cardIndex}
+                                              className={`w-9 h-12 md:w-11 md:h-15 border-2 rounded-md flex flex-col items-center justify-center gap-0.5 transition-all ${
+                                                card 
+                                                  ? 'bg-white border-gray-300 shadow-sm hover:shadow-md' 
+                                                  : 'bg-gray-100 border-dashed border-gray-400 hover:border-purple-400 hover:bg-purple-50'
+                                              }`}
+                                            >
+                                              {card ? (
+                                                <>
+                                                  <span className={`text-xs md:text-sm font-bold ${getSuitColor(card.suit)}`}>
+                                                    {card.rank}
+                                                  </span>
+                                                  <span className={`text-sm md:text-base ${getSuitColor(card.suit)}`}>
+                                                    {getSuitSymbol(card.suit)}
+                                                  </span>
+                                                </>
+                                              ) : (
+                                                <span className="text-xs text-gray-400">?</span>
+                                              )}
+                                            </div>
+                                          )
+                                        })}
+                                      </div>
+                                    </div>
+                                  )}
+                                </div>
+                                
+                                {/* 位置和后手 */}
+                                <div className="flex items-center gap-2 flex-1 md:flex-initial">
+                                  <div className="flex-1 md:flex-initial md:w-20">
+                                    <select
+                                      value={action.position}
+                                      onChange={(e) => handleUpdateAction(action.id, { position: e.target.value as PokerPosition })}
+                                      className="w-full px-2 py-2 text-sm border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white font-medium"
+                                    >
+                                      {positions.map(pos => (
+                                        <option key={pos} value={pos}>{pos}</option>
+                                      ))}
+                                    </select>
+                                  </div>
+                                  
+                                  <div className="flex items-center gap-1">
+                                    <label className="text-xs text-gray-600 whitespace-nowrap">后手:</label>
+                                    <input
+                                      type="number"
+                                      value={action.stack}
+                                      onChange={(e) => handleUpdateAction(action.id, { stack: Number(e.target.value) })}
+                                      className="w-16 px-2 py-2 text-sm border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 font-medium"
+                                      placeholder="0"
+                                    />
+                                    <span className="text-xs text-gray-500 font-medium">
+                                      {blindMode === 'chips' ? '' : 'BB'}
+                                    </span>
                                   </div>
                                 </div>
-                              )}
-                              
-                              {/* 位置 */}
-                              <div className="flex-shrink-0" style={{ minWidth: '80px', maxWidth: '90px' }}>
-                                <select
-                                  value={action.position}
-                                  onChange={(e) => handleUpdateAction(action.id, { position: e.target.value as PokerPosition })}
-                                  className="w-full px-2 py-2 md:py-2.5 text-sm md:text-base border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white font-medium"
-                                >
-                                  {positions.map(pos => (
-                                    <option key={pos} value={pos}>{pos}</option>
-                                  ))}
-                                </select>
-                              </div>
-                              
-                              {/* 后手 */}
-                              <div className="flex items-center gap-1 flex-shrink-0">
-                                <label className="text-xs text-gray-600 whitespace-nowrap">后手:</label>
-                                <input
-                                  type="number"
-                                  value={action.stack}
-                                  onChange={(e) => handleUpdateAction(action.id, { stack: Number(e.target.value) })}
-                                  className="w-16 md:w-20 px-2 py-2 md:py-2.5 text-sm md:text-base border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 font-medium"
-                                  placeholder="0"
-                                />
-                                <span className="text-xs text-gray-500 font-medium">
-                                  {blindMode === 'chips' ? '' : 'BB'}
-                                </span>
-                              </div>
-                              
-                              {/* 行动 */}
-                              <div className="flex-shrink-0" style={{ minWidth: '90px', maxWidth: '110px' }}>
-                                <select
-                                  value={action.action}
-                                  onChange={(e) => handleUpdateAction(action.id, { action: e.target.value as ActionType })}
-                                  className="w-full px-2 py-2 md:py-2.5 text-sm md:text-base border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white font-medium"
-                                >
-                                  <option value="fold">Fold</option>
-                                  <option value="check">Check</option>
-                                  <option value="call">Call</option>
-                                  <option value="bet">Bet</option>
-                                  <option value="raise">Raise</option>
-                                  <option value="allin">All-in</option>
-                                </select>
-                              </div>
-                              
-                              {/* 数量输入 - 仅在bet/raise/allin时显示 */}
-                              {(action.action === 'bet' || action.action === 'raise' || action.action === 'allin') && (
-                                <div className="flex items-center gap-1 flex-shrink-0">
-                                  <label className="text-xs text-gray-600 whitespace-nowrap">数量:</label>
-                                  <input
-                                    type="number"
-                                    value={action.amount || 0}
-                                    onChange={(e) => handleUpdateAction(action.id, { amount: Number(e.target.value) })}
-                                    className="w-16 md:w-20 px-2 py-2 md:py-2.5 text-sm md:text-base border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 font-medium"
-                                    placeholder="0"
-                                  />
-                                  <span className="text-xs text-gray-500 font-medium">
-                                    {blindMode === 'chips' ? '' : 'BB'}
-                                  </span>
+                                
+                                {/* 行动和数量 */}
+                                <div className="flex items-center gap-2 flex-1 md:flex-initial">
+                                  <div className="flex-1 md:flex-initial md:w-24">
+                                    <select
+                                      value={action.action}
+                                      onChange={(e) => handleUpdateAction(action.id, { action: e.target.value as ActionType })}
+                                      className="w-full px-2 py-2 text-sm border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white font-medium"
+                                    >
+                                      <option value="fold">Fold</option>
+                                      <option value="check">Check</option>
+                                      <option value="call">Call</option>
+                                      <option value="bet">Bet</option>
+                                      <option value="raise">Raise</option>
+                                      <option value="allin">All-in</option>
+                                    </select>
+                                  </div>
+                                  
+                                  {/* 数量输入 */}
+                                  {(action.action === 'bet' || action.action === 'raise' || action.action === 'allin') && (
+                                    <div className="flex items-center gap-1">
+                                      <label className="text-xs text-gray-600 whitespace-nowrap">数量:</label>
+                                      <input
+                                        type="number"
+                                        value={action.amount || 0}
+                                        onChange={(e) => handleUpdateAction(action.id, { amount: Number(e.target.value) })}
+                                        className="w-16 px-2 py-2 text-sm border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 font-medium"
+                                        placeholder="0"
+                                      />
+                                      <span className="text-xs text-gray-500 font-medium">
+                                        {blindMode === 'chips' ? '' : 'BB'}
+                                      </span>
+                                    </div>
+                                  )}
                                 </div>
-                              )}
-                              
-                              {/* 删除按钮 */}
-                              <div className="flex-shrink-0 ml-auto">
-                                <button
-                                  type="button"
-                                  onClick={() => handleRemoveAction(action.id)}
-                                  className="px-4 py-2 md:py-2.5 text-sm md:text-base bg-red-500 text-white rounded-lg hover:bg-red-600 active:bg-red-700 transition-colors font-medium whitespace-nowrap"
-                                >
-                                  删除
-                                </button>
+                                
+                                {/* 删除按钮 */}
+                                <div className="w-full md:w-auto md:ml-auto">
+                                  <button
+                                    type="button"
+                                    onClick={() => handleRemoveAction(action.id)}
+                                    className="w-full md:w-auto px-4 py-2 text-sm bg-red-500 text-white rounded-lg hover:bg-red-600 active:bg-red-700 transition-colors font-medium whitespace-nowrap"
+                                  >
+                                    删除
+                                  </button>
+                                </div>
                               </div>
                             </div>
                           </div>
@@ -660,137 +668,142 @@ export function HandRecordModal({ isOpen, onClose, onSave, isInline = false, tou
                       
                       <div className="space-y-3 md:space-y-4">
                         {actions.filter(a => a.street === 'flop').map((action) => (
-                          <div key={action.id} className={`p-3 md:p-4 rounded-xl border-2 ${action.is_hero ? 'bg-yellow-50 border-yellow-400' : 'bg-gray-50 border-gray-300'}`}>
-                            <div className="flex flex-wrap items-center gap-2 md:gap-3">
-                              {/* Hero Checkbox 带标签 */}
-                              <div className="flex flex-col items-center gap-1">
-                                <label className="text-[10px] text-gray-600 font-medium">HERO</label>
-                                <input
-                                  type="checkbox"
-                                  checked={action.is_hero}
-                                  onChange={(e) => handleUpdateAction(action.id, { is_hero: e.target.checked })}
-                                  className="w-5 h-5 text-blue-600 rounded focus:ring-2 focus:ring-blue-500 cursor-pointer"
-                                />
-                              </div>
-                              
-                              {/* Hero手牌 */}
-                              {action.is_hero && (
-                                <div className="flex gap-1">
-                                  <div 
-                                    onClick={() => openCardSelector(action.id)}
-                                    className="flex gap-1 cursor-pointer"
-                                  >
-                                    {[0, 1].map((cardIndex) => {
-                                      const card = action.hero_cards?.[cardIndex]
-                                      const getSuitSymbol = (suit: string) => {
-                                        switch(suit) {
-                                          case 'hearts': return '♥️'
-                                          case 'diamonds': return '♦️'
-                                          case 'clubs': return '♣️'
-                                          case 'spades': return '♠️'
-                                          default: return ''
-                                        }
-                                      }
-                                      
-                                      const getSuitColor = (suit: string) => {
-                                        return suit === 'hearts' || suit === 'diamonds' ? 'text-red-500' : 'text-gray-800'
-                                      }
-                                      
-                                      return (
-                                        <div
-                                          key={cardIndex}
-                                          className={`w-9 h-12 md:w-11 md:h-15 border-2 rounded-md flex flex-col items-center justify-center gap-0.5 transition-all ${
-                                            card 
-                                              ? 'bg-white border-gray-300 shadow-sm hover:shadow-md' 
-                                              : 'bg-gray-100 border-dashed border-gray-400 hover:border-purple-400 hover:bg-purple-50'
-                                          }`}
-                                        >
-                                          {card ? (
-                                            <>
-                                              <span className={`text-xs md:text-sm font-bold ${getSuitColor(card.suit)}`}>
-                                                {card.rank}
-                                              </span>
-                                              <span className={`text-sm md:text-base ${getSuitColor(card.suit)}`}>
-                                                {getSuitSymbol(card.suit)}
-                                              </span>
-                                            </>
-                                          ) : (
-                                            <span className="text-xs text-gray-400">?</span>
-                                          )}
-                                        </div>
-                                      )
-                                    })}
-                                  </div>
+                          <div key={action.id} className={`p-2.5 md:p-4 rounded-xl border-2 ${action.is_hero ? 'bg-yellow-50 border-yellow-400' : 'bg-gray-50 border-gray-300'}`}>
+                            <div className="w-full flex flex-col md:flex-row md:flex-wrap items-stretch md:items-center gap-2 md:gap-3">
+                              {/* 第一行 */}
+                              <div className="flex items-center gap-2">
+                                <div className="flex flex-col items-center gap-1">
+                                  <label className="text-[10px] text-gray-600 font-medium">HERO</label>
+                                  <input
+                                    type="checkbox"
+                                    checked={action.is_hero}
+                                    onChange={(e) => handleUpdateAction(action.id, { is_hero: e.target.checked })}
+                                    className="w-5 h-5 text-blue-600 rounded focus:ring-2 focus:ring-blue-500 cursor-pointer"
+                                  />
                                 </div>
-                              )}
-                              
-                              {/* 位置 */}
-                              <div className="flex-shrink-0" style={{ minWidth: '80px', maxWidth: '90px' }}>
-                                <select
-                                  value={action.position}
-                                  onChange={(e) => handleUpdateAction(action.id, { position: e.target.value as PokerPosition })}
-                                  className="w-full px-2 py-2 md:py-2.5 text-sm md:text-base border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white font-medium"
-                                >
-                                  {positions.map(pos => (
-                                    <option key={pos} value={pos}>{pos}</option>
-                                  ))}
-                                </select>
+                                
+                                {/* Hero手牌 */}
+                                {action.is_hero && (
+                                  <div className="flex gap-1">
+                                    <div 
+                                      onClick={() => openCardSelector(action.id)}
+                                      className="flex gap-1 cursor-pointer"
+                                    >
+                                      {[0, 1].map((cardIndex) => {
+                                        const card = action.hero_cards?.[cardIndex]
+                                        const getSuitSymbol = (suit: string) => {
+                                          switch(suit) {
+                                            case 'hearts': return '♥️'
+                                            case 'diamonds': return '♦️'
+                                            case 'clubs': return '♣️'
+                                            case 'spades': return '♠️'
+                                            default: return ''
+                                          }
+                                        }
+                                        
+                                        const getSuitColor = (suit: string) => {
+                                          return suit === 'hearts' || suit === 'diamonds' ? 'text-red-500' : 'text-gray-800'
+                                        }
+                                        
+                                        return (
+                                          <div
+                                            key={cardIndex}
+                                            className={`w-9 h-12 md:w-11 md:h-15 border-2 rounded-md flex flex-col items-center justify-center gap-0.5 transition-all ${
+                                              card 
+                                                ? 'bg-white border-gray-300 shadow-sm hover:shadow-md' 
+                                                : 'bg-gray-100 border-dashed border-gray-400 hover:border-purple-400 hover:bg-purple-50'
+                                            }`}
+                                          >
+                                            {card ? (
+                                              <>
+                                                <span className={`text-xs md:text-sm font-bold ${getSuitColor(card.suit)}`}>
+                                                  {card.rank}
+                                                </span>
+                                                <span className={`text-sm md:text-base ${getSuitColor(card.suit)}`}>
+                                                  {getSuitSymbol(card.suit)}
+                                                </span>
+                                              </>
+                                            ) : (
+                                              <span className="text-xs text-gray-400">?</span>
+                                            )}
+                                          </div>
+                                        )
+                                      })}
+                                    </div>
+                                  </div>
+                                )}
                               </div>
                               
-                              {/* 后手 */}
-                              <div className="flex items-center gap-1 flex-shrink-0">
-                                <label className="text-xs text-gray-600 whitespace-nowrap">后手:</label>
-                                <input
-                                  type="number"
-                                  value={action.stack}
-                                  onChange={(e) => handleUpdateAction(action.id, { stack: Number(e.target.value) })}
-                                  className="w-16 md:w-20 px-2 py-2 md:py-2.5 text-sm md:text-base border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 font-medium"
-                                  placeholder="0"
-                                />
-                                <span className="text-xs text-gray-500 font-medium">
-                                  {blindMode === 'chips' ? '' : 'BB'}
-                                </span>
-                              </div>
-                              
-                              {/* 行动 */}
-                              <div className="flex-shrink-0" style={{ minWidth: '90px', maxWidth: '110px' }}>
-                                <select
-                                  value={action.action}
-                                  onChange={(e) => handleUpdateAction(action.id, { action: e.target.value as ActionType })}
-                                  className="w-full px-2 py-2 md:py-2.5 text-sm md:text-base border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white font-medium"
-                                >
-                                  <option value="fold">Fold</option>
-                                  <option value="check">Check</option>
-                                  <option value="call">Call</option>
-                                  <option value="bet">Bet</option>
-                                  <option value="raise">Raise</option>
-                                  <option value="allin">All-in</option>
-                                </select>
-                              </div>
-                              
-                              {/* 数量输入 - 仅在bet/raise/allin时显示 */}
-                              {(action.action === 'bet' || action.action === 'raise' || action.action === 'allin') && (
-                                <div className="flex items-center gap-1 flex-shrink-0">
-                                  <label className="text-xs text-gray-600 whitespace-nowrap">数量:</label>
+                              {/* 第二行 */}
+                              <div className="flex items-center gap-2 flex-1 md:flex-initial">
+                                <div className="flex-1 md:flex-initial md:w-20">
+                                  <select
+                                    value={action.position}
+                                    onChange={(e) => handleUpdateAction(action.id, { position: e.target.value as PokerPosition })}
+                                    className="w-full px-2 py-2 text-sm border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white font-medium"
+                                  >
+                                    {positions.map(pos => (
+                                      <option key={pos} value={pos}>{pos}</option>
+                                    ))}
+                                  </select>
+                                </div>
+                                
+                                <div className="flex items-center gap-1">
+                                  <label className="text-xs text-gray-600 whitespace-nowrap">后手:</label>
                                   <input
                                     type="number"
-                                    value={action.amount || 0}
-                                    onChange={(e) => handleUpdateAction(action.id, { amount: Number(e.target.value) })}
-                                    className="w-16 md:w-20 px-2 py-2 md:py-2.5 text-sm md:text-base border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 font-medium"
+                                    value={action.stack}
+                                    onChange={(e) => handleUpdateAction(action.id, { stack: Number(e.target.value) })}
+                                    className="w-16 px-2 py-2 text-sm border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 font-medium"
                                     placeholder="0"
                                   />
                                   <span className="text-xs text-gray-500 font-medium">
                                     {blindMode === 'chips' ? '' : 'BB'}
                                   </span>
                                 </div>
-                              )}
+                              </div>
+                              
+                              {/* 第三行 */}
+                              <div className="flex items-center gap-2 flex-1 md:flex-initial">
+                                <div className="flex-1 md:flex-initial md:w-24">
+                                  <select
+                                    value={action.action}
+                                    onChange={(e) => handleUpdateAction(action.id, { action: e.target.value as ActionType })}
+                                    className="w-full px-2 py-2 text-sm border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white font-medium"
+                                  >
+                                    <option value="fold">Fold</option>
+                                    <option value="check">Check</option>
+                                    <option value="call">Call</option>
+                                    <option value="bet">Bet</option>
+                                    <option value="raise">Raise</option>
+                                    <option value="allin">All-in</option>
+                                  </select>
+                                </div>
+                                
+                                {/* 数量输入 */}
+                                {(action.action === 'bet' || action.action === 'raise' || action.action === 'allin') && (
+                                  <div className="flex items-center gap-1">
+                                    <label className="text-xs text-gray-600 whitespace-nowrap">数量:</label>
+                                    <input
+                                      type="number"
+                                      value={action.amount ?? ''}
+                                      onChange={(e) => handleUpdateAction(action.id, { amount: e.target.value === '' ? undefined : Number(e.target.value) })}
+                                      className="w-16 px-2 py-2 text-sm border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 font-medium"
+                                      placeholder="0"
+                                    />
+                                    <span className="text-xs text-gray-500 font-medium">
+                                      {blindMode === 'chips' ? '' : 'BB'}
+                                    </span>
+                                  </div>
+                                )}
+                              </div>
                               
                               {/* 删除按钮 */}
-                              <div className="flex-shrink-0 ml-auto">
+                              <div className="w-full md:w-auto md:ml-auto">
                                 <button
                                   type="button"
                                   onClick={() => handleRemoveAction(action.id)}
-                                  className="px-4 py-2 md:py-2.5 text-sm md:text-base bg-red-500 text-white rounded-lg hover:bg-red-600 active:bg-red-700 transition-colors font-medium whitespace-nowrap"
+                                  className="w-full md:w-auto px-4 py-2 text-sm bg-red-500 text-white rounded-lg hover:bg-red-600 active:bg-red-700 transition-colors font-medium whitespace-nowrap"
                                 >
                                   删除
                                 </button>
@@ -858,18 +871,19 @@ export function HandRecordModal({ isOpen, onClose, onSave, isInline = false, tou
                   
                       <div className="space-y-3 md:space-y-4">
                         {actions.filter(a => a.street === 'turn').map((action) => (
-                          <div key={action.id} className={`p-3 md:p-4 rounded-xl border-2 ${action.is_hero ? 'bg-yellow-50 border-yellow-400' : 'bg-gray-50 border-gray-300'}`}>
-                            <div className="flex flex-wrap items-center gap-2 md:gap-3">
-                              {/* Hero Checkbox 带标签 */}
-                              <div className="flex flex-col items-center gap-1">
-                                <label className="text-[10px] text-gray-600 font-medium">HERO</label>
-                                <input
-                                  type="checkbox"
-                                  checked={action.is_hero}
-                                  onChange={(e) => handleUpdateAction(action.id, { is_hero: e.target.checked })}
-                                  className="w-5 h-5 text-blue-600 rounded focus:ring-2 focus:ring-blue-500 cursor-pointer"
-                                />
-                              </div>
+                          <div key={action.id} className={`p-2.5 md:p-4 rounded-xl border-2 ${action.is_hero ? 'bg-yellow-50 border-yellow-400' : 'bg-gray-50 border-gray-300'}`}>
+                            <div className="w-full flex flex-col md:flex-row md:flex-wrap items-stretch md:items-center gap-2 md:gap-3">
+                              {/* 第一行 */}
+                              <div className="flex items-center gap-2">
+                                <div className="flex flex-col items-center gap-1">
+                                  <label className="text-[10px] text-gray-600 font-medium">HERO</label>
+                                  <input
+                                    type="checkbox"
+                                    checked={action.is_hero}
+                                    onChange={(e) => handleUpdateAction(action.id, { is_hero: e.target.checked })}
+                                    className="w-5 h-5 text-blue-600 rounded focus:ring-2 focus:ring-blue-500 cursor-pointer"
+                                  />
+                                </div>
                               
                               {/* Hero手牌 */}
                               {action.is_hero && (
@@ -921,74 +935,78 @@ export function HandRecordModal({ isOpen, onClose, onSave, isInline = false, tou
                                   </div>
                                 </div>
                               )}
-                              
-                              {/* 位置 */}
-                              <div className="flex-shrink-0" style={{ minWidth: '80px', maxWidth: '90px' }}>
-                                <select
-                                  value={action.position}
-                                  onChange={(e) => handleUpdateAction(action.id, { position: e.target.value as PokerPosition })}
-                                  className="w-full px-2 py-2 md:py-2.5 text-sm md:text-base border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white font-medium"
-                                >
-                                  {positions.map(pos => (
-                                    <option key={pos} value={pos}>{pos}</option>
-                                  ))}
-                                </select>
                               </div>
                               
-                              {/* 后手 */}
-                              <div className="flex items-center gap-1 flex-shrink-0">
-                                <label className="text-xs text-gray-600 whitespace-nowrap">后手:</label>
-                                <input
-                                  type="number"
-                                  value={action.stack}
-                                  onChange={(e) => handleUpdateAction(action.id, { stack: Number(e.target.value) })}
-                                  className="w-16 md:w-20 px-2 py-2 md:py-2.5 text-sm md:text-base border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 font-medium"
-                                  placeholder="0"
-                                />
-                                <span className="text-xs text-gray-500 font-medium">
-                                  {blindMode === 'chips' ? '' : 'BB'}
-                                </span>
-                              </div>
-                              
-                              {/* 行动 */}
-                              <div className="flex-shrink-0" style={{ minWidth: '90px', maxWidth: '110px' }}>
-                                <select
-                                  value={action.action}
-                                  onChange={(e) => handleUpdateAction(action.id, { action: e.target.value as ActionType })}
-                                  className="w-full px-2 py-2 md:py-2.5 text-sm md:text-base border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white font-medium"
-                                >
-                                  <option value="fold">Fold</option>
-                                  <option value="check">Check</option>
-                                  <option value="call">Call</option>
-                                  <option value="bet">Bet</option>
-                                  <option value="raise">Raise</option>
-                                  <option value="allin">All-in</option>
-                                </select>
-                              </div>
-                              
-                              {/* 数量输入 - 仅在bet/raise/allin时显示 */}
-                              {(action.action === 'bet' || action.action === 'raise' || action.action === 'allin') && (
-                                <div className="flex items-center gap-1 flex-shrink-0">
-                                  <label className="text-xs text-gray-600 whitespace-nowrap">数量:</label>
+                              {/* 第二行 */}
+                              <div className="flex items-center gap-2 flex-1 md:flex-initial">
+                                <div className="flex-1 md:flex-initial md:w-20">
+                                  <select
+                                    value={action.position}
+                                    onChange={(e) => handleUpdateAction(action.id, { position: e.target.value as PokerPosition })}
+                                    className="w-full px-2 py-2 text-sm border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white font-medium"
+                                  >
+                                    {positions.map(pos => (
+                                      <option key={pos} value={pos}>{pos}</option>
+                                    ))}
+                                  </select>
+                                </div>
+                                
+                                <div className="flex items-center gap-1">
+                                  <label className="text-xs text-gray-600 whitespace-nowrap">后手:</label>
                                   <input
                                     type="number"
-                                    value={action.amount || 0}
-                                    onChange={(e) => handleUpdateAction(action.id, { amount: Number(e.target.value) })}
-                                    className="w-16 md:w-20 px-2 py-2 md:py-2.5 text-sm md:text-base border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 font-medium"
+                                    value={action.stack}
+                                    onChange={(e) => handleUpdateAction(action.id, { stack: Number(e.target.value) })}
+                                    className="w-16 px-2 py-2 text-sm border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 font-medium"
                                     placeholder="0"
                                   />
                                   <span className="text-xs text-gray-500 font-medium">
                                     {blindMode === 'chips' ? '' : 'BB'}
                                   </span>
                                 </div>
-                              )}
+                              </div>
+                              
+                              {/* 第三行 */}
+                              <div className="flex items-center gap-2 flex-1 md:flex-initial">
+                                <div className="flex-1 md:flex-initial md:w-24">
+                                  <select
+                                    value={action.action}
+                                    onChange={(e) => handleUpdateAction(action.id, { action: e.target.value as ActionType })}
+                                    className="w-full px-2 py-2 text-sm border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white font-medium"
+                                  >
+                                    <option value="fold">Fold</option>
+                                    <option value="check">Check</option>
+                                    <option value="call">Call</option>
+                                    <option value="bet">Bet</option>
+                                    <option value="raise">Raise</option>
+                                    <option value="allin">All-in</option>
+                                  </select>
+                                </div>
+                                
+                                {/* 数量输入 */}
+                                {(action.action === 'bet' || action.action === 'raise' || action.action === 'allin') && (
+                                  <div className="flex items-center gap-1">
+                                    <label className="text-xs text-gray-600 whitespace-nowrap">数量:</label>
+                                    <input
+                                      type="number"
+                                      value={action.amount ?? ''}
+                                      onChange={(e) => handleUpdateAction(action.id, { amount: e.target.value === '' ? undefined : Number(e.target.value) })}
+                                      className="w-16 px-2 py-2 text-sm border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 font-medium"
+                                      placeholder="0"
+                                    />
+                                    <span className="text-xs text-gray-500 font-medium">
+                                      {blindMode === 'chips' ? '' : 'BB'}
+                                    </span>
+                                  </div>
+                                )}
+                              </div>
                               
                               {/* 删除按钮 */}
-                              <div className="flex-shrink-0 ml-auto">
+                              <div className="w-full md:w-auto md:ml-auto">
                                 <button
                                   type="button"
                                   onClick={() => handleRemoveAction(action.id)}
-                                  className="px-4 py-2 md:py-2.5 text-sm md:text-base bg-red-500 text-white rounded-lg hover:bg-red-600 active:bg-red-700 transition-colors font-medium whitespace-nowrap"
+                                  className="w-full md:w-auto px-4 py-2 text-sm bg-red-500 text-white rounded-lg hover:bg-red-600 active:bg-red-700 transition-colors font-medium whitespace-nowrap"
                                 >
                                   删除
                                 </button>
@@ -1056,18 +1074,19 @@ export function HandRecordModal({ isOpen, onClose, onSave, isInline = false, tou
                       
                       <div className="space-y-3 md:space-y-4">
                         {actions.filter(a => a.street === 'river').map((action) => (
-                          <div key={action.id} className={`p-3 md:p-4 rounded-xl border-2 ${action.is_hero ? 'bg-yellow-50 border-yellow-400' : 'bg-gray-50 border-gray-300'}`}>
-                            <div className="flex flex-wrap items-center gap-2 md:gap-3">
-                              {/* Hero Checkbox 带标签 */}
-                              <div className="flex flex-col items-center gap-1">
-                                <label className="text-[10px] text-gray-600 font-medium">HERO</label>
-                                <input
-                                  type="checkbox"
-                                  checked={action.is_hero}
-                                  onChange={(e) => handleUpdateAction(action.id, { is_hero: e.target.checked })}
-                                  className="w-5 h-5 text-blue-600 rounded focus:ring-2 focus:ring-blue-500 cursor-pointer"
-                                />
-                              </div>
+                          <div key={action.id} className={`p-2.5 md:p-4 rounded-xl border-2 ${action.is_hero ? 'bg-yellow-50 border-yellow-400' : 'bg-gray-50 border-gray-300'}`}>
+                            <div className="w-full flex flex-col md:flex-row md:flex-wrap items-stretch md:items-center gap-2 md:gap-3">
+                              {/* 第一行 */}
+                              <div className="flex items-center gap-2">
+                                <div className="flex flex-col items-center gap-1">
+                                  <label className="text-[10px] text-gray-600 font-medium">HERO</label>
+                                  <input
+                                    type="checkbox"
+                                    checked={action.is_hero}
+                                    onChange={(e) => handleUpdateAction(action.id, { is_hero: e.target.checked })}
+                                    className="w-5 h-5 text-blue-600 rounded focus:ring-2 focus:ring-blue-500 cursor-pointer"
+                                  />
+                                </div>
                               
                               {/* Hero手牌 */}
                               {action.is_hero && (
@@ -1118,75 +1137,78 @@ export function HandRecordModal({ isOpen, onClose, onSave, isInline = false, tou
                                     })}
                                   </div>
                                 </div>
-                              )}
-                              
-                              {/* 位置 */}
-                              <div className="flex-shrink-0" style={{ minWidth: '80px', maxWidth: '90px' }}>
-                                <select
-                                  value={action.position}
-                                  onChange={(e) => handleUpdateAction(action.id, { position: e.target.value as PokerPosition })}
-                                  className="w-full px-2 py-2 md:py-2.5 text-sm md:text-base border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white font-medium"
-                                >
-                                  {positions.map(pos => (
-                                    <option key={pos} value={pos}>{pos}</option>
-                                  ))}
-                                </select>
                               </div>
                               
-                              {/* 后手 */}
-                              <div className="flex items-center gap-1 flex-shrink-0">
-                                <label className="text-xs text-gray-600 whitespace-nowrap">后手:</label>
-                                <input
-                                  type="number"
-                                  value={action.stack}
-                                  onChange={(e) => handleUpdateAction(action.id, { stack: Number(e.target.value) })}
-                                  className="w-16 md:w-20 px-2 py-2 md:py-2.5 text-sm md:text-base border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 font-medium"
-                                  placeholder="0"
-                                />
-                                <span className="text-xs text-gray-500 font-medium">
-                                  {blindMode === 'chips' ? '' : 'BB'}
-                                </span>
-                              </div>
-                              
-                              {/* 行动 */}
-                              <div className="flex-shrink-0" style={{ minWidth: '90px', maxWidth: '110px' }}>
-                                <select
-                                  value={action.action}
-                                  onChange={(e) => handleUpdateAction(action.id, { action: e.target.value as ActionType })}
-                                  className="w-full px-2 py-2 md:py-2.5 text-sm md:text-base border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white font-medium"
-                                >
-                                  <option value="fold">Fold</option>
-                                  <option value="check">Check</option>
-                                  <option value="call">Call</option>
-                                  <option value="bet">Bet</option>
-                                  <option value="raise">Raise</option>
-                                  <option value="allin">All-in</option>
-                                </select>
-                              </div>
-                              
-                              {/* 数量输入 - 仅在bet/raise/allin时显示 */}
-                              {(action.action === 'bet' || action.action === 'raise' || action.action === 'allin') && (
-                                <div className="flex items-center gap-1 flex-shrink-0">
-                                  <label className="text-xs text-gray-600 whitespace-nowrap">数量:</label>
+                              {/* 第二行 */}
+                              <div className="flex items-center gap-2 flex-1 md:flex-initial">
+                                <div className="flex-1 md:flex-initial md:w-20">
+                                  <select
+                                    value={action.position}
+                                    onChange={(e) => handleUpdateAction(action.id, { position: e.target.value as PokerPosition })}
+                                    className="w-full px-2 py-2 text-sm border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white font-medium"
+                                  >
+                                    {positions.map(pos => (
+                                      <option key={pos} value={pos}>{pos}</option>
+                                    ))}
+                                  </select>
+                                </div>
+                                
+                                <div className="flex items-center gap-1">
+                                  <label className="text-xs text-gray-600 whitespace-nowrap">后手:</label>
                                   <input
                                     type="number"
-                                    value={action.amount || 0}
-                                    onChange={(e) => handleUpdateAction(action.id, { amount: Number(e.target.value) })}
-                                    className="w-16 md:w-20 px-2 py-2 md:py-2.5 text-sm md:text-base border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 font-medium"
+                                    value={action.stack}
+                                    onChange={(e) => handleUpdateAction(action.id, { stack: Number(e.target.value) })}
+                                    className="w-16 px-2 py-2 text-sm border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 font-medium"
                                     placeholder="0"
                                   />
                                   <span className="text-xs text-gray-500 font-medium">
                                     {blindMode === 'chips' ? '' : 'BB'}
                                   </span>
                                 </div>
-                              )}
+                              </div>
+                              
+                              {/* 第三行 */}
+                              <div className="flex items-center gap-2 flex-1 md:flex-initial">
+                                <div className="flex-1 md:flex-initial md:w-24">
+                                  <select
+                                    value={action.action}
+                                    onChange={(e) => handleUpdateAction(action.id, { action: e.target.value as ActionType })}
+                                    className="w-full px-2 py-2 text-sm border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white font-medium"
+                                  >
+                                    <option value="fold">Fold</option>
+                                    <option value="check">Check</option>
+                                    <option value="call">Call</option>
+                                    <option value="bet">Bet</option>
+                                    <option value="raise">Raise</option>
+                                    <option value="allin">All-in</option>
+                                  </select>
+                                </div>
+                                
+                                {/* 数量输入 */}
+                                {(action.action === 'bet' || action.action === 'raise' || action.action === 'allin') && (
+                                  <div className="flex items-center gap-1">
+                                    <label className="text-xs text-gray-600 whitespace-nowrap">数量:</label>
+                                    <input
+                                      type="number"
+                                      value={action.amount ?? ''}
+                                      onChange={(e) => handleUpdateAction(action.id, { amount: e.target.value === '' ? undefined : Number(e.target.value) })}
+                                      className="w-16 px-2 py-2 text-sm border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 font-medium"
+                                      placeholder="0"
+                                    />
+                                    <span className="text-xs text-gray-500 font-medium">
+                                      {blindMode === 'chips' ? '' : 'BB'}
+                                    </span>
+                                  </div>
+                                )}
+                              </div>
                               
                               {/* 删除按钮 */}
-                              <div className="flex-shrink-0 ml-auto">
+                              <div className="w-full md:w-auto md:ml-auto">
                                 <button
                                   type="button"
                                   onClick={() => handleRemoveAction(action.id)}
-                                  className="px-4 py-2 md:py-2.5 text-sm md:text-base bg-red-500 text-white rounded-lg hover:bg-red-600 active:bg-red-700 transition-colors font-medium whitespace-nowrap"
+                                  className="w-full md:w-auto px-4 py-2 text-sm bg-red-500 text-white rounded-lg hover:bg-red-600 active:bg-red-700 transition-colors font-medium whitespace-nowrap"
                                 >
                                   删除
                                 </button>
