@@ -1086,11 +1086,36 @@ export default function Home() {
                   </div>
                 </div>
                 
-                {/* 评论区 - 展开时显示 */}
+                {/* 评论区弹出层 - 向上弹出遮盖牌面 */}
                 {showComments && (
-                  <div className="border-t border-gray-200 bg-gray-50 animate-slide-up">
-                    {/* 评论列表 */}
-                    <div className="p-4 md:p-5 space-y-4 max-h-96 overflow-y-auto">
+                  <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-end md:items-center justify-center animate-fade-in"
+                    onClick={() => setShowComments(false)}
+                  >
+                    <div 
+                      className="bg-white rounded-t-3xl md:rounded-2xl w-full md:w-[600px] max-h-[85vh] md:max-h-[80vh] flex flex-col shadow-2xl animate-slide-up"
+                      onClick={(e) => e.stopPropagation()}
+                    >
+                      {/* Header */}
+                      <div className="sticky top-0 bg-white border-b border-gray-200 px-4 md:px-6 py-4 rounded-t-3xl md:rounded-t-2xl z-10">
+                        <div className="flex items-center justify-between">
+                          <div className="flex-1">
+                            <h3 className="font-bold text-lg md:text-xl text-gray-800">评论</h3>
+                            <p className="text-xs md:text-sm text-gray-500 mt-1">{currentHand.tournament}</p>
+                          </div>
+                          <button
+                            onClick={() => setShowComments(false)}
+                            className="ml-4 w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-100 transition-colors flex-shrink-0"
+                          >
+                            <span className="text-gray-500 text-2xl leading-none">×</span>
+                          </button>
+                        </div>
+                        <div className="mt-2 text-sm text-gray-600">
+                          {comments.length} 条评论
+                        </div>
+                      </div>
+
+                      {/* 评论列表 */}
+                      <div className="flex-1 overflow-y-auto p-4 md:p-5 space-y-4">
                       <div className="flex items-center justify-between mb-2">
                         <h4 className="font-semibold text-gray-800">评论 ({comments.length})</h4>
                       </div>
@@ -1117,38 +1142,40 @@ export default function Home() {
                             </p>
                           </div>
                         </div>
-                      ))}
-                    </div>
-
-                    {/* 输入框 */}
-                    <div className="border-t border-gray-300 bg-white p-3 md:p-4">
-                      <div className="flex gap-2">
-                        <input
-                          type="text"
-                          value={newComment}
-                          onChange={(e) => setNewComment(e.target.value)}
-                          onKeyPress={(e) => {
-                            if (e.key === 'Enter' && newComment.trim()) {
-                              handleAddComment()
-                            }
-                          }}
-                          placeholder="写下你的评论..."
-                          className="flex-1 px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                        />
-                        <button
-                          onClick={handleAddComment}
-                          disabled={!newComment.trim()}
-                          className={`px-4 md:px-6 py-2 rounded-lg font-medium text-sm transition-all flex-shrink-0 ${
-                            newComment.trim()
-                              ? 'bg-blue-500 text-white hover:bg-blue-600 shadow-md hover:shadow-lg'
-                              : 'bg-gray-200 text-gray-400 cursor-not-allowed'
-                          }`}
-                        >
-                          发送
-                        </button>
+                        ))}
                       </div>
-                      <div className="text-xs text-gray-400 mt-2">
-                        按 Enter 快速发送
+
+                      {/* 输入框 */}
+                      <div className="sticky bottom-0 bg-white border-t border-gray-200 px-4 md:px-6 py-3 md:py-4">
+                        <div className="flex gap-2 md:gap-3">
+                          <textarea
+                            value={newComment}
+                            onChange={(e) => setNewComment(e.target.value)}
+                            onKeyPress={(e) => {
+                              if (e.key === 'Enter' && !e.shiftKey && newComment.trim()) {
+                                e.preventDefault()
+                                handleAddComment()
+                              }
+                            }}
+                            placeholder="写下你的评论..."
+                            className="flex-1 px-3 md:px-4 py-2 md:py-3 text-sm md:text-base border-2 border-gray-300 rounded-xl focus:outline-none focus:border-blue-500 resize-none transition-colors"
+                            rows={2}
+                          />
+                          <button
+                            onClick={handleAddComment}
+                            disabled={!newComment.trim()}
+                            className={`px-4 md:px-6 py-2 md:py-3 rounded-xl font-medium text-sm md:text-base transition-all flex-shrink-0 ${
+                              newComment.trim()
+                                ? 'bg-blue-500 text-white hover:bg-blue-600 shadow-md hover:shadow-lg'
+                                : 'bg-gray-200 text-gray-400 cursor-not-allowed'
+                            }`}
+                          >
+                            发送
+                          </button>
+                        </div>
+                        <div className="text-xs text-gray-400 mt-2">
+                          按 Enter 发送，Shift + Enter 换行
+                        </div>
                       </div>
                     </div>
                   </div>

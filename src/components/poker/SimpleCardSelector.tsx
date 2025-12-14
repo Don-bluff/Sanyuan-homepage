@@ -8,6 +8,7 @@ interface SimpleCardSelectorProps {
   onClose: () => void
   selectedCards: PokerCard[]
   usedCards?: PokerCard[]  // 全局已使用的牌
+  maxCards?: number  // 最多可选择的牌数
 }
 
 const suits: { suit: PokerSuit; symbol: string; color: string }[] = [
@@ -19,7 +20,7 @@ const suits: { suit: PokerSuit; symbol: string; color: string }[] = [
 
 const ranks: PokerRank[] = ['A', 'K', 'Q', 'J', '10', '9', '8', '7', '6', '5', '4', '3', '2']
 
-export function SimpleCardSelector({ onSelectCard, onClose, selectedCards, usedCards = [] }: SimpleCardSelectorProps) {
+export function SimpleCardSelector({ onSelectCard, onClose, selectedCards, usedCards = [], maxCards = 2 }: SimpleCardSelectorProps) {
   const isCardSelected = (rank: PokerRank, suit: PokerSuit) => {
     return selectedCards.some(card => card.rank === rank && card.suit === suit)
   }
@@ -57,7 +58,7 @@ export function SimpleCardSelector({ onSelectCard, onClose, selectedCards, usedC
 
         <div className="mb-3 text-center">
           <p className="text-sm text-gray-600">
-            已选择 {selectedCards.length}/2 张牌
+            已选择 {selectedCards.length}/{maxCards} 张牌
           </p>
           {selectedCards.length > 0 && (
             <div className="flex justify-center gap-2 mt-2">

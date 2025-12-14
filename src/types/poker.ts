@@ -21,6 +21,12 @@ export interface Player {
 export type ActionType = 'fold' | 'check' | 'call' | 'raise' | 'bet' | 'allin'
 export type Street = 'preflop' | 'flop' | 'turn' | 'river'
 
+// 单个决策
+export interface ActionDecision {
+  action: ActionType
+  amount?: number
+}
+
 export interface Action {
   id: string
   street: Street
@@ -31,6 +37,7 @@ export interface Action {
   is_hero: boolean
   hero_cards?: PokerCard[]  // 改为数组，支持0-2张牌
   description?: string
+  decisions?: ActionDecision[]  // 多轮决策
 }
 
 export interface StreetCards {
