@@ -246,7 +246,7 @@ export function HandRecordModal({ isOpen, onClose, onSave, isInline = false, tou
       hero_cards: undefined
     }
     
-    const newActions = [...actions, newAction]
+    let newActions = [...actions, newAction]
     
     // 如果是在翻牌前、翻牌圈或转牌圈添加行动，自动在后续回合创建该位置的行动
     const streetOrder: Street[] = ['preflop', 'flop', 'turn', 'river']
@@ -256,11 +256,16 @@ export function HandRecordModal({ isOpen, onClose, onSave, isInline = false, tou
       // 为后续每个street创建对应位置的action
       for (let i = currentStreetIndex + 1; i < streetOrder.length; i++) {
         const nextStreet = streetOrder[i]
+        const previousStreet = streetOrder[i - 1]
+        
+        // 计算该位置在上一个街道结束时的筹码
+        const stackAtPreviousStreet = getPositionStackAtStreet(newAction.position, previousStreet, newActions)
+        
         const nextAction: Action = {
           id: `${newActionId}_${nextStreet}`,
           street: nextStreet,
           position: newAction.position,
-          stack: 100, // 临时值，会在setActions后重新计算
+          stack: stackAtPreviousStreet, // 使用上一个街道结束时的筹码
           action: 'fold',
           amount: 0,
           is_hero: newAction.is_hero,
@@ -634,11 +639,16 @@ export function HandRecordModal({ isOpen, onClose, onSave, isInline = false, tou
       if (currentStreetIndex < streetOrder.length - 1) {
         for (let i = currentStreetIndex + 1; i < streetOrder.length; i++) {
           const nextStreet = streetOrder[i]
+          const previousStreet = streetOrder[i - 1]
+          
+          // 计算该位置在上一个街道结束时的筹码
+          const stackAtPreviousStreet = getPositionStackAtStreet(updates.position as PokerPosition, previousStreet, newActions)
+          
           const nextAction: Action = {
             id: `${baseId}_${nextStreet}`,
             street: nextStreet,
             position: updates.position as PokerPosition,
-            stack: 100, // 临时值
+            stack: stackAtPreviousStreet, // 使用上一个街道结束时的筹码
             action: 'fold',
             amount: 0,
             is_hero: updatedCurrentAction.is_hero,
@@ -879,9 +889,9 @@ export function HandRecordModal({ isOpen, onClose, onSave, isInline = false, tou
   const content = (
     <>
       <div className={isInline ? "" : "bg-white rounded-2xl w-full max-w-4xl max-h-[95vh] md:max-h-[90vh] overflow-y-auto"}>
-        <div className="p-2 md:p-6">
+        <div className="p-0.5 md:p-3">
           {!isInline && (
-            <div className="flex justify-between items-center mb-4 md:mb-6">
+            <div className="flex justify-between items-center mb-2 md:mb-6">
               <h2 className="text-lg md:text-2xl font-bold text-gray-800 font-orbitron">记录手牌</h2>
               <button
                 onClick={onClose}
@@ -892,10 +902,10 @@ export function HandRecordModal({ isOpen, onClose, onSave, isInline = false, tou
             </div>
           )}
 
-          <div className="space-y-3 md:space-y-6">
+          <div className="space-y-1 md:space-y-3">
               {/* 比赛信息 */}
-              <div className={`rounded-xl p-2.5 md:p-4 ${tournament ? 'bg-green-50 border-2 border-green-200' : 'bg-gray-50'}`}>
-                <h3 className="font-bold text-base md:text-lg mb-3 md:mb-4 font-rajdhani flex items-center gap-2">
+              <div className={`rounded-lg p-1 md:p-2 ${tournament ? 'bg-green-50 border-2 border-green-200' : 'bg-gray-50'}`}>
+                <h3 className="font-bold text-sm md:text-lg mb-1 md:mb-3 font-rajdhani flex items-center gap-2">
                   比赛信息
                   {tournament && (
                     <span className="text-xs bg-green-500 text-white px-2 py-1 rounded-full font-normal">
@@ -904,26 +914,26 @@ export function HandRecordModal({ isOpen, onClose, onSave, isInline = false, tou
                   )}
                 </h3>
                 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-0.5 md:gap-2">
                   <div>
-                    <label className="block text-xs md:text-sm font-medium mb-1 md:mb-2">比赛名称</label>
+                    <label className="block text-[10px] md:text-sm font-medium mb-0 md:mb-1">比赛名称</label>
                     <input
                       type="text"
                       value={tournamentName}
                       onChange={(e) => setTournamentName(e.target.value)}
-                      className="w-full px-2 md:px-3 py-1.5 md:py-2 text-sm md:text-base border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                      className="w-full px-1 md:px-3 py-1 md:py-2 text-xs md:text-base border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                       placeholder="输入比赛名称"
                     />
                   </div>
                   
                   <div>
-                    <label className="block text-xs md:text-sm font-medium mb-1 md:mb-2">游戏类型</label>
-                    <div className="flex gap-1.5 md:gap-2">
+                    <label className="block text-[10px] md:text-sm font-medium mb-0 md:mb-1">游戏类型</label>
+                    <div className="flex gap-0.5 md:gap-2">
                       {gameTypes.map(({ value, label }) => (
                         <button
                           key={value}
                           onClick={() => handleGameTypeChange(value)}
-                          className={`px-2 md:px-3 py-1.5 md:py-2 rounded-lg text-xs md:text-sm font-medium transition-colors ${
+                          className={`px-1 md:px-3 py-1 md:py-2 rounded-md text-[10px] md:text-sm font-medium transition-colors ${
                             gameType === value
                               ? 'bg-blue-600 text-white'
                               : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
@@ -940,7 +950,7 @@ export function HandRecordModal({ isOpen, onClose, onSave, isInline = false, tou
                         onChange={(e) => setMaxPlayers(Number(e.target.value))}
                         min="2"
                         max="10"
-                        className="mt-1 md:mt-2 w-full px-2 md:px-3 py-1.5 md:py-2 text-sm md:text-base border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                        className="mt-0.5 md:mt-2 w-full px-1 md:px-3 py-1 md:py-2 text-xs md:text-base border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500"
                         placeholder="自定义人数"
                       />
                     )}
@@ -949,12 +959,12 @@ export function HandRecordModal({ isOpen, onClose, onSave, isInline = false, tou
               </div>
 
               {/* 盲注设置和比赛进程 */}
-              <div className={`rounded-xl p-2.5 md:p-4 ${tournament ? 'bg-green-50 border-2 border-green-200' : 'bg-gray-50'}`}>
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6">
+              <div className={`rounded-lg p-1 md:p-2 ${tournament ? 'bg-green-50 border-2 border-green-200' : 'bg-gray-50'}`}>
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-1 md:gap-3">
               {/* 盲注设置 */}
                   <div>
-                    <div className="flex items-center justify-between mb-3 md:mb-4">
-                      <h3 className="font-bold text-base md:text-lg font-rajdhani">盲注设置</h3>
+                    <div className="flex items-center justify-between mb-1 md:mb-3">
+                      <h3 className="font-bold text-sm md:text-lg font-rajdhani">盲注设置</h3>
                       {tournament && (
                         <span className="text-xs bg-yellow-100 text-yellow-700 px-2 py-1 rounded-full">
                           可升盲
@@ -962,12 +972,12 @@ export function HandRecordModal({ isOpen, onClose, onSave, isInline = false, tou
                       )}
                     </div>
                     
-                    <div className="mb-3 md:mb-4">
-                      <label className="block text-xs md:text-sm font-medium mb-1 md:mb-2">盲注模式</label>
-                      <div className="flex gap-1.5 md:gap-2">
+                    <div className="mb-1 md:mb-3">
+                      <label className="block text-[10px] md:text-sm font-medium mb-0 md:mb-1">盲注模式</label>
+                      <div className="flex gap-0.5 md:gap-2">
                     <button
                       onClick={() => handleBlindModeChange('chips')}
-                          className={`flex-1 px-3 py-2 rounded-lg text-xs md:text-sm font-medium transition-colors ${
+                          className={`flex-1 px-2 md:px-3 py-1 md:py-2 rounded-md text-[10px] md:text-sm font-medium transition-colors ${
                         blindMode === 'chips'
                           ? 'bg-blue-600 text-white'
                           : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
@@ -977,7 +987,7 @@ export function HandRecordModal({ isOpen, onClose, onSave, isInline = false, tou
                     </button>
                     <button
                       onClick={() => handleBlindModeChange('bb')}
-                          className={`flex-1 px-3 py-2 rounded-lg text-xs md:text-sm font-medium transition-colors ${
+                          className={`flex-1 px-2 md:px-3 py-1 md:py-2 rounded-md text-[10px] md:text-sm font-medium transition-colors ${
                         blindMode === 'bb'
                           ? 'bg-blue-600 text-white'
                           : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
@@ -988,9 +998,9 @@ export function HandRecordModal({ isOpen, onClose, onSave, isInline = false, tou
                   </div>
                 </div>
 
-                    <div className="grid grid-cols-3 gap-2 md:gap-3">
+                    <div className="grid grid-cols-3 gap-0.5 md:gap-1.5">
                   <div>
-                        <label className="block text-xs md:text-sm font-medium mb-1 md:mb-2">
+                        <label className="block text-[10px] md:text-sm font-medium mb-0 md:mb-1">
                       小盲 {blindMode === 'bb' && '(BB)'}
                     </label>
                     <input
@@ -998,12 +1008,12 @@ export function HandRecordModal({ isOpen, onClose, onSave, isInline = false, tou
                       value={smallBlind}
                       onChange={(e) => setSmallBlind(Number(e.target.value))}
                       step={blindMode === 'bb' ? '0.1' : '1'}
-                          className="w-full px-2 md:px-3 py-1.5 md:py-2 text-sm md:text-base border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                          className="w-full px-1 md:px-3 py-1 md:py-2 text-xs md:text-base border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500"
                     />
                   </div>
                   
                   <div>
-                        <label className="block text-xs md:text-sm font-medium mb-1 md:mb-2">
+                        <label className="block text-[10px] md:text-sm font-medium mb-0 md:mb-1">
                       大盲 {blindMode === 'bb' && '(BB)'}
                     </label>
                     <input
@@ -1011,12 +1021,12 @@ export function HandRecordModal({ isOpen, onClose, onSave, isInline = false, tou
                       value={bigBlind}
                       onChange={(e) => setBigBlind(Number(e.target.value))}
                       step={blindMode === 'bb' ? '0.1' : '1'}
-                          className="w-full px-2 md:px-3 py-1.5 md:py-2 text-sm md:text-base border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                          className="w-full px-1 md:px-3 py-1 md:py-2 text-xs md:text-base border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500"
                     />
                   </div>
                   
                   <div>
-                        <label className="block text-xs md:text-sm font-medium mb-1 md:mb-2">
+                        <label className="block text-[10px] md:text-sm font-medium mb-0 md:mb-1">
                           前注 {blindMode === 'bb' && '(BB)'}
                     </label>
                     <input
@@ -1024,7 +1034,7 @@ export function HandRecordModal({ isOpen, onClose, onSave, isInline = false, tou
                       value={ante}
                       onChange={(e) => setAnte(Number(e.target.value))}
                       step={blindMode === 'bb' ? '0.1' : '1'}
-                          className="w-full px-2 md:px-3 py-1.5 md:py-2 text-sm md:text-base border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                          className="w-full px-1 md:px-3 py-1 md:py-2 text-xs md:text-base border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500"
                     />
                   </div>
                 </div>
@@ -1032,14 +1042,14 @@ export function HandRecordModal({ isOpen, onClose, onSave, isInline = false, tou
 
                   {/* 比赛进程 */}
                   <div>
-                    <div className="mb-3 md:mb-4">
-                      <h3 className="font-bold text-base md:text-lg font-rajdhani">比赛进程</h3>
+                    <div className="mb-1 md:mb-3">
+                      <h3 className="font-bold text-sm md:text-lg font-rajdhani">比赛进程</h3>
                     </div>
                     
-                    <div className="space-y-3 md:space-y-4">
+                    <div className="space-y-1 md:space-y-3">
                       {/* 人数 */}
                   <div>
-                        <label className="block text-xs md:text-sm font-medium mb-1 md:mb-2">
+                        <label className="block text-[10px] md:text-sm font-medium mb-0 md:mb-1">
                           人数（当前/总买入）
                         </label>
                         <div className="flex items-center gap-2">
@@ -1049,7 +1059,7 @@ export function HandRecordModal({ isOpen, onClose, onSave, isInline = false, tou
                             onChange={(e) => setCurrentPlayers(Number(e.target.value))}
                             min="0"
                             placeholder="当前"
-                            className="w-24 md:flex-1 px-2 md:px-3 py-1.5 md:py-2 text-sm md:text-base border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                            className="w-24 md:flex-1 px-1 md:px-3 py-1 md:py-2 text-xs md:text-base border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500"
                           />
                           <span className="text-gray-500 font-bold">/</span>
                           <input
@@ -1058,14 +1068,14 @@ export function HandRecordModal({ isOpen, onClose, onSave, isInline = false, tou
                             onChange={(e) => setStartingPlayers(Number(e.target.value))}
                             min="0"
                             placeholder="总买入"
-                            className="w-24 md:flex-1 px-2 md:px-3 py-1.5 md:py-2 text-sm md:text-base border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                            className="w-24 md:flex-1 px-1 md:px-3 py-1 md:py-2 text-xs md:text-base border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500"
                           />
                         </div>
                       </div>
 
                       {/* 钱圈 */}
                       <div>
-                        <label className="block text-xs md:text-sm font-medium mb-1 md:mb-2">
+                        <label className="block text-[10px] md:text-sm font-medium mb-0 md:mb-1">
                           钱圈（ITM位置）
                         </label>
                         <input
@@ -1074,7 +1084,7 @@ export function HandRecordModal({ isOpen, onClose, onSave, isInline = false, tou
                           onChange={(e) => setMoneyBubble(Number(e.target.value))}
                           min="0"
                           placeholder="进入钱圈的名次"
-                          className="w-full px-2 md:px-3 py-1.5 md:py-2 text-sm md:text-base border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                          className="w-full px-1 md:px-3 py-1 md:py-2 text-xs md:text-base border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500"
                         />
                         {moneyBubble > 0 && currentPlayers > 0 && (
                           <p className="text-xs text-gray-500 mt-1">
@@ -1090,15 +1100,15 @@ export function HandRecordModal({ isOpen, onClose, onSave, isInline = false, tou
               </div>
 
               {/* 行动线 */}
-              <div className="bg-blue-50 rounded-xl p-2.5 md:p-4 border-2 border-blue-100">
-                <h3 className="font-bold text-base md:text-xl mb-3 md:mb-4 font-rajdhani flex items-center gap-2">
+              <div className="bg-blue-50 rounded-lg p-1 md:p-2 border-2 border-blue-100">
+                <h3 className="font-bold text-sm md:text-xl mb-1 md:mb-3 font-rajdhani flex items-center gap-2">
                   🎬 行动线
                 </h3>
                 
-                <div className="space-y-3 md:space-y-4">
+                <div className="space-y-1 md:space-y-3">
                   {/* 翻牌前 */}
-                  <div className="bg-white rounded-xl p-3 md:p-5 border-2 border-blue-200">
-                      <div className="mb-4 flex items-center justify-between">
+                  <div className="bg-white rounded-lg p-1 md:p-2.5 border-2 border-blue-200">
+                      <div className="mb-1 md:mb-3 flex items-center justify-between">
                         <h4 className="font-bold text-base md:text-xl text-blue-700">♠️ 翻牌前 (Preflop)</h4>
                         <div className="bg-blue-100 px-3 py-1 rounded-lg">
                           <span className="text-sm font-semibold text-blue-800">
@@ -1107,9 +1117,9 @@ export function HandRecordModal({ isOpen, onClose, onSave, isInline = false, tou
                         </div>
                       </div>
                       
-                      <div className="space-y-3 md:space-y-4">
+                      <div className="space-y-1 md:space-y-3">
                         {actions.filter(a => a.street === 'preflop').map((action) => (
-                          <div key={action.id} className={`p-2.5 md:p-4 rounded-xl border-2 ${action.is_hero ? 'bg-yellow-50 border-yellow-400' : 'bg-gray-50 border-gray-300'}`}>
+                          <div key={action.id} className={`p-1 md:p-2.5 rounded-lg border-2 ${action.is_hero ? 'bg-yellow-50 border-yellow-400' : 'bg-gray-50 border-gray-300'}`}>
                             <div className="flex flex-col md:flex-row md:flex-wrap items-start md:items-center gap-2 md:gap-3">
                               {/* 移动端：垂直排列，桌面端：水平排列 */}
                               <div className="w-full md:w-auto flex flex-col md:flex-row md:flex-wrap items-stretch md:items-center gap-2 md:gap-3">
@@ -1345,9 +1355,9 @@ export function HandRecordModal({ isOpen, onClose, onSave, isInline = false, tou
                     </div>
 
                   {/* 翻牌圈 */}
-                  <div className="bg-white rounded-xl p-3 md:p-5 border-2 border-green-200">
-                      <div className="mb-4 flex items-center justify-between">
-                        <h4 className="font-bold text-base md:text-xl text-green-700">🎲 翻牌圈 (Flop)</h4>
+                  <div className="bg-white rounded-lg p-1 md:p-2.5 border-2 border-green-200">
+                      <div className="mb-1 md:mb-3 flex items-center justify-between">
+                        <h4 className="font-bold text-sm md:text-xl text-green-700">🎲 翻牌圈 (Flop)</h4>
                         <div className="bg-green-100 px-3 py-1 rounded-lg">
                           <span className="text-sm font-semibold text-green-800">
                             底池: {getPotAtStreet('flop')} {blindMode === 'bb' ? 'BB' : ''}
@@ -1356,8 +1366,8 @@ export function HandRecordModal({ isOpen, onClose, onSave, isInline = false, tou
                       </div>
                       
                       {/* 翻牌 */}
-                      <div className="mb-4">
-                        <span className="text-sm font-medium text-gray-700 block mb-2">翻牌：</span>
+                      <div className="mb-1 md:mb-3">
+                        <span className="text-[10px] md:text-sm font-medium text-gray-700 block mb-0.5 md:mb-1">翻牌：</span>
                         <button
                           type="button"
                           onClick={() => {
@@ -1638,9 +1648,9 @@ export function HandRecordModal({ isOpen, onClose, onSave, isInline = false, tou
                     </div>
 
                   {/* 转牌圈 */}
-                  <div className="bg-white rounded-xl p-3 md:p-5 border-2 border-orange-200">
-                      <div className="mb-4 flex items-center justify-between">
-                        <h4 className="font-bold text-base md:text-xl text-orange-700">🎰 转牌圈 (Turn)</h4>
+                  <div className="bg-white rounded-lg p-1 md:p-2.5 border-2 border-orange-200">
+                      <div className="mb-1 md:mb-3 flex items-center justify-between">
+                        <h4 className="font-bold text-sm md:text-xl text-orange-700">🎰 转牌圈 (Turn)</h4>
                         <div className="bg-orange-100 px-3 py-1 rounded-lg">
                           <span className="text-sm font-semibold text-orange-800">
                             底池: {getPotAtStreet('turn')} {blindMode === 'bb' ? 'BB' : ''}
@@ -1649,8 +1659,8 @@ export function HandRecordModal({ isOpen, onClose, onSave, isInline = false, tou
                       </div>
                       
                       {/* 转牌 */}
-                      <div className="mb-4 flex items-center gap-2">
-                        <span className="text-sm font-medium text-gray-700">转牌：</span>
+                      <div className="mb-1 md:mb-3 flex items-center gap-2">
+                        <span className="text-[10px] md:text-sm font-medium text-gray-700">转牌：</span>
                         <button
                           type="button"
                           onClick={() => openBoardCardSelector('turn')}
@@ -1931,9 +1941,9 @@ export function HandRecordModal({ isOpen, onClose, onSave, isInline = false, tou
                     </div>
 
                   {/* 河牌圈 */}
-                  <div className="bg-white rounded-xl p-3 md:p-5 border-2 border-red-200">
-                      <div className="mb-4 flex items-center justify-between">
-                        <h4 className="font-bold text-base md:text-xl text-red-700">🎯 河牌圈 (River)</h4>
+                  <div className="bg-white rounded-lg p-1 md:p-2.5 border-2 border-red-200">
+                      <div className="mb-1 md:mb-3 flex items-center justify-between">
+                        <h4 className="font-bold text-sm md:text-xl text-red-700">🎯 河牌圈 (River)</h4>
                         <div className="bg-red-100 px-3 py-1 rounded-lg">
                           <span className="text-sm font-semibold text-red-800">
                             底池: {getPotAtStreet('river')} {blindMode === 'bb' ? 'BB' : ''}
@@ -1942,8 +1952,8 @@ export function HandRecordModal({ isOpen, onClose, onSave, isInline = false, tou
                       </div>
                 
                       {/* 河牌 */}
-                      <div className="mb-4 flex items-center gap-2">
-                        <span className="text-sm font-medium text-gray-700">河牌：</span>
+                      <div className="mb-1 md:mb-3 flex items-center gap-2">
+                        <span className="text-[10px] md:text-sm font-medium text-gray-700">河牌：</span>
                         <button
                           type="button"
                           onClick={() => openBoardCardSelector('river')}
@@ -2227,7 +2237,7 @@ export function HandRecordModal({ isOpen, onClose, onSave, isInline = false, tou
 
           {/* Footer */}
           {!isInline && (
-            <div className="flex justify-end gap-3 mt-6 pt-4 border-t">
+            <div className="flex justify-end gap-2 md:gap-3 mt-2 md:mt-4 pt-1.5 md:pt-3 border-t">
               <Button onClick={onClose} variant="ghost">
                 取消
               </Button>
@@ -2238,7 +2248,7 @@ export function HandRecordModal({ isOpen, onClose, onSave, isInline = false, tou
           )}
 
           {isInline && (
-            <div className="flex justify-center gap-3 mt-8">
+            <div className="flex justify-center gap-2 md:gap-3 mt-2 md:mt-6">
               <Button onClick={handleSave} variant="primary" className="px-8">
                 保存手牌记录
               </Button>
