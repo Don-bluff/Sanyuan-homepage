@@ -889,7 +889,7 @@ export function HandRecordModal({ isOpen, onClose, onSave, isInline = false, tou
   const content = (
     <>
       <div className={isInline ? "" : "bg-white rounded-2xl w-full max-w-4xl max-h-[95vh] md:max-h-[90vh] overflow-y-auto"}>
-        <div className="p-0.5 md:p-3">
+        <div className={isInline ? "p-0" : "p-0.5 md:p-3"}>
           {!isInline && (
             <div className="flex justify-between items-center mb-2 md:mb-6">
               <h2 className="text-lg md:text-2xl font-bold text-gray-800 font-orbitron">记录手牌</h2>
