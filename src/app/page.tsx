@@ -5,6 +5,7 @@ import Image from "next/image"
 import { HandRecordModal } from '@/components/poker/HandRecordModal'
 import { TournamentModal } from '@/components/poker/TournamentModal'
 import { PokerCard } from '@/components/poker/PokerCard'
+import { PreflopTraining } from '@/components/poker/PreflopTraining'
 import { createHandRecord } from '@/lib/api/hands'
 import { HandRecord, Tournament } from '@/types/poker'
 import { getActiveTournaments, createTournament, finishTournament, incrementHandCount } from '@/lib/api/tournaments'
@@ -71,6 +72,12 @@ function FloatingEmojiBackground() {
 
 const pokerFeatures = [
   {
+    id: 'home',
+    name: '首页',
+    icon: '🏠',
+    emoji: '🎯'
+  },
+  {
     id: 'record', 
     name: '记录手牌',
     icon: '✏️',
@@ -91,14 +98,22 @@ const pokerFeatures = [
 ] as const
 
 export default function Home() {
-  const [activeTab, setActiveTab] = useState<'record' | 'my' | 'tournaments' | null>('my')
+  const [activeTab, setActiveTab] = useState<'home' | 'record' | 'my' | 'tournaments' | null>('home')
   const [showQuickMenu, setShowQuickMenu] = useState(false)
   const [showTournamentModal, setShowTournamentModal] = useState(false)
+  const [showTrainingModal, setShowTrainingModal] = useState(false)
+  const [showPreflopTraining, setShowPreflopTraining] = useState(false)
   const [activeTournaments, setActiveTournaments] = useState<Tournament[]>([])
   const [selectedTournament, setSelectedTournament] = useState<Tournament | null>(null)
   const [expandedHandIds, setExpandedHandIds] = useState<Set<string>>(new Set())
   const [currentPage, setCurrentPage] = useState(1)
   const handsPerPage = 10
+  
+  // 登录相关状态
+  const [isLoggedIn, setIsLoggedIn] = useState(false)
+  const [loginEmail, setLoginEmail] = useState('')
+  const [loginPassword, setLoginPassword] = useState('')
+  const [userDisplayName, setUserDisplayName] = useState('')
   
   // 切换展开/折叠
   const toggleExpand = (handId: string) => {
@@ -111,6 +126,28 @@ export default function Home() {
       }
       return newSet
     })
+  }
+  
+  // 登录处理
+  const handleLogin = (e: React.FormEvent) => {
+    e.preventDefault()
+    if (loginEmail && loginPassword) {
+      // 后续会接入Supabase认证
+      setIsLoggedIn(true)
+      setUserDisplayName(loginEmail.split('@')[0])
+      alert('登录成功！')
+    } else {
+      alert('请输入邮箱和密码')
+    }
+  }
+  
+  // 登出处理
+  const handleLogout = () => {
+    setIsLoggedIn(false)
+    setLoginEmail('')
+    setLoginPassword('')
+    setUserDisplayName('')
+    alert('已退出登录')
   }
   
   // 示例手牌数据
@@ -267,8 +304,8 @@ export default function Home() {
         <div className="relative max-w-6xl mx-auto">
           {/* 桌面端选项卡 */}
           <div className="hidden md:block">
-            <div className="grid grid-cols-1 lg:grid-cols-4 gap-4 mb-12">
-              {/* 三个选项卡 */}
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-12">
+              {/* 所有选项卡 */}
               {pokerFeatures.map((feature, index) => (
                 <div
                   key={feature.id}
@@ -374,6 +411,112 @@ export default function Home() {
           {activeTab && (
             <div className="bg-white rounded-xl md:rounded-2xl shadow-xl border border-gray-200 p-1 md:p-8 animate-fade-in">
               <div className="max-w-4xl mx-auto">
+                
+                {activeTab === 'home' && (
+                  <div className="text-center py-8 md:py-12">
+                    {/* 登录区域 */}
+                    <div className="max-w-md mx-auto mb-6 md:mb-10 px-2">
+                      {!isLoggedIn ? (
+                        <div className="bg-gradient-to-br from-gray-50 to-gray-100 rounded-xl md:rounded-2xl shadow-lg border-2 border-gray-200 p-4 md:p-8">
+                          <div className="mb-4 md:mb-6">
+                            <h3 className="text-lg md:text-2xl font-bold text-gray-800 mb-1 md:mb-2">
+                              登录账号
+                            </h3>
+                            <p className="text-xs md:text-sm text-gray-600">
+                              登录后解锁更多功能
+                            </p>
+                          </div>
+                          
+                          <form onSubmit={handleLogin} className="space-y-3 md:space-y-4">
+                            <div className="text-left">
+                              <label className="block text-xs md:text-sm font-medium text-gray-700 mb-1 md:mb-2">
+                                邮箱
+                              </label>
+                              <input
+                                type="email"
+                                value={loginEmail}
+                                onChange={(e) => setLoginEmail(e.target.value)}
+                                placeholder="请输入邮箱"
+                                className="w-full px-3 md:px-4 py-2 md:py-3 text-sm md:text-base border-2 border-gray-300 rounded-lg focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all"
+                                required
+                              />
+                            </div>
+                            
+                            <div className="text-left">
+                              <label className="block text-xs md:text-sm font-medium text-gray-700 mb-1 md:mb-2">
+                                密码
+                              </label>
+                              <input
+                                type="password"
+                                value={loginPassword}
+                                onChange={(e) => setLoginPassword(e.target.value)}
+                                placeholder="请输入密码"
+                                className="w-full px-3 md:px-4 py-2 md:py-3 text-sm md:text-base border-2 border-gray-300 rounded-lg focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all"
+                                required
+                              />
+                            </div>
+                            
+                            <button
+                              type="submit"
+                              className="w-full bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white font-bold py-2.5 md:py-4 rounded-lg transition-all duration-300 hover:shadow-lg text-sm md:text-base"
+                            >
+                              登录
+                            </button>
+                          </form>
+                          
+                          <div className="mt-3 md:mt-4 text-xs md:text-sm text-gray-500">
+                            暂无账号？<button className="text-blue-600 hover:text-blue-700 font-medium">注册</button>
+                          </div>
+                        </div>
+                      ) : (
+                        <div className="bg-gradient-to-br from-green-50 to-green-100 rounded-xl md:rounded-2xl shadow-lg border-2 border-green-200 p-4 md:p-8">
+                          <div className="mb-3 md:mb-4">
+                            <h3 className="text-lg md:text-2xl font-bold text-gray-800 mb-1 md:mb-2">
+                              欢迎回来！
+                            </h3>
+                            <p className="text-sm md:text-base text-gray-700 font-medium">
+                              {userDisplayName || loginEmail}
+                            </p>
+                          </div>
+                          
+                          <button
+                            onClick={handleLogout}
+                            className="bg-gray-500 hover:bg-gray-600 text-white font-medium px-5 md:px-6 py-2 md:py-3 rounded-lg transition-colors text-sm md:text-base"
+                          >
+                            退出登录
+                          </button>
+                        </div>
+                      )}
+                    </div>
+                    
+                    {/* 功能卡片 */}
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6">
+                      <button
+                        onClick={() => setShowTrainingModal(true)}
+                        className="group bg-gradient-to-br from-blue-50 to-blue-100 hover:from-blue-100 hover:to-blue-200 border-2 border-blue-200 rounded-xl p-6 md:p-8 transition-all duration-300 hover:shadow-lg hover:-translate-y-1"
+                      >
+                        <div className="text-5xl md:text-6xl mb-4 md:mb-6 group-hover:scale-110 transition-transform">🎯</div>
+                        <h3 className="text-lg md:text-xl font-bold text-gray-800">开始训练</h3>
+                      </button>
+                      
+                      <button
+                        onClick={() => alert('关于我们页面即将上线！')}
+                        className="group bg-gradient-to-br from-purple-50 to-purple-100 hover:from-purple-100 hover:to-purple-200 border-2 border-purple-200 rounded-xl p-6 md:p-8 transition-all duration-300 hover:shadow-lg hover:-translate-y-1"
+                      >
+                        <div className="text-5xl md:text-6xl mb-4 md:mb-6 group-hover:scale-110 transition-transform">ℹ️</div>
+                        <h3 className="text-lg md:text-xl font-bold text-gray-800">关于我们</h3>
+                      </button>
+                      
+                      <button
+                        onClick={() => alert('了解更多页面即将上线！')}
+                        className="group bg-gradient-to-br from-orange-50 to-orange-100 hover:from-orange-100 hover:to-orange-200 border-2 border-orange-200 rounded-xl p-6 md:p-8 transition-all duration-300 hover:shadow-lg hover:-translate-y-1"
+                      >
+                        <div className="text-5xl md:text-6xl mb-4 md:mb-6 group-hover:scale-110 transition-transform">📖</div>
+                        <h3 className="text-lg md:text-xl font-bold text-gray-800">了解更多</h3>
+                      </button>
+                    </div>
+                  </div>
+                )}
                 
                 {activeTab === 'record' && (
                   <div>
@@ -723,6 +866,100 @@ export default function Home() {
         onClose={() => setShowTournamentModal(false)}
         onSave={handleCreateTournament}
       />
+
+      {/* 训练选择模态框 */}
+      {showTrainingModal && (
+        <div 
+          className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4 animate-fade-in"
+          onClick={() => setShowTrainingModal(false)}
+        >
+          <div 
+            className="bg-white rounded-2xl shadow-2xl max-w-4xl w-full p-6 md:p-8 animate-slide-up"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Header */}
+            <div className="flex items-center justify-between mb-6 md:mb-8">
+              <h2 className="text-2xl md:text-3xl font-bold font-rajdhani text-gray-800 flex items-center gap-3">
+                <span className="text-3xl">🎯</span>
+                选择训练模式
+              </h2>
+              <button
+                onClick={() => setShowTrainingModal(false)}
+                className="text-gray-500 hover:text-gray-700 text-3xl font-bold transition-colors"
+              >
+                ×
+              </button>
+            </div>
+
+            {/* 训练选项卡片 */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
+              {/* 翻前训练 */}
+              <button
+                onClick={() => {
+                  setShowTrainingModal(false)
+                  setShowPreflopTraining(true)
+                }}
+                className="group bg-gradient-to-br from-blue-50 to-blue-100 hover:from-blue-100 hover:to-blue-200 border-2 border-blue-300 rounded-xl p-6 md:p-8 transition-all duration-300 hover:shadow-xl hover:-translate-y-1 text-left"
+              >
+                <div className="flex flex-col items-center text-center">
+                  <div className="text-6xl md:text-7xl mb-4 md:mb-6 group-hover:scale-110 transition-transform">
+                    🃏
+                  </div>
+                  <h3 className="text-xl md:text-2xl font-bold text-gray-800 mb-3">
+                    翻前训练
+                  </h3>
+                  <p className="text-sm md:text-base text-gray-600">
+                    练习翻前决策，掌握起手牌范围和位置策略
+                  </p>
+                </div>
+              </button>
+
+              {/* 模拟实战 */}
+              <button
+                onClick={() => {
+                  setShowTrainingModal(false)
+                  alert('模拟实战功能即将上线！')
+                }}
+                className="group bg-gradient-to-br from-green-50 to-green-100 hover:from-green-100 hover:to-green-200 border-2 border-green-300 rounded-xl p-6 md:p-8 transition-all duration-300 hover:shadow-xl hover:-translate-y-1 text-left"
+              >
+                <div className="flex flex-col items-center text-center">
+                  <div className="text-6xl md:text-7xl mb-4 md:mb-6 group-hover:scale-110 transition-transform">
+                    🎲
+                  </div>
+                  <h3 className="text-xl md:text-2xl font-bold text-gray-800 mb-3">
+                    模拟实战
+                  </h3>
+                  <p className="text-sm md:text-base text-gray-600">
+                    完整模拟真实牌局，从翻前到河牌全流程训练
+                  </p>
+                </div>
+              </button>
+            </div>
+
+            {/* 提示信息 */}
+            <div className="mt-6 md:mt-8 p-4 bg-gray-50 rounded-lg border border-gray-200">
+              <p className="text-xs md:text-sm text-gray-600 text-center">
+                💡 提示：选择适合你的训练模式，持续练习提升牌技
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* 翻前训练模态框 */}
+      {showPreflopTraining && (
+        <div 
+          className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4 animate-fade-in overflow-y-auto"
+          onClick={() => setShowPreflopTraining(false)}
+        >
+          <div 
+            className="bg-white rounded-2xl shadow-2xl max-w-4xl w-full my-8 animate-slide-up"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <PreflopTraining onClose={() => setShowPreflopTraining(false)} />
+          </div>
+        </div>
+      )}
 
     </>
   )
