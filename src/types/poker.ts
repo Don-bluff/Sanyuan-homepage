@@ -59,6 +59,11 @@ export interface Tournament {
   ante?: number
   status: 'active' | 'finished'
   hand_count?: number
+  buy_in?: number  // 买入金额
+  cash_out?: number  // Cash out金额
+  total_entries?: number  // 总买入人数
+  finish_position?: number  // 实际名次
+  hand_ids?: string[]  // 关联的手牌ID
 }
 
 export interface HandRecord {

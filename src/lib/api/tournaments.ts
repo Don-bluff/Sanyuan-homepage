@@ -3,7 +3,7 @@ import { Tournament } from '@/types/poker'
 // 使用localStorage管理比赛（可以后续改为Supabase）
 const TOURNAMENTS_KEY = 'active_tournaments'
 
-export function getActiveTournaments(): Tournament[] {
+export function getAllTournaments(): Tournament[] {
   if (typeof window === 'undefined') return []
   
   const stored = localStorage.getItem(TOURNAMENTS_KEY)
@@ -16,6 +16,11 @@ export function getActiveTournaments(): Tournament[] {
   }
 }
 
+export function getActiveTournaments(): Tournament[] {
+  const all = getAllTournaments()
+  return all.filter(t => t.status === 'active')
+}
+
 export function createTournament(
   tournament: Omit<Tournament, 'id' | 'created_at' | 'status' | 'hand_count'>
 ): Tournament {
@@ -24,10 +29,11 @@ export function createTournament(
     id: `tournament_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
     created_at: new Date().toISOString(),
     status: 'active',
-    hand_count: 0
+    hand_count: 0,
+    hand_ids: []
   }
   
-  const tournaments = getActiveTournaments()
+  const tournaments = getAllTournaments()
   tournaments.push(newTournament)
   localStorage.setItem(TOURNAMENTS_KEY, JSON.stringify(tournaments))
   
@@ -35,7 +41,7 @@ export function createTournament(
 }
 
 export function updateTournament(id: string, updates: Partial<Tournament>): Tournament | null {
-  const tournaments = getActiveTournaments()
+  const tournaments = getAllTournaments()
   const index = tournaments.findIndex(t => t.id === id)
   
   if (index === -1) return null
@@ -46,20 +52,36 @@ export function updateTournament(id: string, updates: Partial<Tournament>): Tour
   return tournaments[index]
 }
 
-export function finishTournament(id: string): boolean {
-  const tournaments = getActiveTournaments()
+export function finishTournament(
+  id: string, 
+  finishData?: { 
+    total_entries: number
+    finish_position: number
+    cash_out: number 
+  }
+): boolean {
+  const tournaments = getAllTournaments()
   const index = tournaments.findIndex(t => t.id === id)
   
   if (index === -1) return false
   
-  tournaments[index].status = 'finished'
+  tournaments[index] = {
+    ...tournaments[index],
+    status: 'finished',
+    ...finishData
+  }
   localStorage.setItem(TOURNAMENTS_KEY, JSON.stringify(tournaments))
   
   return true
 }
 
+export function getFinishedTournaments(): Tournament[] {
+  const all = getAllTournaments()
+  return all.filter(t => t.status === 'finished')
+}
+
 export function deleteTournament(id: string): boolean {
-  const tournaments = getActiveTournaments()
+  const tournaments = getAllTournaments()
   const filtered = tournaments.filter(t => t.id !== id)
   
   if (filtered.length === tournaments.length) return false
@@ -69,13 +91,14 @@ export function deleteTournament(id: string): boolean {
 }
 
 export function incrementHandCount(tournamentId: string): void {
-  const tournament = getActiveTournaments().find(t => t.id === tournamentId)
+  const tournament = getAllTournaments().find(t => t.id === tournamentId)
   if (tournament) {
     updateTournament(tournamentId, { 
       hand_count: (tournament.hand_count || 0) + 1 
     })
   }
 }
+
 
 
 

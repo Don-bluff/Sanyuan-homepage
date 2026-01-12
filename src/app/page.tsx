@@ -4,11 +4,12 @@ import { useState, useEffect } from 'react'
 import Image from "next/image"
 import { HandRecordModal } from '@/components/poker/HandRecordModal'
 import { TournamentModal } from '@/components/poker/TournamentModal'
+import { FinishTournamentModal } from '@/components/poker/FinishTournamentModal'
 import { PokerCard } from '@/components/poker/PokerCard'
 import { PreflopTraining } from '@/components/poker/PreflopTraining'
 import { createHandRecord } from '@/lib/api/hands'
 import { HandRecord, Tournament } from '@/types/poker'
-import { getActiveTournaments, createTournament, finishTournament, incrementHandCount } from '@/lib/api/tournaments'
+import { getActiveTournaments, getFinishedTournaments, createTournament, finishTournament, incrementHandCount } from '@/lib/api/tournaments'
 
 // 德州扑克下雨emoji
 const pokerRainEmojis = ['♠️', '♥️', '♣️', '♦️', '😱', '😭', '😤']
@@ -98,13 +99,16 @@ const pokerFeatures = [
 ] as const
 
 export default function Home() {
-  const [activeTab, setActiveTab] = useState<'home' | 'record' | 'my' | 'tournaments' | null>('home')
+  const [activeTab, setActiveTab] = useState<'home' | 'record' | 'my' | 'tournaments' | 'preflopTraining' | null>('home')
   const [showQuickMenu, setShowQuickMenu] = useState(false)
   const [showTournamentModal, setShowTournamentModal] = useState(false)
+  const [showFinishModal, setShowFinishModal] = useState(false)
   const [showTrainingModal, setShowTrainingModal] = useState(false)
   const [showPreflopTraining, setShowPreflopTraining] = useState(false)
   const [activeTournaments, setActiveTournaments] = useState<Tournament[]>([])
+  const [finishedTournaments, setFinishedTournaments] = useState<Tournament[]>([])
   const [selectedTournament, setSelectedTournament] = useState<Tournament | null>(null)
+  const [finishingTournament, setFinishingTournament] = useState<Tournament | null>(null)
   const [expandedHandIds, setExpandedHandIds] = useState<Set<string>>(new Set())
   const [currentPage, setCurrentPage] = useState(1)
   const handsPerPage = 10
@@ -190,10 +194,12 @@ export default function Home() {
     }
   ]
 
-  // 加载进行中的比赛
+  // 加载比赛数据
   useEffect(() => {
-    const tournaments = getActiveTournaments()
-    setActiveTournaments(tournaments)
+    const active = getActiveTournaments()
+    const finished = getFinishedTournaments()
+    setActiveTournaments(active)
+    setFinishedTournaments(finished)
   }, [])
 
   // 点击外部关闭快速菜单
@@ -246,15 +252,32 @@ export default function Home() {
     alert('比赛创建成功！')
   }
 
-  const handleFinishTournament = (tournamentId: string) => {
-    if (confirm('确定要结束这个比赛吗？')) {
-      finishTournament(tournamentId)
-      const tournaments = getActiveTournaments()
-      setActiveTournaments(tournaments)
-      if (selectedTournament?.id === tournamentId) {
-        setSelectedTournament(null)
-      }
+  const handleFinishTournament = (data: {
+    total_entries: number
+    finish_position: number
+    cash_out: number
+  }) => {
+    if (!finishingTournament) return
+    
+    finishTournament(finishingTournament.id, data)
+    
+    // 刷新列表
+    const active = getActiveTournaments()
+    const finished = getFinishedTournaments()
+    setActiveTournaments(active)
+    setFinishedTournaments(finished)
+    
+    if (selectedTournament?.id === finishingTournament.id) {
+      setSelectedTournament(null)
     }
+    
+    setFinishingTournament(null)
+    alert('比赛已结束！')
+  }
+  
+  const handleOpenFinishModal = (tournament: Tournament) => {
+    setFinishingTournament(tournament)
+    setShowFinishModal(true)
   }
 
   return (
@@ -813,36 +836,181 @@ export default function Home() {
                 )}
                 
                 {activeTab === 'tournaments' && (
-                  <div>
-                    <h2 className="text-2xl font-bold font-rajdhani text-gray-800 mb-6 flex items-center gap-3">
-                      <span className="text-3xl">🏆</span>
-                      我的比赛
-                    </h2>
-                    <div className="space-y-4">
-                      <p className="text-gray-600">这里将显示参加的比赛记录和成绩</p>
-                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                        <div className="bg-gray-50 rounded-lg p-6 border border-gray-200">
-                          <h4 className="font-semibold text-gray-800 mb-3">进行中</h4>
-                          <p className="text-sm text-gray-600 mb-4">当前参加的比赛</p>
-                          <button className="bg-orange-500 text-white px-4 py-2 rounded-lg text-sm hover:bg-orange-600 transition-colors">
-                            查看详情
-                          </button>
+                  <div className="space-y-4 md:space-y-6">
+                    {/* 统计面板 */}
+                    <div className="bg-gradient-to-r from-blue-50 to-purple-50 rounded-xl md:rounded-2xl p-4 md:p-6 border-2 border-blue-200 shadow-lg">
+                      <h2 className="text-xl md:text-2xl font-bold font-rajdhani text-gray-800 mb-4 md:mb-6 flex items-center gap-2 md:gap-3">
+                        <span className="text-2xl md:text-3xl">📊</span>
+                        比赛统计
+                      </h2>
+                      <div className="grid grid-cols-3 gap-3 md:gap-6">
+                        <div className="bg-white rounded-lg p-3 md:p-4 shadow-sm">
+                          <div className="text-xs md:text-sm text-gray-600 mb-1">总比赛场数</div>
+                          <div className="text-2xl md:text-3xl font-bold text-blue-600">
+                            {activeTournaments.length + finishedTournaments.length}
+                          </div>
                         </div>
-                        <div className="bg-gray-50 rounded-lg p-6 border border-gray-200">
-                          <h4 className="font-semibold text-gray-800 mb-3">历史战绩</h4>
-                          <p className="text-sm text-gray-600 mb-4">过往比赛成绩</p>
-                          <button className="bg-purple-500 text-white px-4 py-2 rounded-lg text-sm hover:bg-purple-600 transition-colors">
-                            查看战绩
-                          </button>
+                        <div className="bg-white rounded-lg p-3 md:p-4 shadow-sm">
+                          <div className="text-xs md:text-sm text-gray-600 mb-1">总买入</div>
+                          <div className="text-2xl md:text-3xl font-bold text-orange-600">
+                            {[...activeTournaments, ...finishedTournaments]
+                              .reduce((sum, t) => sum + (t.buy_in || 0), 0)
+                              .toLocaleString()}
+                          </div>
                         </div>
-                        <div className="bg-gray-50 rounded-lg p-6 border border-gray-200">
-                          <h4 className="font-semibold text-gray-800 mb-3">统计分析</h4>
-                          <p className="text-sm text-gray-600 mb-4">比赛数据分析</p>
-                          <button className="bg-teal-500 text-white px-4 py-2 rounded-lg text-sm hover:bg-teal-600 transition-colors">
-                            查看统计
-                          </button>
+                        <div className="bg-white rounded-lg p-3 md:p-4 shadow-sm">
+                          <div className="text-xs md:text-sm text-gray-600 mb-1">总Cash Out</div>
+                          <div className="text-2xl md:text-3xl font-bold text-green-600">
+                            {finishedTournaments
+                              .reduce((sum, t) => sum + (t.cash_out || 0), 0)
+                              .toLocaleString()}
+                          </div>
                         </div>
                       </div>
+                    </div>
+
+                    {/* 进行中的比赛 */}
+                    <div className="bg-white rounded-xl md:rounded-2xl p-4 md:p-6 shadow-lg border border-gray-200">
+                      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 mb-4 md:mb-6">
+                        <h3 className="text-lg md:text-xl font-bold text-gray-800 flex items-center gap-2">
+                          <span className="text-xl md:text-2xl">🎮</span>
+                          进行中
+                        </h3>
+                        <button
+                          onClick={() => setShowTournamentModal(true)}
+                          className="w-full sm:w-auto bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white px-4 md:px-6 py-2 md:py-2.5 rounded-lg font-medium shadow-md hover:shadow-lg transition-all duration-300 flex items-center justify-center gap-2 text-sm md:text-base"
+                        >
+                          <span className="text-lg md:text-xl">➕</span>
+                          添加比赛
+                        </button>
+                      </div>
+
+                      {activeTournaments.length === 0 ? (
+                        <p className="text-gray-500 text-center py-6 md:py-8 text-sm md:text-base">暂无进行中的比赛</p>
+                      ) : (
+                        <div className="space-y-3 md:space-y-4">
+                          {activeTournaments.map((tournament) => (
+                            <div
+                              key={tournament.id}
+                              className="bg-gradient-to-r from-gray-50 to-blue-50 rounded-lg p-3 md:p-4 border-2 border-blue-200 hover:border-blue-300 transition-all duration-300 hover:shadow-md"
+                            >
+                              <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+                                <div className="flex-1">
+                                  <h4 className="text-base md:text-lg font-bold text-gray-800 mb-1 md:mb-2">
+                                    {tournament.name}
+                                  </h4>
+                                  <div className="flex flex-wrap gap-2 text-xs md:text-sm text-gray-600">
+                                    <span className="bg-white px-2 py-0.5 md:px-3 md:py-1 rounded-full border border-gray-200">
+                                      {tournament.game_type === '6max' ? '6-Max' : tournament.game_type === '9max' ? '9-Max' : '自定义'}
+                                    </span>
+                                    <span className="bg-white px-2 py-0.5 md:px-3 md:py-1 rounded-full border border-gray-200">
+                                      {tournament.blind_mode === 'chips' 
+                                        ? `${tournament.small_blind}/${tournament.big_blind}${tournament.ante ? `/${tournament.ante}` : ''}`
+                                        : `${tournament.small_blind}bb/${tournament.big_blind}bb${tournament.ante ? `/${tournament.ante}bb` : ''}`
+                                      }
+                                    </span>
+                                    {tournament.buy_in && (
+                                      <span className="bg-white px-2 py-0.5 md:px-3 md:py-1 rounded-full border border-gray-200">
+                                        买入: {tournament.buy_in}
+                                      </span>
+                                    )}
+                                    <span className="bg-white px-2 py-0.5 md:px-3 md:py-1 rounded-full border border-gray-200">
+                                      手牌数: {tournament.hand_count || 0}
+                                    </span>
+                                  </div>
+                                </div>
+                                <div className="flex gap-2 w-full sm:w-auto">
+                                  <button
+                                    onClick={() => {
+                                      setSelectedTournament(tournament)
+                                      setActiveTab('record')
+                                    }}
+                                    className="flex-1 sm:flex-initial bg-green-500 hover:bg-green-600 text-white px-3 md:px-4 py-1.5 md:py-2 rounded-lg text-xs md:text-sm font-medium transition-colors"
+                                  >
+                                    关联手牌
+                                  </button>
+                                  <button
+                                    onClick={() => handleOpenFinishModal(tournament)}
+                                    className="flex-1 sm:flex-initial bg-red-500 hover:bg-red-600 text-white px-3 md:px-4 py-1.5 md:py-2 rounded-lg text-xs md:text-sm font-medium transition-colors"
+                                  >
+                                    结束比赛
+                                  </button>
+                                </div>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+
+                    {/* 历史战绩 */}
+                    <div className="bg-white rounded-xl md:rounded-2xl p-4 md:p-6 shadow-lg border border-gray-200">
+                      <h3 className="text-lg md:text-xl font-bold text-gray-800 flex items-center gap-2 mb-4 md:mb-6">
+                        <span className="text-xl md:text-2xl">📜</span>
+                        历史战绩
+                      </h3>
+
+                      {finishedTournaments.length === 0 ? (
+                        <p className="text-gray-500 text-center py-6 md:py-8 text-sm md:text-base">暂无历史战绩</p>
+                      ) : (
+                        <div className="space-y-3 md:space-y-4">
+                          {finishedTournaments.map((tournament) => (
+                            <div
+                              key={tournament.id}
+                              className="bg-gradient-to-r from-gray-50 to-purple-50 rounded-lg p-3 md:p-4 border-2 border-purple-200 hover:border-purple-300 transition-all duration-300 hover:shadow-md"
+                            >
+                              <div className="flex flex-col">
+                                <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 mb-2 md:mb-3">
+                                  <h4 className="text-base md:text-lg font-bold text-gray-800">
+                                    {tournament.name}
+                                  </h4>
+                                  <div className="text-xs md:text-sm text-gray-500">
+                                    {new Date(tournament.created_at).toLocaleDateString('zh-CN')}
+                                  </div>
+                                </div>
+                                <div className="flex flex-wrap gap-2 text-xs md:text-sm text-gray-600 mb-2 md:mb-3">
+                                  <span className="bg-white px-2 py-0.5 md:px-3 md:py-1 rounded-full border border-gray-200">
+                                    {tournament.game_type === '6max' ? '6-Max' : tournament.game_type === '9max' ? '9-Max' : '自定义'}
+                                  </span>
+                                  {tournament.buy_in && (
+                                    <span className="bg-white px-2 py-0.5 md:px-3 md:py-1 rounded-full border border-gray-200">
+                                      买入: {tournament.buy_in}
+                                    </span>
+                                  )}
+                                  {tournament.total_entries && (
+                                    <span className="bg-white px-2 py-0.5 md:px-3 md:py-1 rounded-full border border-gray-200">
+                                      参赛人数: {tournament.total_entries}
+                                    </span>
+                                  )}
+                                  {tournament.finish_position && (
+                                    <span className="bg-white px-2 py-0.5 md:px-3 md:py-1 rounded-full border border-gray-200">
+                                      名次: {tournament.finish_position}
+                                    </span>
+                                  )}
+                                  {tournament.cash_out !== undefined && (
+                                    <span className={`bg-white px-2 py-0.5 md:px-3 md:py-1 rounded-full border ${
+                                      tournament.cash_out > 0 ? 'border-green-300 text-green-700' : 'border-gray-200'
+                                    }`}>
+                                      奖金: {tournament.cash_out}
+                                    </span>
+                                  )}
+                                </div>
+                                {tournament.buy_in !== undefined && tournament.cash_out !== undefined && (
+                                  <div className={`text-xs md:text-sm font-semibold ${
+                                    tournament.cash_out - tournament.buy_in > 0 
+                                      ? 'text-green-600' 
+                                      : tournament.cash_out - tournament.buy_in < 0 
+                                      ? 'text-red-600' 
+                                      : 'text-gray-600'
+                                  }`}>
+                                    盈亏: {tournament.cash_out - tournament.buy_in > 0 ? '+' : ''}{tournament.cash_out - tournament.buy_in}
+                                  </div>
+                                )}
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      )}
                     </div>
                   </div>
                 )}
@@ -866,6 +1034,19 @@ export default function Home() {
         onClose={() => setShowTournamentModal(false)}
         onSave={handleCreateTournament}
       />
+
+      {/* FinishTournamentModal */}
+      {finishingTournament && (
+        <FinishTournamentModal
+          isOpen={showFinishModal}
+          onClose={() => {
+            setShowFinishModal(false)
+            setFinishingTournament(null)
+          }}
+          onFinish={handleFinishTournament}
+          tournamentName={finishingTournament.name}
+        />
+      )}
 
       {/* 训练选择模态框 */}
       {showTrainingModal && (

@@ -23,6 +23,7 @@ export function TournamentModal({ isOpen, onClose, onSave }: TournamentModalProp
   const [smallBlind, setSmallBlind] = useState(50)
   const [bigBlind, setBigBlind] = useState(100)
   const [ante, setAnte] = useState(100)
+  const [buyIn, setBuyIn] = useState<number>(0)
 
   const handleBlindModeChange = (mode: BlindMode) => {
     setBlindMode(mode)
@@ -56,7 +57,8 @@ export function TournamentModal({ isOpen, onClose, onSave }: TournamentModalProp
       blind_mode: blindMode,
       small_blind: smallBlind,
       big_blind: bigBlind,
-      ante: ante || undefined
+      ante: ante || undefined,
+      buy_in: buyIn || undefined
     })
 
     // 重置表单
@@ -67,6 +69,7 @@ export function TournamentModal({ isOpen, onClose, onSave }: TournamentModalProp
     setSmallBlind(50)
     setBigBlind(100)
     setAnte(100)
+    setBuyIn(0)
     onClose()
   }
 
@@ -196,6 +199,20 @@ export function TournamentModal({ isOpen, onClose, onSave }: TournamentModalProp
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
               />
             </div>
+          </div>
+
+          {/* 买入金额 */}
+          <div>
+            <label className="block text-sm font-medium mb-2">买入金额 (可选)</label>
+            <input
+              type="number"
+              value={buyIn}
+              onChange={(e) => setBuyIn(Number(e.target.value))}
+              min="0"
+              step="1"
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+              placeholder="例如：1000"
+            />
           </div>
         </div>
 
