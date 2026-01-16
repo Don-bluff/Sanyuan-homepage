@@ -14,8 +14,21 @@ type PokerCardType = {
 
 export function PreflopTraining({ onClose }: PreflopTrainingProps) {
   const [hand, setHand] = useState<[PokerCardType, PokerCardType] | null>(null)
+  const [position, setPosition] = useState<string>('')
+  const [stackSize, setStackSize] = useState<number>(0)
   const [feedback, setFeedback] = useState<{ message: string; type: 'success' | 'error' } | null>(null)
   const [score, setScore] = useState({ correct: 0, total: 0 })
+
+  // 9 MAX 位置
+  const positions = ['UTG', 'UTG+1', 'UTG+2', 'MP', 'MP+1', 'CO', 'BTN', 'SB', 'BB']
+  
+  // 生成随机位置和筹码深度
+  const generateRandomPosition = () => {
+    const randomPos = positions[Math.floor(Math.random() * positions.length)]
+    const randomStack = Math.floor(Math.random() * (100 - 6 + 1)) + 6 // 6-100 BB
+    setPosition(randomPos)
+    setStackSize(randomStack)
+  }
 
   // 生成随机扑克牌
   const generateRandomCard = (excludeCards: PokerCardType[] = []): PokerCardType => {
@@ -43,6 +56,7 @@ export function PreflopTraining({ onClose }: PreflopTrainingProps) {
     const card1 = generateRandomCard()
     const card2 = generateRandomCard([card1])
     setHand([card1, card2])
+    generateRandomPosition()
     setFeedback(null)
   }
 
@@ -161,7 +175,7 @@ export function PreflopTraining({ onClose }: PreflopTrainingProps) {
           <p className="text-green-200 text-xs md:text-sm">你会怎么做？</p>
         </div>
         
-        <div className="flex items-center justify-center gap-3 md:gap-6">
+        <div className="flex items-center justify-center gap-3 md:gap-6 mb-4 md:mb-6">
           <div className="transform hover:scale-110 transition-transform">
             <PokerCard rank={hand[0].rank} suit={hand[0].suit} size="large" />
           </div>
@@ -170,15 +184,16 @@ export function PreflopTraining({ onClose }: PreflopTrainingProps) {
           </div>
         </div>
 
-        {/* 手牌描述 */}
-        <div className="text-center mt-3 md:mt-4 text-white text-xs md:text-sm">
-          {hand[0].rank === hand[1].rank ? (
-            <span className="font-bold">对子 {hand[0].rank}{hand[0].rank}</span>
-          ) : hand[0].suit === hand[1].suit ? (
-            <span className="font-bold">同花 {hand[0].rank}{hand[1].rank}s</span>
-          ) : (
-            <span className="font-bold">非同花 {hand[0].rank}{hand[1].rank}o</span>
-          )}
+        {/* 位置和筹码深度信息 */}
+        <div className="flex items-center justify-center gap-4 md:gap-6">
+          <div className="bg-white/10 backdrop-blur-sm rounded-lg px-4 py-2 border-2 border-white/20">
+            <div className="text-white/70 text-xs mb-0.5">位置</div>
+            <div className="text-white text-lg md:text-xl font-bold">{position}</div>
+          </div>
+          <div className="bg-white/10 backdrop-blur-sm rounded-lg px-4 py-2 border-2 border-white/20">
+            <div className="text-white/70 text-xs mb-0.5">筹码深度</div>
+            <div className="text-white text-lg md:text-xl font-bold">{stackSize} BB</div>
+          </div>
         </div>
       </div>
 
@@ -209,13 +224,6 @@ export function PreflopTraining({ onClose }: PreflopTrainingProps) {
         >
           RAISE
         </button>
-      </div>
-
-      {/* 提示信息 */}
-      <div className="mt-4 md:mt-6 p-3 md:p-4 bg-gray-50 rounded-lg border border-gray-200">
-        <p className="text-xs md:text-sm text-gray-600 text-center">
-          💡 提示：这是一个简化的翻前策略训练。实际游戏中需要考虑位置、筹码深度、对手类型等因素。
-        </p>
       </div>
     </div>
   )

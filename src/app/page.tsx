@@ -5,6 +5,8 @@ import Image from "next/image"
 import { HandRecordModal } from '@/components/poker/HandRecordModal'
 import { TournamentModal } from '@/components/poker/TournamentModal'
 import { FinishTournamentModal } from '@/components/poker/FinishTournamentModal'
+import { AboutUsModal } from '@/components/poker/AboutUsModal'
+import { LearnMoreModal } from '@/components/poker/LearnMoreModal'
 import { PokerCard } from '@/components/poker/PokerCard'
 import { PreflopTraining } from '@/components/poker/PreflopTraining'
 import { createHandRecord } from '@/lib/api/hands'
@@ -105,6 +107,8 @@ export default function Home() {
   const [showFinishModal, setShowFinishModal] = useState(false)
   const [showTrainingModal, setShowTrainingModal] = useState(false)
   const [showPreflopTraining, setShowPreflopTraining] = useState(false)
+  const [showAboutUsModal, setShowAboutUsModal] = useState(false)
+  const [showLearnMoreModal, setShowLearnMoreModal] = useState(false)
   const [activeTournaments, setActiveTournaments] = useState<Tournament[]>([])
   const [finishedTournaments, setFinishedTournaments] = useState<Tournament[]>([])
   const [selectedTournament, setSelectedTournament] = useState<Tournament | null>(null)
@@ -282,20 +286,15 @@ export default function Home() {
 
   return (
     <>
-      <main className="relative min-h-screen flex flex-col">
-      {/* 德州扑克主题飘动emoji背景 */}
-      <FloatingEmojiBackground />
-      
-      {/* 漂浮装饰元素 - 白色背景风格 */}
-      <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute top-20 left-20 w-32 h-32 bg-gray-200/30 rounded-full blur-xl animate-pulse" />
-        <div className="absolute top-40 right-32 w-24 h-24 bg-gray-300/20 rounded-full blur-lg animate-bounce" />
-        <div className="absolute bottom-32 left-1/4 w-20 h-20 bg-gray-200/25 rounded-full blur-md animate-pulse" />
-        <div className="absolute bottom-20 right-20 w-28 h-28 bg-gray-300/15 rounded-full blur-xl animate-bounce" />
+      <main className="relative min-h-screen flex flex-col bg-gradient-to-br from-gray-50 via-white to-gray-100">
+      {/* 极简背景装饰 */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none opacity-30">
+        <div className="absolute top-20 left-10 w-96 h-96 bg-black/5 rounded-full blur-3xl" />
+        <div className="absolute bottom-20 right-10 w-96 h-96 bg-black/5 rounded-full blur-3xl" />
       </div>
 
       {/* HEADER - LOGO和标题紧贴居中 */}
-      <header className="relative z-10 px-4 md:px-8 py-4 md:py-6">
+      <header className="relative z-10 px-4 md:px-8 py-6 md:py-8 border-b border-gray-200/50 backdrop-blur-sm bg-white/80">
         <div className="max-w-7xl mx-auto flex items-center justify-center gap-3 md:gap-4">
           {/* LOGO */}
           <div className="logo-container">
@@ -303,9 +302,9 @@ export default function Home() {
               <Image
                 src="/LOGO/LOGO.png"
                 alt="Don't Bluff Me Logo"
-                width={80}
-                height={80}
-                className="cursor-pointer transition-all duration-300 hover:scale-110 active:scale-95 shadow-lg"
+                width={70}
+                height={70}
+                className="cursor-pointer transition-all duration-300 hover:scale-105 active:scale-95"
                 onClick={() => window.open('https://donbluff.com', '_blank')}
                 priority
               />
@@ -314,7 +313,7 @@ export default function Home() {
           
           {/* 主标题 */}
           <h1 
-            className="text-2xl sm:text-3xl md:text-5xl lg:text-6xl font-black font-orbitron bg-gradient-to-r from-gray-800 via-gray-600 to-gray-900 bg-clip-text text-transparent cursor-pointer transition-all duration-500 hover:scale-105 active:scale-95 hover:from-gray-900 hover:via-black hover:to-gray-700 tracking-wider poker-title whitespace-nowrap"
+            className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold font-orbitron text-black cursor-pointer transition-all duration-300 hover:opacity-70 tracking-tight whitespace-nowrap"
             onClick={() => window.open('https://donbluff.com', '_blank')}
           >
             Don't Bluff Me
@@ -333,55 +332,44 @@ export default function Home() {
                 <div
                   key={feature.id}
                   onClick={() => setActiveTab(activeTab === feature.id ? null : feature.id)}
-                  className={`group relative bg-white rounded-xl shadow-md hover:shadow-xl transition-all duration-300 hover:-translate-y-1 cursor-pointer border-2 overflow-hidden ${
+                  className={`group relative bg-white rounded-2xl transition-all duration-300 cursor-pointer border overflow-hidden ${
                     activeTab === feature.id 
-                      ? 'border-blue-500 bg-blue-50' 
-                      : 'border-gray-200 hover:border-gray-300'
+                      ? 'border-black shadow-lg' 
+                      : 'border-gray-200 hover:border-gray-400 hover:shadow-md'
                   }`}
                   style={{ 
-                    animationDelay: `${index * 150}ms`,
+                    animationDelay: `${index * 100}ms`,
                     height: '100px'
                   }}
                 >
                   {/* 选中状态的顶部装饰 */}
-                  <div className={`absolute top-0 left-0 right-0 h-1 transition-all duration-300 ${
+                  <div className={`absolute top-0 left-0 right-0 h-0.5 transition-all duration-300 ${
                     activeTab === feature.id 
-                      ? 'bg-gradient-to-r from-blue-400 via-blue-600 to-blue-400' 
-                      : 'bg-gradient-to-r from-gray-400 via-gray-600 to-gray-400'
+                      ? 'bg-black' 
+                      : 'bg-gray-300'
                   }`}></div>
                   
                   {/* 卡片内容 - 水平布局 */}
-                  <div className="p-4 flex items-center space-x-3 h-full">
+                  <div className="p-5 flex items-center space-x-4 h-full">
                     {/* 图标区域 */}
                     <div className="relative flex-shrink-0">
-                      <div className={`w-12 h-12 rounded-full flex items-center justify-center shadow-inner transition-all duration-300 group-hover:scale-105 ${
+                      <div className={`w-12 h-12 rounded-xl flex items-center justify-center transition-all duration-300 ${
                         activeTab === feature.id 
-                          ? 'bg-gradient-to-br from-blue-100 to-blue-200 shadow-lg' 
-                          : 'bg-gradient-to-br from-gray-100 to-gray-200 group-hover:shadow-lg'
+                          ? 'bg-black text-white' 
+                          : 'bg-gray-100 text-gray-700 group-hover:bg-gray-200'
                       }`}>
-                        <span className="text-xl transform group-hover:scale-110 transition-transform duration-300">
+                        <span className="text-xl">
                           {feature.icon}
-                        </span>
-                      </div>
-                      {/* 悬浮emoji */}
-                      <div className={`absolute -top-0.5 -right-0.5 w-5 h-5 rounded-full shadow-md border flex items-center justify-center transition-all duration-300 ${
-                        activeTab === feature.id 
-                          ? 'bg-blue-100 border-blue-200 opacity-100 scale-100' 
-                          : 'bg-white border-gray-200 opacity-0 scale-50 group-hover:opacity-100 group-hover:scale-100'
-                      }`}>
-                        <span className="text-xs">
-                          {feature.emoji}
                         </span>
                       </div>
                     </div>
                     
                     {/* 文字内容 */}
                     <div className="flex-1 min-w-0">
-                      {/* 标题 */}
-                      <h3 className={`text-base font-bold font-rajdhani transition-colors ${
+                      <h3 className={`text-base font-semibold transition-colors ${
                         activeTab === feature.id 
-                          ? 'text-blue-800' 
-                          : 'text-gray-800 group-hover:text-black'
+                          ? 'text-black' 
+                          : 'text-gray-700 group-hover:text-black'
                       }`}>
                         {feature.name}
                       </h3>
@@ -389,18 +377,11 @@ export default function Home() {
                     
                     {/* 选中指示器 */}
                     {activeTab === feature.id && (
-                      <div className="absolute right-2 top-1/2 transform -translate-y-1/2">
-                        <div className="w-1.5 h-1.5 bg-blue-500 rounded-full animate-pulse"></div>
+                      <div className="flex-shrink-0">
+                        <div className="w-2 h-2 bg-black rounded-full"></div>
                       </div>
                     )}
                   </div>
-                  
-                  {/* 悬浮时的背景光效 */}
-                  <div className={`absolute inset-0 rounded-xl transition-opacity duration-300 pointer-events-none ${
-                    activeTab === feature.id 
-                      ? 'bg-gradient-to-r from-blue-50/50 via-transparent to-blue-100/30 opacity-100' 
-                      : 'bg-gradient-to-r from-white/50 via-transparent to-gray-50/30 opacity-0 group-hover:opacity-100'
-                  }`}></div>
                 </div>
               ))}
             </div>
@@ -408,20 +389,20 @@ export default function Home() {
 
           {/* 移动端底部导航栏 */}
           <div className="md:hidden fixed bottom-0 left-0 right-0 z-50">
-            <div className="bg-white border-t border-gray-200 shadow-2xl">
-              <div className="flex items-center justify-around py-2 px-4">
+            <div className="bg-white/95 backdrop-blur-lg border-t border-gray-200">
+              <div className="flex items-center justify-around py-2 px-2">
                 {/* 所有选项卡 */}
                 {pokerFeatures.map((feature) => (
                   <button
                     key={feature.id}
                     onClick={() => setActiveTab(activeTab === feature.id ? null : feature.id)}
-                    className={`flex flex-col items-center space-y-1 p-3 rounded-lg transition-all duration-300 ${
+                    className={`flex flex-col items-center space-y-1 p-2 rounded-xl transition-all duration-200 ${
                       activeTab === feature.id 
-                        ? 'bg-blue-50 text-blue-600' 
-                        : 'text-gray-600 hover:text-gray-800 hover:bg-gray-50'
+                        ? 'bg-black text-white' 
+                        : 'text-gray-600 hover:text-black hover:bg-gray-100'
                     }`}
                   >
-                    <span className="text-2xl">{feature.icon}</span>
+                    <span className="text-xl">{feature.icon}</span>
                     <span className="text-xs font-medium">{feature.name}</span>
                   </button>
                 ))}
@@ -432,27 +413,27 @@ export default function Home() {
 
           {/* 内容显示区域 */}
           {activeTab && (
-            <div className="bg-white rounded-xl md:rounded-2xl shadow-xl border border-gray-200 p-1 md:p-8 animate-fade-in">
+            <div className="bg-white/80 backdrop-blur-sm rounded-2xl md:rounded-3xl shadow-sm border border-gray-200 p-1 md:p-8 animate-fade-in">
               <div className="max-w-4xl mx-auto">
                 
                 {activeTab === 'home' && (
                   <div className="text-center py-8 md:py-12">
                     {/* 登录区域 */}
-                    <div className="max-w-md mx-auto mb-6 md:mb-10 px-2">
+                    <div className="max-w-md mx-auto mb-8 md:mb-12 px-2">
                       {!isLoggedIn ? (
-                        <div className="bg-gradient-to-br from-gray-50 to-gray-100 rounded-xl md:rounded-2xl shadow-lg border-2 border-gray-200 p-4 md:p-8">
-                          <div className="mb-4 md:mb-6">
-                            <h3 className="text-lg md:text-2xl font-bold text-gray-800 mb-1 md:mb-2">
+                        <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-6 md:p-8">
+                          <div className="mb-6 md:mb-8">
+                            <h3 className="text-xl md:text-2xl font-semibold text-black mb-2">
                               登录账号
                             </h3>
-                            <p className="text-xs md:text-sm text-gray-600">
+                            <p className="text-sm md:text-base text-gray-500">
                               登录后解锁更多功能
                             </p>
                           </div>
                           
-                          <form onSubmit={handleLogin} className="space-y-3 md:space-y-4">
+                          <form onSubmit={handleLogin} className="space-y-4 md:space-y-5">
                             <div className="text-left">
-                              <label className="block text-xs md:text-sm font-medium text-gray-700 mb-1 md:mb-2">
+                              <label className="block text-sm font-medium text-gray-700 mb-2">
                                 邮箱
                               </label>
                               <input
@@ -460,13 +441,13 @@ export default function Home() {
                                 value={loginEmail}
                                 onChange={(e) => setLoginEmail(e.target.value)}
                                 placeholder="请输入邮箱"
-                                className="w-full px-3 md:px-4 py-2 md:py-3 text-sm md:text-base border-2 border-gray-300 rounded-lg focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all"
+                                className="w-full px-4 py-3 text-sm md:text-base border border-gray-300 rounded-xl focus:outline-none focus:border-black focus:ring-1 focus:ring-black transition-all"
                                 required
                               />
                             </div>
                             
                             <div className="text-left">
-                              <label className="block text-xs md:text-sm font-medium text-gray-700 mb-1 md:mb-2">
+                              <label className="block text-sm font-medium text-gray-700 mb-2">
                                 密码
                               </label>
                               <input
@@ -474,27 +455,27 @@ export default function Home() {
                                 value={loginPassword}
                                 onChange={(e) => setLoginPassword(e.target.value)}
                                 placeholder="请输入密码"
-                                className="w-full px-3 md:px-4 py-2 md:py-3 text-sm md:text-base border-2 border-gray-300 rounded-lg focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all"
+                                className="w-full px-4 py-3 text-sm md:text-base border border-gray-300 rounded-xl focus:outline-none focus:border-black focus:ring-1 focus:ring-black transition-all"
                                 required
                               />
                             </div>
                             
                             <button
                               type="submit"
-                              className="w-full bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white font-bold py-2.5 md:py-4 rounded-lg transition-all duration-300 hover:shadow-lg text-sm md:text-base"
+                              className="w-full bg-black hover:bg-gray-800 text-white font-medium py-3 md:py-4 rounded-xl transition-all duration-200 text-sm md:text-base"
                             >
                               登录
                             </button>
                           </form>
                           
-                          <div className="mt-3 md:mt-4 text-xs md:text-sm text-gray-500">
-                            暂无账号？<button className="text-blue-600 hover:text-blue-700 font-medium">注册</button>
+                          <div className="mt-4 text-sm text-gray-500 text-center">
+                            暂无账号？<button className="text-black hover:underline font-medium">注册</button>
                           </div>
                         </div>
                       ) : (
-                        <div className="bg-gradient-to-br from-green-50 to-green-100 rounded-xl md:rounded-2xl shadow-lg border-2 border-green-200 p-4 md:p-8">
-                          <div className="mb-3 md:mb-4">
-                            <h3 className="text-lg md:text-2xl font-bold text-gray-800 mb-1 md:mb-2">
+                        <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-6 md:p-8">
+                          <div className="mb-4 md:mb-6">
+                            <h3 className="text-xl md:text-2xl font-semibold text-black mb-2">
                               欢迎回来！
                             </h3>
                             <p className="text-sm md:text-base text-gray-700 font-medium">
@@ -504,7 +485,7 @@ export default function Home() {
                           
                           <button
                             onClick={handleLogout}
-                            className="bg-gray-500 hover:bg-gray-600 text-white font-medium px-5 md:px-6 py-2 md:py-3 rounded-lg transition-colors text-sm md:text-base"
+                            className="bg-black hover:bg-gray-800 text-white font-medium px-6 py-3 rounded-xl transition-all duration-200 text-sm md:text-base"
                           >
                             退出登录
                           </button>
@@ -513,29 +494,29 @@ export default function Home() {
                     </div>
                     
                     {/* 功能卡片 */}
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6">
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-5">
                       <button
                         onClick={() => setShowTrainingModal(true)}
-                        className="group bg-gradient-to-br from-blue-50 to-blue-100 hover:from-blue-100 hover:to-blue-200 border-2 border-blue-200 rounded-xl p-6 md:p-8 transition-all duration-300 hover:shadow-lg hover:-translate-y-1"
+                        className="group bg-white hover:bg-gray-50 border border-gray-200 hover:border-black rounded-2xl p-8 md:p-10 transition-all duration-200"
                       >
-                        <div className="text-5xl md:text-6xl mb-4 md:mb-6 group-hover:scale-110 transition-transform">🎯</div>
-                        <h3 className="text-lg md:text-xl font-bold text-gray-800">开始训练</h3>
+                        <div className="text-4xl md:text-5xl mb-4 md:mb-6 transition-transform group-hover:scale-105">🎯</div>
+                        <h3 className="text-lg md:text-xl font-semibold text-black">开始训练</h3>
                       </button>
                       
                       <button
-                        onClick={() => alert('关于我们页面即将上线！')}
-                        className="group bg-gradient-to-br from-purple-50 to-purple-100 hover:from-purple-100 hover:to-purple-200 border-2 border-purple-200 rounded-xl p-6 md:p-8 transition-all duration-300 hover:shadow-lg hover:-translate-y-1"
+                        onClick={() => setShowAboutUsModal(true)}
+                        className="group bg-white hover:bg-gray-50 border border-gray-200 hover:border-black rounded-2xl p-8 md:p-10 transition-all duration-200"
                       >
-                        <div className="text-5xl md:text-6xl mb-4 md:mb-6 group-hover:scale-110 transition-transform">ℹ️</div>
-                        <h3 className="text-lg md:text-xl font-bold text-gray-800">关于我们</h3>
+                        <div className="text-4xl md:text-5xl mb-4 md:mb-6 transition-transform group-hover:scale-105">ℹ️</div>
+                        <h3 className="text-lg md:text-xl font-semibold text-black">关于我们</h3>
                       </button>
                       
                       <button
-                        onClick={() => alert('了解更多页面即将上线！')}
-                        className="group bg-gradient-to-br from-orange-50 to-orange-100 hover:from-orange-100 hover:to-orange-200 border-2 border-orange-200 rounded-xl p-6 md:p-8 transition-all duration-300 hover:shadow-lg hover:-translate-y-1"
+                        onClick={() => setShowLearnMoreModal(true)}
+                        className="group bg-white hover:bg-gray-50 border border-gray-200 hover:border-black rounded-2xl p-8 md:p-10 transition-all duration-200"
                       >
-                        <div className="text-5xl md:text-6xl mb-4 md:mb-6 group-hover:scale-110 transition-transform">📖</div>
-                        <h3 className="text-lg md:text-xl font-bold text-gray-800">了解更多</h3>
+                        <div className="text-4xl md:text-5xl mb-4 md:mb-6 transition-transform group-hover:scale-105">📖</div>
+                        <h3 className="text-lg md:text-xl font-semibold text-black">了解更多</h3>
                       </button>
                     </div>
                   </div>
@@ -838,29 +819,29 @@ export default function Home() {
                 {activeTab === 'tournaments' && (
                   <div className="space-y-4 md:space-y-6">
                     {/* 统计面板 */}
-                    <div className="bg-gradient-to-r from-blue-50 to-purple-50 rounded-xl md:rounded-2xl p-4 md:p-6 border-2 border-blue-200 shadow-lg">
-                      <h2 className="text-xl md:text-2xl font-bold font-rajdhani text-gray-800 mb-4 md:mb-6 flex items-center gap-2 md:gap-3">
-                        <span className="text-2xl md:text-3xl">📊</span>
+                    <div className="bg-white rounded-2xl p-5 md:p-8 border border-gray-200">
+                      <h2 className="text-xl md:text-2xl font-semibold text-black mb-6 md:mb-8 flex items-center gap-3">
+                        <span className="text-2xl">📊</span>
                         比赛统计
                       </h2>
-                      <div className="grid grid-cols-3 gap-3 md:gap-6">
-                        <div className="bg-white rounded-lg p-3 md:p-4 shadow-sm">
-                          <div className="text-xs md:text-sm text-gray-600 mb-1">总比赛场数</div>
-                          <div className="text-2xl md:text-3xl font-bold text-blue-600">
+                      <div className="grid grid-cols-3 gap-4 md:gap-6">
+                        <div className="bg-gray-50 rounded-xl p-4 md:p-5 border border-gray-100">
+                          <div className="text-xs md:text-sm text-gray-500 mb-2">总比赛场数</div>
+                          <div className="text-2xl md:text-3xl font-bold text-black">
                             {activeTournaments.length + finishedTournaments.length}
                           </div>
                         </div>
-                        <div className="bg-white rounded-lg p-3 md:p-4 shadow-sm">
-                          <div className="text-xs md:text-sm text-gray-600 mb-1">总买入</div>
-                          <div className="text-2xl md:text-3xl font-bold text-orange-600">
+                        <div className="bg-gray-50 rounded-xl p-4 md:p-5 border border-gray-100">
+                          <div className="text-xs md:text-sm text-gray-500 mb-2">总买入</div>
+                          <div className="text-2xl md:text-3xl font-bold text-black">
                             {[...activeTournaments, ...finishedTournaments]
                               .reduce((sum, t) => sum + (t.buy_in || 0), 0)
                               .toLocaleString()}
                           </div>
                         </div>
-                        <div className="bg-white rounded-lg p-3 md:p-4 shadow-sm">
-                          <div className="text-xs md:text-sm text-gray-600 mb-1">总Cash Out</div>
-                          <div className="text-2xl md:text-3xl font-bold text-green-600">
+                        <div className="bg-gray-50 rounded-xl p-4 md:p-5 border border-gray-100">
+                          <div className="text-xs md:text-sm text-gray-500 mb-2">总Cash Out</div>
+                          <div className="text-2xl md:text-3xl font-bold text-black">
                             {finishedTournaments
                               .reduce((sum, t) => sum + (t.cash_out || 0), 0)
                               .toLocaleString()}
@@ -870,17 +851,17 @@ export default function Home() {
                     </div>
 
                     {/* 进行中的比赛 */}
-                    <div className="bg-white rounded-xl md:rounded-2xl p-4 md:p-6 shadow-lg border border-gray-200">
-                      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 mb-4 md:mb-6">
-                        <h3 className="text-lg md:text-xl font-bold text-gray-800 flex items-center gap-2">
-                          <span className="text-xl md:text-2xl">🎮</span>
+                    <div className="bg-white rounded-2xl p-5 md:p-8 border border-gray-200">
+                      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 mb-6">
+                        <h3 className="text-lg md:text-xl font-semibold text-black flex items-center gap-2">
+                          <span className="text-xl">🎮</span>
                           进行中
                         </h3>
                         <button
                           onClick={() => setShowTournamentModal(true)}
-                          className="w-full sm:w-auto bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white px-4 md:px-6 py-2 md:py-2.5 rounded-lg font-medium shadow-md hover:shadow-lg transition-all duration-300 flex items-center justify-center gap-2 text-sm md:text-base"
+                          className="w-full sm:w-auto bg-black hover:bg-gray-800 text-white px-5 md:px-6 py-2.5 md:py-3 rounded-xl font-medium transition-all duration-200 flex items-center justify-center gap-2 text-sm md:text-base"
                         >
-                          <span className="text-lg md:text-xl">➕</span>
+                          <span className="text-lg">➕</span>
                           添加比赛
                         </button>
                       </div>
@@ -892,29 +873,29 @@ export default function Home() {
                           {activeTournaments.map((tournament) => (
                             <div
                               key={tournament.id}
-                              className="bg-gradient-to-r from-gray-50 to-blue-50 rounded-lg p-3 md:p-4 border-2 border-blue-200 hover:border-blue-300 transition-all duration-300 hover:shadow-md"
+                              className="bg-gray-50 rounded-xl p-4 md:p-5 border border-gray-200 hover:border-gray-300 transition-all duration-200"
                             >
                               <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
                                 <div className="flex-1">
-                                  <h4 className="text-base md:text-lg font-bold text-gray-800 mb-1 md:mb-2">
+                                  <h4 className="text-base md:text-lg font-semibold text-black mb-2">
                                     {tournament.name}
                                   </h4>
                                   <div className="flex flex-wrap gap-2 text-xs md:text-sm text-gray-600">
-                                    <span className="bg-white px-2 py-0.5 md:px-3 md:py-1 rounded-full border border-gray-200">
+                                    <span className="bg-white px-3 py-1 rounded-lg border border-gray-200">
                                       {tournament.game_type === '6max' ? '6-Max' : tournament.game_type === '9max' ? '9-Max' : '自定义'}
                                     </span>
-                                    <span className="bg-white px-2 py-0.5 md:px-3 md:py-1 rounded-full border border-gray-200">
+                                    <span className="bg-white px-3 py-1 rounded-lg border border-gray-200">
                                       {tournament.blind_mode === 'chips' 
                                         ? `${tournament.small_blind}/${tournament.big_blind}${tournament.ante ? `/${tournament.ante}` : ''}`
                                         : `${tournament.small_blind}bb/${tournament.big_blind}bb${tournament.ante ? `/${tournament.ante}bb` : ''}`
                                       }
                                     </span>
                                     {tournament.buy_in && (
-                                      <span className="bg-white px-2 py-0.5 md:px-3 md:py-1 rounded-full border border-gray-200">
+                                      <span className="bg-white px-3 py-1 rounded-lg border border-gray-200">
                                         买入: {tournament.buy_in}
                                       </span>
                                     )}
-                                    <span className="bg-white px-2 py-0.5 md:px-3 md:py-1 rounded-full border border-gray-200">
+                                    <span className="bg-white px-3 py-1 rounded-lg border border-gray-200">
                                       手牌数: {tournament.hand_count || 0}
                                     </span>
                                   </div>
@@ -925,13 +906,13 @@ export default function Home() {
                                       setSelectedTournament(tournament)
                                       setActiveTab('record')
                                     }}
-                                    className="flex-1 sm:flex-initial bg-green-500 hover:bg-green-600 text-white px-3 md:px-4 py-1.5 md:py-2 rounded-lg text-xs md:text-sm font-medium transition-colors"
+                                    className="flex-1 sm:flex-initial bg-black hover:bg-gray-800 text-white px-4 py-2 rounded-lg text-xs md:text-sm font-medium transition-colors"
                                   >
                                     关联手牌
                                   </button>
                                   <button
                                     onClick={() => handleOpenFinishModal(tournament)}
-                                    className="flex-1 sm:flex-initial bg-red-500 hover:bg-red-600 text-white px-3 md:px-4 py-1.5 md:py-2 rounded-lg text-xs md:text-sm font-medium transition-colors"
+                                    className="flex-1 sm:flex-initial bg-gray-700 hover:bg-gray-600 text-white px-4 py-2 rounded-lg text-xs md:text-sm font-medium transition-colors"
                                   >
                                     结束比赛
                                   </button>
@@ -944,53 +925,51 @@ export default function Home() {
                     </div>
 
                     {/* 历史战绩 */}
-                    <div className="bg-white rounded-xl md:rounded-2xl p-4 md:p-6 shadow-lg border border-gray-200">
-                      <h3 className="text-lg md:text-xl font-bold text-gray-800 flex items-center gap-2 mb-4 md:mb-6">
-                        <span className="text-xl md:text-2xl">📜</span>
+                    <div className="bg-white rounded-2xl p-5 md:p-8 border border-gray-200">
+                      <h3 className="text-lg md:text-xl font-semibold text-black flex items-center gap-2 mb-6">
+                        <span className="text-xl">📜</span>
                         历史战绩
                       </h3>
 
                       {finishedTournaments.length === 0 ? (
-                        <p className="text-gray-500 text-center py-6 md:py-8 text-sm md:text-base">暂无历史战绩</p>
+                        <p className="text-gray-400 text-center py-8 md:py-10 text-sm md:text-base">暂无历史战绩</p>
                       ) : (
                         <div className="space-y-3 md:space-y-4">
                           {finishedTournaments.map((tournament) => (
                             <div
                               key={tournament.id}
-                              className="bg-gradient-to-r from-gray-50 to-purple-50 rounded-lg p-3 md:p-4 border-2 border-purple-200 hover:border-purple-300 transition-all duration-300 hover:shadow-md"
+                              className="bg-gray-50 rounded-xl p-4 md:p-5 border border-gray-200 hover:border-gray-300 transition-all duration-200"
                             >
                               <div className="flex flex-col">
-                                <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 mb-2 md:mb-3">
-                                  <h4 className="text-base md:text-lg font-bold text-gray-800">
+                                <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 mb-3">
+                                  <h4 className="text-base md:text-lg font-semibold text-black">
                                     {tournament.name}
                                   </h4>
                                   <div className="text-xs md:text-sm text-gray-500">
                                     {new Date(tournament.created_at).toLocaleDateString('zh-CN')}
                                   </div>
                                 </div>
-                                <div className="flex flex-wrap gap-2 text-xs md:text-sm text-gray-600 mb-2 md:mb-3">
-                                  <span className="bg-white px-2 py-0.5 md:px-3 md:py-1 rounded-full border border-gray-200">
+                                <div className="flex flex-wrap gap-2 text-xs md:text-sm text-gray-600 mb-3">
+                                  <span className="bg-white px-3 py-1 rounded-lg border border-gray-200">
                                     {tournament.game_type === '6max' ? '6-Max' : tournament.game_type === '9max' ? '9-Max' : '自定义'}
                                   </span>
                                   {tournament.buy_in && (
-                                    <span className="bg-white px-2 py-0.5 md:px-3 md:py-1 rounded-full border border-gray-200">
+                                    <span className="bg-white px-3 py-1 rounded-lg border border-gray-200">
                                       买入: {tournament.buy_in}
                                     </span>
                                   )}
                                   {tournament.total_entries && (
-                                    <span className="bg-white px-2 py-0.5 md:px-3 md:py-1 rounded-full border border-gray-200">
+                                    <span className="bg-white px-3 py-1 rounded-lg border border-gray-200">
                                       参赛人数: {tournament.total_entries}
                                     </span>
                                   )}
                                   {tournament.finish_position && (
-                                    <span className="bg-white px-2 py-0.5 md:px-3 md:py-1 rounded-full border border-gray-200">
+                                    <span className="bg-white px-3 py-1 rounded-lg border border-gray-200">
                                       名次: {tournament.finish_position}
                                     </span>
                                   )}
                                   {tournament.cash_out !== undefined && (
-                                    <span className={`bg-white px-2 py-0.5 md:px-3 md:py-1 rounded-full border ${
-                                      tournament.cash_out > 0 ? 'border-green-300 text-green-700' : 'border-gray-200'
-                                    }`}>
+                                    <span className="bg-white px-3 py-1 rounded-lg border border-gray-200">
                                       奖金: {tournament.cash_out}
                                     </span>
                                   )}
@@ -998,10 +977,10 @@ export default function Home() {
                                 {tournament.buy_in !== undefined && tournament.cash_out !== undefined && (
                                   <div className={`text-xs md:text-sm font-semibold ${
                                     tournament.cash_out - tournament.buy_in > 0 
-                                      ? 'text-green-600' 
+                                      ? 'text-black' 
                                       : tournament.cash_out - tournament.buy_in < 0 
-                                      ? 'text-red-600' 
-                                      : 'text-gray-600'
+                                      ? 'text-gray-600' 
+                                      : 'text-gray-500'
                                   }`}>
                                     盈亏: {tournament.cash_out - tournament.buy_in > 0 ? '+' : ''}{tournament.cash_out - tournament.buy_in}
                                   </div>
@@ -1022,8 +1001,8 @@ export default function Home() {
       </main>
 
       {/* 版权信息 - 固定在页面底部 */}
-      <footer className="absolute bottom-0 left-0 right-0 py-6 text-center">
-        <p className="text-gray-500 text-sm font-rajdhani">
+      <footer className="absolute bottom-0 left-0 right-0 py-8 text-center border-t border-gray-200/50 bg-white/80 backdrop-blur-sm">
+        <p className="text-gray-400 text-xs md:text-sm font-medium">
           © 2024 DON BLUFF LLC. All rights reserved.
         </p>
       </footer>
@@ -1047,6 +1026,18 @@ export default function Home() {
           tournamentName={finishingTournament.name}
         />
       )}
+
+      {/* AboutUsModal */}
+      <AboutUsModal
+        isOpen={showAboutUsModal}
+        onClose={() => setShowAboutUsModal(false)}
+      />
+
+      {/* LearnMoreModal */}
+      <LearnMoreModal
+        isOpen={showLearnMoreModal}
+        onClose={() => setShowLearnMoreModal(false)}
+      />
 
       {/* 训练选择模态框 */}
       {showTrainingModal && (
