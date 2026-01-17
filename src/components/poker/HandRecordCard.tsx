@@ -133,6 +133,9 @@ export function HandRecordCard({ hand, isExpanded, onToggle }: HandRecordCardPro
             </div>
           </div>
 
+          {/* 分隔线 */}
+          <div className="border-t-2 border-gray-400 my-2 md:my-3"></div>
+
           {/* 翻牌圈 */}
           <div className="bg-white rounded-md md:rounded-lg p-2 md:p-3 border-2 border-gray-400">
             <div className="flex items-center gap-1.5 md:gap-2 mb-2 flex-wrap">
@@ -170,6 +173,9 @@ export function HandRecordCard({ hand, isExpanded, onToggle }: HandRecordCardPro
             </div>
           </div>
 
+          {/* 分隔线 */}
+          <div className="border-t-2 border-gray-400 my-2 md:my-3"></div>
+
           {/* 转牌圈 */}
           <div className="bg-white rounded-md md:rounded-lg p-2 md:p-3 border-2 border-gray-400">
             <div className="flex items-center gap-1.5 md:gap-2 mb-2 flex-wrap">
@@ -187,6 +193,9 @@ export function HandRecordCard({ hand, isExpanded, onToggle }: HandRecordCardPro
               </div>
             </div>
           </div>
+
+          {/* 分隔线 */}
+          <div className="border-t-2 border-gray-400 my-2 md:my-3"></div>
 
           {/* 河牌圈 */}
           <div className="bg-white rounded-md md:rounded-lg p-2 md:p-3 border-2 border-gray-400">
@@ -206,6 +215,9 @@ export function HandRecordCard({ hand, isExpanded, onToggle }: HandRecordCardPro
             </div>
           </div>
 
+          {/* 分隔线 */}
+          <div className="border-t-2 border-gray-400 my-2 md:my-3"></div>
+
           {/* 结果 */}
           <div className="bg-gray-100 rounded-md p-2 border-2 border-gray-400">
             <div className="flex items-center justify-between text-xs md:text-sm">
@@ -218,4 +230,5 @@ export function HandRecordCard({ hand, isExpanded, onToggle }: HandRecordCardPro
     </div>
   )
 }
+
 

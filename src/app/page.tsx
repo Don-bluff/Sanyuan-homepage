@@ -14,6 +14,7 @@ import { TournamentsTab } from '@/components/tabs/TournamentsTab'
 import { createHandRecord } from '@/lib/api/hands'
 import { HandRecord, Tournament } from '@/types/poker'
 import { getActiveTournaments, getFinishedTournaments, createTournament, finishTournament, incrementHandCount } from '@/lib/api/tournaments'
+import { signIn, signOut, getCurrentUser, onAuthStateChange, AuthUser } from '@/lib/supabase/auth'
 
 // 德州扑克下雨emoji
 const pokerRainEmojis = ['♠️', '♥️', '♣️', '♦️', '😱', '😭', '😤']
@@ -120,10 +121,10 @@ export default function Home() {
   const handsPerPage = 10
   
   // 登录相关状态
-  const [isLoggedIn, setIsLoggedIn] = useState(false)
+  const [currentUser, setCurrentUser] = useState<AuthUser | null>(null)
   const [loginEmail, setLoginEmail] = useState('')
   const [loginPassword, setLoginPassword] = useState('')
-  const [userDisplayName, setUserDisplayName] = useState('')
+  const [isLoggingIn, setIsLoggingIn] = useState(false)
   
   // 切换展开/折叠
   const toggleExpand = (handId: string) => {
@@ -138,26 +139,58 @@ export default function Home() {
     })
   }
   
+  // 初始化时检查用户登录状态
+  useEffect(() => {
+    getCurrentUser().then(user => {
+      setCurrentUser(user)
+    })
+
+    // 监听认证状态变化
+    const { data: { subscription } } = onAuthStateChange((user) => {
+      setCurrentUser(user)
+    })
+
+    return () => {
+      subscription.unsubscribe()
+    }
+  }, [])
+  
   // 登录处理
-  const handleLogin = (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (loginEmail && loginPassword) {
-      // 后续会接入Supabase认证
-      setIsLoggedIn(true)
-      setUserDisplayName(loginEmail.split('@')[0])
-      alert('登录成功！')
-    } else {
+    
+    if (!loginEmail || !loginPassword) {
       alert('请输入邮箱和密码')
+      return
+    }
+
+    setIsLoggingIn(true)
+
+    try {
+      await signIn(loginEmail, loginPassword)
+      // 成功后会通过 onAuthStateChange 自动更新状态
+      alert('登录成功！')
+      setLoginPassword('') // 清空密码
+    } catch (error: any) {
+      console.error('登录失败:', error)
+      alert(`登录失败: ${error.message || '未知错误'}`)
+    } finally {
+      setIsLoggingIn(false)
     }
   }
   
   // 登出处理
-  const handleLogout = () => {
-    setIsLoggedIn(false)
-    setLoginEmail('')
-    setLoginPassword('')
-    setUserDisplayName('')
-    alert('已退出登录')
+  const handleLogout = async () => {
+    try {
+      await signOut()
+      // 成功后会通过 onAuthStateChange 自动更新状态
+      setLoginEmail('')
+      setLoginPassword('')
+      alert('已退出登录')
+    } catch (error: any) {
+      console.error('登出失败:', error)
+      alert(`登出失败: ${error.message || '未知错误'}`)
+    }
   }
   
   // 示例手牌数据
@@ -420,13 +453,14 @@ export default function Home() {
                 
                 {activeTab === 'home' && (
                   <HomeTab
-                    isLoggedIn={isLoggedIn}
+                    isLoggedIn={!!currentUser}
                     loginEmail={loginEmail}
                     loginPassword={loginPassword}
-                    userDisplayName={userDisplayName}
+                    userDisplayName={currentUser?.displayName || currentUser?.email || ''}
+                    isLoggingIn={isLoggingIn}
                     onLoginEmailChange={setLoginEmail}
                     onLoginPasswordChange={setLoginPassword}
-                    onLogin={() => handleLogin({ preventDefault: () => {} } as React.FormEvent)}
+                    onLogin={handleLogin}
                     onLogout={handleLogout}
                     onStartTraining={() => setShowTrainingModal(true)}
                     onAboutUs={() => setShowAboutUsModal(true)}
