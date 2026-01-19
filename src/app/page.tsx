@@ -14,7 +14,7 @@ import { TournamentsTab } from '@/components/tabs/TournamentsTab'
 import { createHandRecord } from '@/lib/api/hands'
 import { HandRecord, Tournament } from '@/types/poker'
 import { getActiveTournaments, getFinishedTournaments, createTournament, finishTournament, incrementHandCount } from '@/lib/api/tournaments'
-import { signIn, signOut, getCurrentUser, onAuthStateChange, AuthUser } from '@/lib/supabase/auth'
+import { signIn, signUp, signOut, resetPassword, getCurrentUser, onAuthStateChange, AuthUser } from '@/lib/supabase/auth'
 
 // 德州扑克下雨emoji
 const pokerRainEmojis = ['♠️', '♥️', '♣️', '♦️', '😱', '😭', '😤']
@@ -174,6 +174,56 @@ export default function Home() {
     } catch (error: any) {
       console.error('登录失败:', error)
       alert(`登录失败: ${error.message || '未知错误'}`)
+    } finally {
+      setIsLoggingIn(false)
+    }
+  }
+
+  // 注册处理
+  const handleRegister = async (e: React.FormEvent) => {
+    e.preventDefault()
+    
+    if (!loginEmail || !loginPassword) {
+      alert('请输入邮箱和密码')
+      return
+    }
+
+    if (loginPassword.length < 6) {
+      alert('密码至少需要6位')
+      return
+    }
+
+    setIsLoggingIn(true)
+
+    try {
+      await signUp(loginEmail, loginPassword)
+      alert('注册成功！请查收验证邮件以激活账号。')
+      setLoginPassword('') // 清空密码
+    } catch (error: any) {
+      console.error('注册失败:', error)
+      alert(`注册失败: ${error.message || '未知错误'}`)
+    } finally {
+      setIsLoggingIn(false)
+    }
+  }
+
+  // 重置密码处理
+  const handleResetPassword = async (e: React.FormEvent) => {
+    e.preventDefault()
+    
+    if (!loginEmail) {
+      alert('请输入邮箱地址')
+      return
+    }
+
+    setIsLoggingIn(true)
+
+    try {
+      await resetPassword(loginEmail)
+      alert('重置密码邮件已发送！请查收邮箱。')
+    } catch (error: any) {
+      console.error('发送重置邮件失败:', error)
+      alert(`发送失败: ${error.message || '未知错误'}`)
     } finally {
       setIsLoggingIn(false)
     }
@@ -461,6 +511,8 @@ export default function Home() {
                     onLoginEmailChange={setLoginEmail}
                     onLoginPasswordChange={setLoginPassword}
                     onLogin={handleLogin}
+                    onRegister={handleRegister}
+                    onResetPassword={handleResetPassword}
                     onLogout={handleLogout}
                     onStartTraining={() => setShowTrainingModal(true)}
                     onAboutUs={() => setShowAboutUsModal(true)}

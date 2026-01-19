@@ -65,6 +65,19 @@ export async function getCurrentUser(): Promise<AuthUser | null> {
 }
 
 /**
+ * 重置密码（发送重置密码邮件）
+ */
+export async function resetPassword(email: string) {
+  const { error } = await supabase.auth.resetPasswordForEmail(email, {
+    redirectTo: `${window.location.origin}/reset-password`,
+  })
+
+  if (error) {
+    throw new Error(error.message)
+  }
+}
+
+/**
  * 监听认证状态变化
  */
 export function onAuthStateChange(callback: (user: AuthUser | null) => void) {
@@ -80,4 +93,5 @@ export function onAuthStateChange(callback: (user: AuthUser | null) => void) {
     }
   })
 }
+
 

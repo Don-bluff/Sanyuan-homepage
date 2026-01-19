@@ -60,6 +60,12 @@ export interface Tournament {
   status: 'active' | 'finished'
   hand_count?: number
   buy_in?: number  // 买入金额
+  starting_stack?: number  // 起始筹码
+  starting_bb?: number  // 起始BB数（筹码/大盲）
+  buy_in_level?: number  // 买入时的盲注级别
+  level_duration?: number  // 升盲时间（分钟/级）
+  minutes_into_level?: number  // 买入时该级别已进行时间（分钟）
+  late_reg_minutes_left?: number  // 截止买入还剩时间（分钟）
   cash_out?: number  // Cash out金额
   total_entries?: number  // 总买入人数
   finish_position?: number  // 实际名次
